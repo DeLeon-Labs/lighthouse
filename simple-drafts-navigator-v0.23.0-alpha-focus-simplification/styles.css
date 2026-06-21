@@ -1,0 +1,1976 @@
+.sdn-root {
+  --sdn-font-size: 15px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-secondary) !important;
+  color: var(--text-normal);
+  overflow: hidden;
+}
+
+.sdn-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 5px 12px;
+  background: var(--background-secondary) !important;
+}
+
+.sdn-title-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sdn-title {
+  font-size: calc(var(--sdn-font-size) + 1px);
+  font-weight: 520;
+  letter-spacing: -0.012em;
+  line-height: 1.1;
+}
+
+.sdn-reveal-toggle {
+  color: var(--text-muted);
+}
+
+.sdn-reveal-toggle.is-active {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal);
+  opacity: 1;
+}
+
+.sdn-actions,
+.sdn-nav-actions,
+.sdn-tab-buttons,
+.sdn-modal-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.sdn-actions,
+.sdn-nav-actions {
+  gap: 8px;
+}
+
+.sdn-nav-actions {
+  flex: 0 0 auto;
+}
+
+.sdn-icon-button.is-disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.sdn-tab-buttons {
+  align-items: flex-end;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 1px;
+}
+
+.sdn-modal-buttons {
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.sdn-icon-button,
+.sdn-tree-control,
+.sdn-tab {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sdn-icon-button {
+  width: 30px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0 !important;
+  border-radius: 7px;
+  background: transparent !important;
+  color: var(--text-normal);
+  box-shadow: none !important;
+  opacity: 0.9;
+  padding: 0;
+}
+
+.sdn-icon-button:hover {
+  background: var(--background-modifier-hover) !important;
+  opacity: 1;
+}
+
+.sdn-icon-button svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2px;
+}
+
+.sdn-tabs {
+  display: flex;
+  align-items: flex-end;
+  padding: 2px 8px 0 8px;
+  gap: 1px;
+  background: var(--background-secondary) !important;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.sdn-tab {
+  flex: 1;
+  min-height: 30px;
+  border: 0 !important;
+  border-radius: 8px 8px 0 0;
+  background: transparent !important;
+  color: var(--text-muted);
+  font-size: calc(var(--sdn-font-size) - 1px);
+  font-weight: 400;
+  box-shadow: none !important;
+  margin-bottom: -1px;
+}
+
+.sdn-tab:hover {
+  background: var(--background-modifier-hover) !important;
+}
+
+.sdn-tab.is-active {
+  background: var(--background-secondary) !important;
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border) !important;
+  border-bottom: 1px solid var(--background-secondary) !important;
+  font-weight: 500;
+}
+
+.sdn-body {
+  flex: 1;
+  overflow: auto;
+  background: var(--background-secondary) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.sdn-list {
+  padding: 4px 0 8px 0;
+  background: var(--background-secondary) !important;
+  margin-bottom: 0 !important;
+}
+
+.sdn-recent-item {
+  padding: 10px 14px 11px 14px;
+  cursor: pointer;
+  border-radius: 0;
+  background: transparent;
+}
+
+.sdn-recent-item:hover,
+.sdn-tree-row:hover {
+  background: var(--background-modifier-hover);
+}
+
+.sdn-tree-row.is-revealed,
+.sdn-tree-row.sdn-revealed-file {
+  background: var(--background-modifier-hover) !important;
+  outline: 1px solid var(--background-modifier-border-hover);
+  outline-offset: -1px;
+}
+
+.sdn-note-title {
+  font-size: var(--sdn-font-size);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--text-normal);
+}
+
+.sdn-preview {
+  margin-top: 3px;
+  font-size: calc(var(--sdn-font-size) - 1px);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--text-muted);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.sdn-preview-lines-0 {
+  display: none !important;
+}
+
+.sdn-preview-lines-1 {
+  -webkit-line-clamp: 1;
+}
+
+.sdn-preview-lines-2 {
+  -webkit-line-clamp: 2;
+}
+
+.sdn-location {
+  margin-top: 4px;
+  font-size: calc(var(--sdn-font-size) - 3px);
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--text-faint);
+}
+
+.sdn-recent-date {
+  margin-top: 4px;
+  font-size: calc(var(--sdn-font-size) - 5px);
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--text-faint);
+  opacity: 0.58;
+}
+
+.sdn-file-wrap {
+  min-height: 100%;
+  display: block;
+  position: relative;
+  background: var(--background-secondary) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.sdn-tree {
+  flex: 1 1 auto;
+  padding: 5px 6px 0 0 !important;
+  margin: 0 !important;
+  background: var(--background-secondary) !important;
+  overflow: visible;
+}
+
+.sdn-tree-row {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  color: var(--text-normal);
+  background: transparent;
+  border: 0 !important;
+  border-radius: 6px !important;
+  margin-right: 4px !important;
+  padding-top: 1px;
+  padding-right: 8px !important;
+  padding-bottom: 1px;
+  line-height: 1.25;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.sdn-tree-row[draggable="true"] {
+  -webkit-user-drag: element;
+}
+
+.sdn-arrow {
+  width: 18px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  line-height: 1;
+  transform: translateY(0.5px);
+  flex: 0 0 auto;
+}
+
+.sdn-arrow svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.45px;
+  display: block;
+}
+
+.sdn-folder-name,
+.sdn-file-name {
+  font-size: var(--sdn-font-size);
+  color: var(--text-normal);
+  line-height: 1.25;
+}
+
+.sdn-folder-name {
+  font-weight: 430;
+  letter-spacing: -0.006em;
+}
+
+.sdn-file-name {
+  font-weight: 390;
+  letter-spacing: -0.004em;
+}
+
+.sdn-watch-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--interactive-accent);
+  flex: 0 0 auto;
+  margin-left: 6px;
+  opacity: 0.95;
+}
+
+.sdn-watch-dot-empty {
+  background: transparent;
+  border: 1px solid var(--interactive-accent);
+  opacity: 0.8;
+}
+
+.sdn-watch-count {
+  color: var(--text-muted);
+  font-size: calc(var(--sdn-font-size) - 2px);
+  line-height: 1.25;
+  margin-left: 5px;
+  flex: 0 0 auto;
+  opacity: 0.75;
+}
+
+.sdn-dragging {
+  opacity: 0.55;
+}
+
+.sdn-drop-target {
+  background: color-mix(in srgb, var(--interactive-accent) 14%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--interactive-accent) !important;
+  outline: none !important;
+}
+
+.sdn-tree-controls,
+.sdn-tree-controls-overlay {
+  position: absolute !important;
+  top: 5px !important;
+  right: 8px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  z-index: 8 !important;
+  overflow: visible !important;
+  pointer-events: none;
+}
+
+.sdn-tree-control {
+  width: 28px;
+  height: 28px;
+  pointer-events: auto;
+  line-height: 1;
+  border: 0 !important;
+  border-radius: 7px;
+  background: transparent !important;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none !important;
+  opacity: 0.78;
+  padding: 0;
+  margin: 0;
+  outline: none !important;
+}
+
+.sdn-tree-control:hover {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal);
+  opacity: 1;
+}
+
+.sdn-tree-control svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.75px;
+  display: block;
+}
+
+.sdn-tree-row:active,
+.sdn-tree-row:focus,
+.sdn-file-row:active,
+.sdn-file-row:focus,
+.sdn-folder-row:active,
+.sdn-folder-row:focus,
+.sdn-tree-control:active,
+.sdn-tree-control:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.sdn-tree-control:active,
+.sdn-tree-control:focus {
+  background: transparent !important;
+}
+
+.sdn-empty {
+  color: var(--text-muted);
+  font-size: var(--sdn-font-size);
+  padding: 18px 16px;
+}
+
+.sdn-scroll-controls {
+  position: fixed;
+  display: none;
+  flex-direction: column;
+  gap: 7px;
+  z-index: 50 !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 90ms ease !important;
+}
+
+.sdn-scroll-controls.is-visible {
+  display: flex !important;
+  opacity: 0.94 !important;
+  pointer-events: auto !important;
+}
+
+.sdn-scroll-controls .sdn-scroll-button:nth-child(3):not(:last-child) {
+  display: none !important;
+}
+
+.sdn-scroll-button {
+  width: var(--sdn-scroll-size);
+  height: var(--sdn-scroll-size);
+  border-radius: 999px !important;
+  border: 1px solid var(--background-modifier-border) !important;
+  background: color-mix(in srgb, var(--background-secondary) 94%, transparent) !important;
+  color: var(--text-normal);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.22) !important;
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+  transform: translateZ(0);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 80ms ease,
+    color 120ms ease !important;
+}
+
+.sdn-scroll-button:hover {
+  opacity: 1;
+  color: var(--text-normal);
+  background: var(--background-modifier-hover) !important;
+  border-color: var(--interactive-accent) !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.28) !important;
+  transform: translateY(-1px);
+}
+
+.sdn-scroll-button:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.sdn-scroll-button.sdn-scroll-pulse::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 999px;
+  border: 2px solid var(--interactive-accent);
+  opacity: 0;
+  pointer-events: none;
+  animation: sdn-scroll-pulse 260ms ease-out;
+}
+
+@keyframes sdn-scroll-pulse {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.86);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+}
+
+.sdn-scroll-button svg,
+.sdn-scroll-button .svg-icon,
+.sdn-scroll-button .lucide {
+  width: calc(var(--sdn-scroll-size) * 0.52) !important;
+  height: calc(var(--sdn-scroll-size) * 0.52) !important;
+  min-width: calc(var(--sdn-scroll-size) * 0.52) !important;
+  min-height: calc(var(--sdn-scroll-size) * 0.52) !important;
+  stroke-width: 2.05px !important;
+}
+
+.sdn-scroll-button svg * {
+  stroke-width: 2.05px !important;
+}
+
+.sdn-text-input-modal input {
+  width: 100%;
+  font-size: 16px;
+  padding: 8px 10px;
+  margin-top: 8px;
+}
+
+.workspace-leaf-content[data-type="simple-drafts-navigator-view"] .view-content {
+  padding-bottom: 0 !important;
+}
+
+body.is-mobile .sdn-tree-row:hover,
+body.is-mobile .sdn-tree-control:hover {
+  background: transparent !important;
+}
+
+
+/* v1.5.3: keep Recents stable and pin the tree expand/collapse control to the first row. */
+.sdn-tab {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 8px !important;
+  line-height: 1 !important;
+}
+
+.sdn-tree-controls,
+.sdn-tree-controls-overlay {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 28px !important;
+  min-height: 28px !important;
+}
+
+.sdn-tree-control {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+  vertical-align: middle !important;
+}
+
+.sdn-tree-control svg,
+.sdn-tree-control .svg-icon {
+  display: block !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  transform: translateY(0) !important;
+}
+
+
+/* v1.5.4: anchor the Files expand/collapse control while the tree scrolls and reserve a small gutter so row hover outlines do not collide with the control. */
+.sdn-file-wrap {
+  position: relative !important;
+}
+
+.sdn-tree-controls,
+.sdn-tree-controls-overlay {
+  position: sticky !important;
+  top: 6px !important;
+  right: auto !important;
+  margin-left: auto !important;
+  margin-right: 8px !important;
+  margin-bottom: -28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  z-index: 20 !important;
+}
+
+.sdn-tree {
+  padding-right: 42px !important;
+}
+
+.sdn-tree-row {
+  margin-right: 0 !important;
+}
+
+
+/* v1.5.6: mobile tap cleanup and sidebar touch feedback.
+   Mobile browsers can leave :hover visually stuck after a tap, so remove hover-only
+   scroll styling on mobile and use short :active feedback for Navigator rows/buttons. */
+body.is-mobile .sdn-scroll-button:hover {
+  color: var(--text-normal) !important;
+  background: color-mix(in srgb, var(--background-secondary) 94%, transparent) !important;
+  border-color: var(--background-modifier-border) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.22) !important;
+  transform: translateZ(0) !important;
+}
+
+body.is-mobile .sdn-scroll-button:active {
+  background: var(--background-modifier-hover) !important;
+  border-color: var(--background-modifier-border-hover) !important;
+  transform: translateZ(0) scale(0.96) !important;
+}
+
+body.is-mobile .sdn-recent-item .sdn-note-title,
+body.is-mobile .sdn-folder-name,
+body.is-mobile .sdn-file-name {
+  font-size: calc(var(--sdn-font-size) + 1px) !important;
+}
+
+body.is-mobile .sdn-tree-row:active,
+body.is-mobile .sdn-tree-row:focus-visible,
+body.is-mobile .sdn-tree-control:active,
+body.is-mobile .sdn-tree-control:focus-visible {
+  background: var(--background-modifier-hover) !important;
+}
+
+body.is-mobile .sdn-tree-control:active,
+body.is-mobile .sdn-tree-control:focus-visible {
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+}
+
+/* v1.6.10: keep the reveal/collapse pair anchored without stealing excessive row width. */
+.sdn-tree-controls,
+.sdn-tree-controls-overlay {
+  width: 56px !important;
+  min-width: 56px !important;
+  gap: 2px !important;
+  justify-content: flex-end !important;
+  margin-right: 6px !important;
+}
+
+.sdn-tree-controls .sdn-tree-control {
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+}
+
+.sdn-tree {
+  padding-right: 38px !important;
+}
+
+.sdn-tree-controls .sdn-reveal-toggle.is-active {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+}
+
+
+/* v1.6.17: keep row hover highlights full-width while keeping floating controls visually independent.
+   The tree no longer reserves a right gutter that shortens row backgrounds. Instead, rows keep
+   internal right padding for text clearance, and the floating buttons paint their own pane-colored
+   backing so row hover never appears inside the buttons. */
+.sdn-tree {
+  padding-right: 6px !important;
+}
+
+.sdn-tree-row {
+  box-sizing: border-box !important;
+  width: calc(100% - 4px) !important;
+  padding-right: 62px !important;
+}
+
+.sdn-tree-controls,
+.sdn-tree-controls-overlay {
+  isolation: isolate !important;
+  background: transparent !important;
+}
+
+.sdn-tree-controls::before,
+.sdn-tree-controls-overlay::before {
+  display: none !important;
+  content: none !important;
+}
+
+.sdn-tree-controls .sdn-tree-control {
+  background: var(--background-secondary) !important;
+  box-shadow: 0 0 0 2px var(--background-secondary) !important;
+}
+
+.sdn-tree-controls .sdn-tree-control:hover,
+.sdn-tree-controls .sdn-tree-control:focus-visible {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 0 2px var(--background-secondary) !important;
+}
+
+.sdn-tree-controls .sdn-tree-control:active {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+}
+
+.sdn-tree-controls .sdn-reveal-toggle.is-active {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+}
+
+
+/* v1.6.18: micro-spacing between floating tree controls to prevent halo/shadow collision. */
+.sdn-tree-controls,
+.sdn-tree-controls-overlay {
+  gap: 5px !important;
+}
+
+
+/* v1.6.19: keep the auto-reveal toggle visibly active on mobile after tap release. */
+body.is-mobile .sdn-tree-controls .sdn-reveal-toggle.is-active,
+body.is-mobile .sdn-tree-controls .sdn-reveal-toggle.is-active:hover,
+body.is-mobile .sdn-tree-controls .sdn-reveal-toggle.is-active:active,
+body.is-mobile .sdn-tree-controls .sdn-reveal-toggle.is-active:focus-visible {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 0 2px var(--background-secondary) !important;
+}
+
+
+/* v1.6.20: make auto-reveal active state distinct from hover so toggling off while hovered visibly de-highlights. */
+.sdn-tree-controls .sdn-reveal-toggle:hover,
+.sdn-tree-controls .sdn-reveal-toggle:focus-visible {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 0 2px var(--background-secondary) !important;
+}
+
+.sdn-tree-controls .sdn-reveal-toggle.is-active,
+.sdn-tree-controls .sdn-reveal-toggle.is-active:hover,
+.sdn-tree-controls .sdn-reveal-toggle.is-active:focus-visible,
+body.is-mobile .sdn-tree-controls .sdn-reveal-toggle.is-active,
+body.is-mobile .sdn-tree-controls .sdn-reveal-toggle.is-active:hover,
+body.is-mobile .sdn-tree-controls .sdn-reveal-toggle.is-active:active,
+body.is-mobile .sdn-tree-controls .sdn-reveal-toggle.is-active:focus-visible {
+  background: color-mix(in srgb, var(--interactive-accent) 18%, var(--background-secondary)) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 0 2px var(--background-secondary), inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 42%, transparent) !important;
+}
+
+.sdn-note-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sdn-note-title-row .sdn-note-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sdn-pin-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--interactive-accent);
+  opacity: 0.95;
+}
+
+.sdn-pin-icon svg {
+  width: calc(var(--sdn-font-size) - 2px);
+  height: calc(var(--sdn-font-size) - 2px);
+  stroke-width: 2.4px;
+}
+
+
+.sdn-pinned-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 5px 14px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: calc(var(--sdn-font-size) - 2px);
+  font-weight: 500;
+  user-select: none;
+}
+
+.sdn-pinned-header:hover {
+  background: var(--background-modifier-hover);
+}
+
+.sdn-pinned-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--text-faint);
+}
+
+.sdn-pinned-caret svg {
+  width: calc(var(--sdn-font-size) - 3px);
+  height: calc(var(--sdn-font-size) - 3px);
+  stroke-width: 2.4px;
+}
+
+.sdn-pinned-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sdn-pinned-count {
+  color: var(--text-faint);
+  font-size: calc(var(--sdn-font-size) - 4px);
+  font-weight: 400;
+}
+
+.sdn-pinned-separator {
+  height: 1px;
+  margin: 3px 14px;
+  background: var(--background-modifier-border);
+  opacity: 0.7;
+}
+
+
+/* v1.7.13: file tree rows should use the full available line now that controls live in the header. */
+.sdn-tree {
+  padding-right: 0 !important;
+}
+
+.sdn-tree-row {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-right: 8px !important;
+  box-sizing: border-box !important;
+}
+
+.sdn-file-row .sdn-file-name {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.sdn-folder-row .sdn-folder-name {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.sdn-pin-toggle.is-active {
+  color: var(--interactive-accent);
+  background: var(--background-modifier-hover) !important;
+  opacity: 1;
+}
+
+.sdn-bookmark-group {
+  font-weight: 500;
+  padding-left: calc(4px + (var(--sdn-depth, 0) * 18px)) !important;
+}
+
+.sdn-bookmark-item {
+  padding-left: calc(20px + (var(--sdn-depth, 0) * 18px)) !important;
+}
+
+.sdn-bookmark-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sdn-bookmark-item-icon {
+  color: var(--text-muted);
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sdn-bookmark-item-icon svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2px;
+}
+
+.sdn-bookmark-group .sdn-folder-count {
+  margin-left: 6px;
+}
+
+
+/* v1.7.15: header controls now live directly in .sdn-header, not the old floating tree controls.
+   Keep contextual buttons visible on mobile and preserve active reveal/pin states. */
+.sdn-header .sdn-nav-actions {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+body.is-mobile .sdn-header .sdn-nav-actions {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.sdn-header .sdn-reveal-toggle.is-active,
+.sdn-header .sdn-reveal-toggle.is-active:hover,
+.sdn-header .sdn-reveal-toggle.is-active:active,
+.sdn-header .sdn-reveal-toggle.is-active:focus-visible,
+body.is-mobile .sdn-header .sdn-reveal-toggle.is-active,
+body.is-mobile .sdn-header .sdn-reveal-toggle.is-active:hover,
+body.is-mobile .sdn-header .sdn-reveal-toggle.is-active:active,
+body.is-mobile .sdn-header .sdn-reveal-toggle.is-active:focus-visible {
+  background: color-mix(in srgb, var(--interactive-accent) 18%, var(--background-secondary)) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 42%, transparent) !important;
+}
+
+.sdn-header .sdn-pin-toggle.is-active,
+.sdn-header .sdn-pin-toggle.is-active:hover,
+.sdn-header .sdn-pin-toggle.is-active:active,
+.sdn-header .sdn-pin-toggle.is-active:focus-visible,
+body.is-mobile .sdn-header .sdn-pin-toggle.is-active,
+body.is-mobile .sdn-header .sdn-pin-toggle.is-active:hover,
+body.is-mobile .sdn-header .sdn-pin-toggle.is-active:active,
+body.is-mobile .sdn-header .sdn-pin-toggle.is-active:focus-visible {
+  color: var(--interactive-accent) !important;
+  background: color-mix(in srgb, var(--interactive-accent) 14%, var(--background-secondary)) !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 36%, transparent) !important;
+}
+
+/* v1.8 Bookmarks/Home sections */
+.sdn-home-list {
+  padding-top: 0;
+}
+
+.sdn-home-section {
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.sdn-home-section:last-child {
+  border-bottom: 0;
+}
+
+.sdn-home-section-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 8px 14px 6px 14px;
+  color: var(--text-muted);
+  font-size: calc(var(--sdn-font-size) - 2px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.sdn-home-section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+}
+
+.sdn-home-section-icon svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2px;
+}
+
+.sdn-home-section-content > .sdn-empty {
+  padding: 8px 14px 14px 14px;
+}
+
+.sdn-home-watch-row {
+  padding-left: 14px !important;
+}
+
+.sdn-modal-description {
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* v1.8.1: Bookmarks/Home layout refinement */
+.sdn-home-section {
+  border-bottom: 0;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.sdn-home-section:not(:last-child) {
+  border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+}
+
+.sdn-home-section-header {
+  min-height: 28px;
+  padding: 9px 14px 4px 14px;
+  cursor: grab;
+  user-select: none;
+}
+
+.sdn-home-section-header:active {
+  cursor: grabbing;
+}
+
+.sdn-home-drag-handle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  opacity: 0.7;
+}
+
+.sdn-home-drag-handle svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2px;
+}
+
+.sdn-home-section-content {
+  padding-bottom: 2px;
+}
+
+.sdn-home-section-content > .sdn-recent-item,
+.sdn-home-note-item,
+.sdn-bookmark-item {
+  padding-top: 5px;
+  padding-bottom: 6px;
+}
+
+.sdn-home-section-content > .sdn-tree-row,
+.sdn-home-watch-row,
+.sdn-bookmark-group {
+  min-height: 25px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.sdn-home-section-content > .sdn-bookmark-group:not(:first-child) {
+  margin-top: 7px !important;
+}
+
+.sdn-bookmark-group + .sdn-bookmark-item,
+.sdn-bookmark-item + .sdn-bookmark-item {
+  margin-top: 0 !important;
+}
+
+.sdn-bookmark-item .sdn-note-title,
+.sdn-home-note-item .sdn-note-title,
+.sdn-open-tab-item .sdn-note-title {
+  line-height: 1.18;
+}
+
+.sdn-home-location {
+  margin-top: 2px;
+  opacity: 0.72;
+}
+
+.sdn-home-section.sdn-drop-target,
+.sdn-bookmark-group.sdn-drop-target {
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--interactive-accent) !important;
+}
+
+.sdn-home-section[draggable="true"],
+.sdn-bookmark-group-draggable {
+  -webkit-user-drag: element;
+}
+
+body.is-mobile .sdn-home-section,
+body.is-mobile .sdn-bookmark-group-draggable {
+  -webkit-user-drag: none;
+}
+
+/* v1.8.2: Bookmarks/Home readability pass */
+.sdn-home-section-content > .sdn-bookmark-group {
+  margin-bottom: 2px !important;
+}
+
+.sdn-bookmark-group + .sdn-bookmark-item {
+  margin-top: 1px !important;
+}
+
+.sdn-bookmark-item + .sdn-bookmark-group {
+  margin-top: 8px !important;
+}
+
+.sdn-bookmark-item .sdn-home-location {
+  margin-left: 21px;
+}
+
+/* v1.8.3: compact collapsible Bookmarks/Home sections */
+.sdn-home-section-header {
+  padding: 7px 14px 3px 12px;
+  min-height: 26px;
+  font-size: calc(var(--sdn-font-size) - 3px);
+  letter-spacing: 0.018em;
+}
+
+.sdn-home-section-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+
+.sdn-home-section-caret svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.2px;
+}
+
+.sdn-home-section.is-collapsed {
+  padding-bottom: 2px;
+}
+
+.sdn-home-section.is-collapsed .sdn-home-section-header {
+  padding-bottom: 6px;
+}
+
+.sdn-home-section-content {
+  padding-left: 8px;
+}
+
+.sdn-home-note-item,
+.sdn-open-tab-item {
+  padding-left: 30px !important;
+}
+
+.sdn-home-watch-row {
+  padding-left: 28px !important;
+}
+
+.sdn-bookmark-group {
+  padding-left: calc(18px + (var(--sdn-depth, 0) * 18px)) !important;
+}
+
+.sdn-bookmark-item {
+  padding-left: calc(40px + (var(--sdn-depth, 0) * 18px)) !important;
+}
+
+.sdn-home-section-content > .sdn-recent-item,
+.sdn-home-note-item,
+.sdn-bookmark-item {
+  padding-top: 4px;
+  padding-bottom: 5px;
+}
+
+.sdn-home-section-content > .sdn-tree-row,
+.sdn-home-watch-row,
+.sdn-bookmark-group {
+  min-height: 24px;
+}
+
+.sdn-home-section:not(:last-child) {
+  margin-bottom: 9px;
+}
+
+.sdn-bookmark-item .sdn-home-location,
+.sdn-home-note-item .sdn-home-location,
+.sdn-open-tab-item .sdn-home-location {
+  margin-top: 1px;
+  font-size: calc(var(--sdn-font-size) - 4px);
+}
+
+body.is-mobile .sdn-recent-item .sdn-note-title,
+body.is-mobile .sdn-folder-name,
+body.is-mobile .sdn-file-name {
+  font-size: var(--sdn-font-size) !important;
+}
+
+/* v1.8.8: compact Bookmarks sort control */
+.sdn-home-section-title {
+  flex: 1 1 auto;
+}
+
+.sdn-home-sort-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  opacity: 0.72;
+  cursor: pointer;
+}
+
+.sdn-home-sort-button:hover {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.sdn-home-sort-button svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.1px;
+}
+
+.sdn-home-sort-button + .sdn-home-drag-handle {
+  margin-left: 2px;
+}
+
+/* v1.8.9: quieter empty state for Bookmarks/Home sections */
+.sdn-home-empty {
+  color: var(--text-faint);
+  font-size: calc(var(--sdn-font-size) - 3px);
+  font-style: italic;
+  line-height: 1.2;
+  padding: 4px 14px 6px 30px;
+  opacity: 0.82;
+  user-select: none;
+}
+
+.sdn-home-section-content > .sdn-home-empty {
+  margin-left: 8px;
+}
+
+/* v1.8.10: empty bookmark groups render as indented non-note rows */
+.sdn-bookmark-group-empty {
+  padding-left: calc(30px + (var(--sdn-depth, 1) * 16px));
+  margin-top: 0;
+  margin-bottom: 3px;
+  pointer-events: none;
+}
+
+/* v1.8.17: two-slot action button drag lane */
+.sdn-nav-actions {
+  position: relative;
+}
+
+.sdn-tab-action-button {
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+  transition:
+    transform 145ms cubic-bezier(0.2, 0.85, 0.25, 1),
+    opacity 100ms ease,
+    background-color 100ms ease !important;
+}
+
+.sdn-tab-action-button:active {
+  cursor: grabbing;
+}
+
+.sdn-tab-action-button.sdn-dragging {
+  opacity: 0.92 !important;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.sdn-action-drag-active .sdn-tab-action-button:not(.sdn-dragging) {
+  transition: transform 145ms cubic-bezier(0.2, 0.85, 0.25, 1), background-color 100ms ease !important;
+}
+
+.sdn-tab-action-button.sdn-action-swap-target {
+  background: var(--background-modifier-hover) !important;
+}
+
+/* v1.8.11: sort moved out of per-section headers */
+.sdn-home-sort-button {
+  display: none;
+}
+
+/* v1.8.12: bookmark group formatting */
+.sdn-home-section-content .sdn-bookmark-group {
+  font-size: var(--sdn-font-size) !important;
+  font-weight: 520 !important;
+  letter-spacing: -0.006em !important;
+  color: var(--text-normal) !important;
+  min-height: 26px !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-group .sdn-tree-name {
+  font-size: var(--sdn-font-size) !important;
+  line-height: 1.2 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.sdn-bookmark-group-count,
+.sdn-bookmark-group .sdn-folder-count {
+  font-size: calc(var(--sdn-font-size) - 3px) !important;
+  font-weight: 400 !important;
+  color: var(--text-faint) !important;
+  opacity: 0.82 !important;
+  margin-left: 6px !important;
+  transform: translateY(1px);
+}
+
+body.is-mobile .sdn-home-section-content .sdn-bookmark-group .sdn-tree-name {
+  font-size: var(--sdn-font-size) !important;
+}
+
+/* v1.8.17: normalize Bookmark file/folder indentation */
+.sdn-home-section-content .sdn-bookmark-group {
+  padding-left: calc(18px + (var(--sdn-depth, 0) * 18px)) !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-item {
+  padding-left: calc(40px + (var(--sdn-depth, 0) * 18px)) !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-item.is-folder,
+.sdn-home-section-content .sdn-bookmark-item.is-note {
+  display: block !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-title-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-item-icon {
+  flex: 0 0 15px !important;
+}
+
+/* v1.8.18: inline bookmarked folders and clearer hierarchy */
+.sdn-home-section-content .sdn-bookmark-title-row {
+  min-height: 24px !important;
+}
+
+.sdn-bookmark-inline-caret,
+.sdn-bookmark-caret-spacer {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--text-muted) !important;
+}
+
+.sdn-bookmark-inline-caret {
+  cursor: pointer !important;
+  border-radius: 4px !important;
+}
+
+.sdn-bookmark-inline-caret:hover {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-item.is-note,
+.sdn-home-section-content .sdn-bookmark-item.is-folder {
+  padding-left: calc(24px + (var(--sdn-depth, 0) * 20px)) !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-folder-row.is-folder-child,
+.sdn-home-section-content .sdn-bookmark-fs-item {
+  opacity: 0.92;
+}
+
+.sdn-home-section-content .sdn-bookmark-folder-row .sdn-note-title {
+  cursor: pointer !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-group-empty {
+  padding-left: calc(48px + (var(--sdn-depth, 0) * 20px)) !important;
+}
+
+.mod-cta .menu-item.is-disabled,
+.menu-item.is-disabled,
+.sdn-menu-item-disabled {
+  opacity: 0.45 !important;
+  pointer-events: none !important;
+}
+
+/* v1.8.19: bookmark folder links and file-tree bookmark status */
+.sdn-home-section-content .sdn-bookmark-folder-row .sdn-bookmark-folder-link {
+  border-radius: 3px !important;
+  text-decoration: none !important;
+  text-underline-offset: 3px !important;
+  cursor: pointer !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-folder-row .sdn-bookmark-folder-link:hover {
+  color: var(--text-accent) !important;
+  text-decoration: underline !important;
+}
+
+.sdn-bookmark-status-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 13px !important;
+  height: 13px !important;
+  margin-left: 5px !important;
+  color: var(--text-faint) !important;
+  opacity: 0.7 !important;
+  flex: 0 0 auto !important;
+}
+
+.sdn-bookmark-status-icon svg {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.sdn-tree-row:hover .sdn-bookmark-status-icon {
+  color: var(--text-accent) !important;
+  opacity: 0.95 !important;
+}
+
+/* v1.8.20: reduce Bookmark visual bloat and clarify nested folder contents */
+.sdn-home-section-content .sdn-bookmark-group .sdn-tree-name {
+  font-weight: 560 !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-item .sdn-note-title {
+  font-weight: 450 !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-item.is-folder .sdn-note-title {
+  font-weight: 500 !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-folder-row.is-folder-child,
+.sdn-home-section-content .sdn-bookmark-fs-item.is-folder-child {
+  opacity: 0.84 !important;
+  position: relative !important;
+}
+
+.sdn-home-section-content .sdn-bookmark-folder-row.is-folder-child::before,
+.sdn-home-section-content .sdn-bookmark-fs-item.is-folder-child::before {
+  content: "";
+  position: absolute;
+  left: calc(22px + (var(--sdn-depth, 0) * 20px));
+  top: 5px;
+  bottom: 5px;
+  width: 1px;
+  background: color-mix(in srgb, var(--background-modifier-border) 72%, transparent);
+  pointer-events: none;
+}
+
+.sdn-header .sdn-tab-action-button.is-active,
+.sdn-header .sdn-tab-action-button.is-active:hover,
+.sdn-header .sdn-tab-action-button.is-active:active,
+.sdn-header .sdn-tab-action-button.is-active:focus-visible {
+  background: color-mix(in srgb, var(--interactive-accent) 18%, var(--background-secondary)) !important;
+  color: var(--text-normal) !important;
+  opacity: 1 !important;
+}
+
+
+/* v1.8.21: bookmarked folder reveal uses accent flash, and Bookmarks keeps folders before notes */
+.sdn-tree-row.sdn-revealed-from-bookmark {
+  background: color-mix(in srgb, var(--interactive-accent) 18%, var(--background-secondary)) !important;
+  outline: 1px solid color-mix(in srgb, var(--interactive-accent) 54%, transparent) !important;
+  color: var(--text-normal) !important;
+}
+
+.sdn-tree-row.sdn-revealed-from-bookmark .sdn-folder-name,
+.sdn-tree-row.sdn-revealed-from-bookmark .sdn-file-name {
+  color: var(--text-accent) !important;
+}
+
+/* v1.9.0 Focus foundation */
+.sdn-focus-switcher {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px 8px 8px;
+}
+
+.sdn-focus-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+.sdn-focus-button:hover {
+  background: var(--background-modifier-hover);
+}
+
+.sdn-focus-label {
+  color: var(--text-muted);
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sdn-focus-name {
+  font-weight: 600;
+}
+
+.sdn-focus-caret {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+}
+
+/* v1.9.1 Focus polish */
+.sdn-focus-switcher {
+  padding: 3px 8px 8px 8px;
+}
+
+.sdn-focus-button {
+  max-width: 100%;
+  min-height: 26px;
+  border-radius: 7px;
+  padding: 3px 7px;
+  gap: 5px;
+  background: var(--background-primary);
+  border-color: var(--background-modifier-border);
+  box-shadow: none;
+}
+
+.sdn-focus-button.is-active {
+  color: var(--text-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 8%, var(--background-primary));
+  border-color: color-mix(in srgb, var(--interactive-accent) 30%, var(--background-modifier-border));
+}
+
+.sdn-focus-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.sdn-focus-button.is-active .sdn-focus-icon,
+.sdn-focus-button.is-active .sdn-focus-caret {
+  color: var(--text-accent);
+}
+
+.sdn-focus-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 520;
+  letter-spacing: -0.006em;
+}
+
+.sdn-focus-indicator {
+  color: var(--text-accent) !important;
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent) !important;
+}
+
+.sdn-focus-indicator:hover {
+  background: color-mix(in srgb, var(--interactive-accent) 18%, transparent) !important;
+}
+
+/* v1.9.16 Focus UX refinement */
+.sdn-focus-switcher {
+  padding: 2px 8px 7px 8px;
+}
+
+.sdn-focus-button {
+  min-height: 24px;
+  border-radius: 6px;
+  padding: 2px 7px;
+  gap: 4px;
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-muted);
+  box-shadow: none;
+}
+
+.sdn-focus-button:hover {
+  background: var(--background-modifier-hover);
+  border-color: transparent;
+  color: var(--text-normal);
+}
+
+.sdn-focus-button.is-active {
+  color: var(--text-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 7%, transparent);
+  border-color: transparent;
+}
+
+.sdn-focus-icon,
+.sdn-focus-caret {
+  width: 13px;
+  height: 13px;
+}
+
+.sdn-focus-name {
+  font-weight: 500;
+  font-size: 0.88em;
+}
+
+.sdn-focus-indicator {
+  color: var(--text-muted) !important;
+  background: transparent !important;
+  opacity: 0.72;
+}
+
+.sdn-focus-indicator:hover {
+  color: var(--text-normal) !important;
+  background: var(--background-modifier-hover) !important;
+  opacity: 1;
+}
+
+.sdn-focus-indicator.is-active {
+  color: var(--text-accent) !important;
+  background: color-mix(in srgb, var(--interactive-accent) 10%, transparent) !important;
+  opacity: 1;
+}
+
+.sdn-focus-indicator.is-active:hover {
+  background: color-mix(in srgb, var(--interactive-accent) 16%, transparent) !important;
+}
+
+/* v1.9.18 Focus simplification */
+.sdn-focus-switcher {
+  padding: 1px 8px 6px 8px;
+}
+
+.sdn-focus-button {
+  min-height: 22px;
+  padding: 1px 5px;
+  gap: 3px;
+  border-radius: 5px;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.sdn-focus-button.is-active {
+  background: color-mix(in srgb, var(--interactive-accent) 6%, transparent) !important;
+}
+
+.sdn-focus-icon,
+.sdn-focus-caret {
+  width: 12px;
+  height: 12px;
+}
+
+.sdn-focus-name {
+  font-size: 0.84em;
+  font-weight: 500;
+}
+
+.sdn-focus-edit-modal {
+  font-size: 0.92em;
+}
+
+.sdn-focus-edit-modal h2 {
+  margin-bottom: 6px;
+}
+
+.sdn-focus-edit-modal h3 {
+  margin: 14px 0 6px 0;
+  font-size: 0.92em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sdn-focus-edit-modal .setting-item {
+  padding: 6px 0;
+}
+
+.sdn-focus-edit-modal .setting-item-name {
+  font-size: 0.95em;
+}
+
+.sdn-focus-edit-modal .setting-item-description,
+.sdn-focus-edit-modal .sdn-modal-description {
+  font-size: 0.88em;
+}
+
+.sdn-focus-item-summary {
+  margin: 4px 0 8px 0;
+}
+
+.sdn-focus-item-summary-label {
+  font-size: 0.86em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.sdn-focus-item-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 22px;
+  padding: 1px 0 1px 8px;
+}
+
+.sdn-focus-item-summary-path {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: 0.84em;
+}
+
+.sdn-focus-item-remove {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--text-faint);
+  border-radius: 5px;
+  padding: 0;
+}
+
+.sdn-focus-item-remove:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.is-mobile .sdn-focus-edit-modal,
+.is-phone .sdn-focus-edit-modal {
+  font-size: 0.88em;
+}
+
+.is-mobile .sdn-focus-edit-modal .setting-item,
+.is-phone .sdn-focus-edit-modal .setting-item {
+  padding: 5px 0;
+}
+
+/* v1.9.19 Focus flattened prototype */
+.sdn-focus-switcher {
+  padding: 3px 8px 6px 8px;
+}
+
+.sdn-focus-button {
+  min-height: 21px;
+  padding: 1px 4px;
+  gap: 3px;
+  border-radius: 5px;
+  box-shadow: none !important;
+}
+
+.sdn-focus-source-label {
+  margin-left: calc(var(--sdn-depth, 0) * 14px + 43px);
+  margin-top: -1px;
+  color: var(--text-faint);
+  font-size: 0.76em;
+  line-height: 1.15;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sdn-focus-flat-item.is-note .sdn-focus-source-label {
+  opacity: 0.82;
+}
+
+/* Navigator 2.0 Focus drill prototype */
+.sdn-focus-drill {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.sdn-focus-pane {
+  min-height: 120px;
+  max-height: 42vh;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 6px;
+}
+
+.sdn-focus-pane:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.sdn-focus-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 26px;
+  margin-bottom: 3px;
+}
+
+.sdn-focus-pane-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.sdn-focus-pane-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+}
+
+.sdn-focus-pane-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.sdn-focus-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  max-width: 58%;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--text-muted);
+  background: var(--background-modifier-hover);
+  font-size: 0.78em;
+  overflow: hidden;
+}
+
+.sdn-focus-back:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-active-hover);
+}
+
+.sdn-focus-back svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+
+.sdn-focus-back span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sdn-focus-pane-content {
+  overflow: auto;
+  min-height: 0;
+  padding-right: 2px;
+}
+
+.sdn-focus-drill-item {
+  --sdn-depth: 0;
+  margin-left: 0 !important;
+}
+
+.sdn-focus-drill-item.is-folder .sdn-note-title {
+  font-weight: 500;
+}
+
+.sdn-focus-drill-item .sdn-folder-count {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 0.82em;
+  font-weight: 400;
+}
+
+body.is-mobile .sdn-focus-pane {
+  max-height: 38vh;
+}
+
+body.is-mobile .sdn-focus-back {
+  height: 28px;
+  padding: 4px 8px;
+}
+
+
+/* v0.22.0-alpha Focus drill cleanup */
+.sdn-focus-button:hover,
+.sdn-focus-indicator:hover {
+  background: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
+  opacity: 1;
+}
+
+.sdn-focus-pane-heading {
+  border-radius: 6px;
+  padding: 2px 4px;
+  margin-left: -4px;
+}
+
+.sdn-focus-pane-heading:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.sdn-focus-back {
+  box-shadow: none !important;
+  background: transparent;
+  border: 0;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+.sdn-focus-back:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.sdn-focus-back svg {
+  width: 12px;
+  height: 12px;
+}
+
+.sdn-focus-drill-item[draggable="true"] {
+  cursor: grab;
+}
+
+.sdn-focus-drill-item.is-dragging {
+  opacity: 0.55;
+}
+
+.sdn-focus-pane.sdn-drop-target {
+  background: color-mix(in srgb, var(--interactive-accent) 6%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--interactive-accent) 28%, transparent);
+  outline-offset: -1px;
+  border-radius: 8px;
+}
+
+/* v0.23.0-alpha Focus simplification */
+.sdn-focus-edit-modal {
+  padding-bottom: 0;
+}
+
+.sdn-focus-edit-modal .sdn-modal-sticky-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: 14px -2px 0 -2px;
+  padding: 10px 2px 2px 2px;
+  background: var(--modal-background, var(--background-primary));
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.sdn-focus-edit-modal .sdn-modal-sticky-footer .setting-item {
+  padding: 0;
+  border: 0;
+}
+
+.sdn-focus-edit-modal .sdn-modal-sticky-footer .setting-item-control {
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+.sdn-focus-edit-modal .sdn-modal-sticky-footer button.mod-cta {
+  font-weight: 650;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.sdn-focus-pane-unfiled {
+  min-height: 72px;
+}
