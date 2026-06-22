@@ -15,6 +15,49 @@ The adjacent `data.json` is vault-specific plugin state. It is not a release
 file. It must remain excluded from manual test installs and must be ignored by
 the future packaging process before any release is published.
 
+## Release contents boundary
+
+The installable release has an allowlist, not a broad copy rule. Only these
+three files should be attached as plugin release assets:
+
+- `main.js`
+- `manifest.json`
+- `styles.css`
+
+Everything else in the repository is excluded from the installable release.
+
+### Current files excluded from release
+
+- `simple-drafts-navigator-v0.23.0-alpha-focus-simplification/data.json` —
+  vault-specific settings and UI state;
+- `simple-drafts-navigator-v0.23.0-alpha-focus-simplification/README.md` —
+  working-copy documentation;
+- root `README.md`, `LICENSE`, and `DESIGN-LOG` — repository documentation and
+  licensing, not plugin runtime assets;
+- `docs/` — project documentation;
+- `.gitignore`, `.DS_Store`, and `.git/` metadata.
+
+The current snapshot directory is a storage boundary, not a release folder. A
+manual test install should select the three approved files rather than copy the
+whole directory.
+
+### Future files excluded from release
+
+- `src/` and authored TypeScript/CSS modules;
+- `test/`, fixtures, snapshots, coverage, and test-vault content;
+- `assets/` documentation and promotional images;
+- `node_modules/` and package-manager caches;
+- `package.json`, lockfiles, TypeScript, bundler, lint, and editor configuration;
+- `.github/` workflows and repository templates;
+- `versions.json` and version-bump scripts;
+- source maps, debug bundles, logs, temporary files, and caches;
+- `.env` files, local configuration, credentials, and machine-specific paths;
+- any `data.json`, regardless of directory depth;
+- ZIP files or directories that contain more than the approved runtime assets.
+
+GitHub may provide automatic source-code archives for a tag. Those archives are
+not the installable plugin package and should not be presented as such.
+
 ## Release stages
 
 ### 1. Snapshot testing
