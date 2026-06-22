@@ -1,21 +1,98 @@
 # Lighthouse
 
-Lighthouse helps users create focused working contexts inside Obsidian so they can orient themselves to what matters.
+Lighthouse is an alpha Obsidian plugin for finding the material that matters to
+the work in front of you. It brings recent notes, vault navigation, bookmarks,
+open tabs, watched folders, and selected Focus material into one sidebar view.
 
-It is displayed as three tabs with a central idea of making it easier to surface the information you need to reduce cognitive load and distraction.
+The plugin is intended to reduce the time spent reconstructing context: what you
+were working on, where it lives, and what belongs to the current task.
 
-Recents
-What was I working on?
+## What it currently does
 
-Files
-Where does this live?
+Lighthouse presents three coordinated tabs:
 
-Focus
-What matters right now?
+- **Recents** — revisit recently modified Markdown notes, pin important notes,
+  and adjust sorting, dates, and previews.
+- **Files** — navigate the vault, watch useful folders, reveal the active file,
+  and work with files and folders from the sidebar.
+- **Focus** — create named working contexts and organize selected material into
+  Sources, Work, and Unfiled sections. Focus can also surface bookmarks, pinned
+  notes, open tabs, and watched folders.
 
-Status: Alpha
+The current build also includes commands for opening Lighthouse, creating a note
+in a configured folder, opening a quick-capture note, opening the daily note,
+pinning the active note, and adding material to Focus.
 
-<img width="1394" height="855" alt="image" src="https://github.com/user-attachments/assets/a50eb53d-2bb4-49cb-a9f2-4d95f21f0385" />
+See [user-facing behavior](docs/user-facing-behavior.md) for the current behavior
+and known boundaries.
 
-<img width="289" height="447" alt="image" src="https://github.com/user-attachments/assets/54a2ab2e-dc41-4577-bb05-6614d40381b1" />
+## Development status
 
+**Status: alpha.** The current working build is `0.23.0-alpha`.
+
+This repository is not yet a conventional source-based Obsidian plugin project.
+The working implementation is preserved as a JavaScript snapshot in:
+
+```text
+simple-drafts-navigator-v0.23.0-alpha-focus-simplification/
+```
+
+That folder contains the installable runtime files and the only current copy of
+the implementation. A phased TypeScript migration is planned, but it has not
+started. No claim is made that Lighthouse is ready for the Obsidian community
+plugin directory or stable daily use.
+
+## Install for testing
+
+Use a test vault or a vault with a current backup.
+
+1. Clone or download this repository.
+2. In the test vault, create:
+   `.obsidian/plugins/simple-drafts-navigator/`
+3. Copy these files from
+   `simple-drafts-navigator-v0.23.0-alpha-focus-simplification/` into that folder:
+   - `main.js`
+   - `manifest.json`
+   - `styles.css`
+4. Do **not** copy `data.json`. It is vault-specific runtime state from a working
+   installation, not part of the plugin release.
+5. Reload Obsidian.
+6. Enable the plugin in **Settings → Community plugins**.
+
+The installed plugin currently appears under the manifest name **Simple Drafts
+Navigator**. The plugin ID and manifest are intentionally unchanged during this
+documentation and migration-planning work.
+
+## Planned next
+
+The next repository work is planned, not complete:
+
+1. record a repeatable desktop and mobile behavior baseline;
+2. add TypeScript, build, lint, and packaging configuration without replacing
+   the working snapshot;
+3. create a behavior-equivalent TypeScript implementation;
+4. extract modules and styles in small, separately tested changes;
+5. add reproducible alpha release checks and packaging.
+
+Product fixes and enhancements should remain separate from the mechanical
+migration so regressions are easier to identify.
+
+## Documentation
+
+- [Vision](docs/vision.md)
+- [Current user-facing behavior](docs/user-facing-behavior.md)
+- [Roadmap](docs/roadmap.md)
+- [Release plan](docs/release-plan.md)
+- [Development notes](docs/development-notes.md)
+- [Repository audit](docs/repo-audit.md)
+- [TypeScript migration plan](docs/migration-plan.md)
+
+## Screenshots
+
+![Lighthouse desktop view](https://github.com/user-attachments/assets/a50eb53d-2bb4-49cb-a9f2-4d95f21f0385)
+
+![Lighthouse compact view](https://github.com/user-attachments/assets/54a2ab2e-dc41-4577-bb05-6614e431b1)
+
+## License
+
+See [LICENSE](LICENSE).
