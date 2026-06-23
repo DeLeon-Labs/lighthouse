@@ -1,0 +1,31 @@
+{
+  "name": "lighthouse-obsidian-plugin",
+  "version": "0.23.0-alpha",
+  "description": "A focus-aware navigator for Obsidian.",
+  "main": "dist/main.js",
+  "type": "commonjs",
+  "packageManager": "pnpm@11.5.3",
+  "scripts": {
+    "clean": "node scripts/clean-dist.mjs",
+    "dev": "node scripts/clean-dist.mjs && node scripts/copy-release-assets.mjs && node esbuild.config.mjs",
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "build": "node scripts/clean-dist.mjs && tsc --noEmit --skipLibCheck && node esbuild.config.mjs production && node scripts/copy-release-assets.mjs && node scripts/verify-release.mjs",
+    "verify:release": "node scripts/verify-release.mjs",
+    "test:update": "node scripts/update-test-vault.mjs",
+    "version": "node version-bump.mjs && git add manifest.json versions.json"
+  },
+  "keywords": [
+    "obsidian",
+    "focus",
+    "navigation",
+    "plugin"
+  ],
+  "author": "Jon DeLeon",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "esbuild": "0.25.5",
+    "obsidian": "latest",
+    "typescript": "^5.8.3"
+  }
+}
