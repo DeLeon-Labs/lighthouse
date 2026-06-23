@@ -12,6 +12,7 @@
     "build": "node scripts/clean-dist.mjs && tsc --noEmit --skipLibCheck && node esbuild.config.mjs production && node scripts/copy-release-assets.mjs && node scripts/verify-release.mjs",
     "verify:release": "node scripts/verify-release.mjs",
     "test:update": "node scripts/update-test-vault.mjs",
+    "test:deploy": "pnpm run build && pnpm run test:update",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
   },
   "keywords": [

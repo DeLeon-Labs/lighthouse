@@ -68,8 +68,10 @@ Available commands:
 - `pnpm run verify:release` — verify an existing `dist/` allowlist;
 - `pnpm run dev` — watch `src/main.ts` and emit an inline-source-map development
   build;
-- `pnpm run test:update` — copy an already-built three-file package to an
-  explicitly configured test-vault plugin folder.
+- `pnpm run test:update` — copy an already-built three-file package to the
+  configured test-vault plugin folder;
+- `pnpm run test:deploy` — build, verify, and then update the configured test
+  vault in one deliberate command.
 
 The current `@ts-nocheck` directive means `pnpm run typecheck` validates the
 project wiring but not the body of the transitional entry file. Removing that
@@ -83,25 +85,43 @@ Use a dedicated test vault or a vault with a current backup. Build first:
 pnpm run build
 ```
 
-Then set the absolute path to the installed plugin folder and run the updater:
+The updater defaults to the confirmed iCloud test-vault plugin path:
+
+```text
+/Users/jon/Library/Mobile Documents/iCloud~md~obsidian/Documents/Test Vault/.obsidian/plugins/simple-drafts-navigator
+```
+
+After building, copy the three release files with:
 
 ```sh
-export LIGHTHOUSE_TEST_PLUGIN_DIR="/absolute/path/to/TestVault/.obsidian/plugins/simple-drafts-navigator"
 pnpm run test:update
+```
+
+Or build and update the test vault in one step:
+
+```sh
+pnpm run test:deploy
+```
+
+If the vault moves, override the default for one command:
+
+```sh
+LIGHTHOUSE_TEST_PLUGIN_DIR="/absolute/path/to/Another Test Vault/.obsidian/plugins/simple-drafts-navigator" pnpm run test:update
 ```
 
 The updater:
 
-- requires an absolute, explicitly supplied destination;
+- uses the confirmed absolute `Test Vault` path unless an explicit environment
+  override is supplied;
 - verifies `dist/` contains exactly `main.js`, `manifest.json`, and `styles.css`;
-- creates the destination folder only if it does not exist;
+- creates the missing `.obsidian/plugins/simple-drafts-navigator` path when run;
 - copies only those three files;
 - does not delete or replace the plugin folder;
 - does not read, write, copy, or remove `data.json`; and
 - leaves all vault-specific plugin state untouched.
 
-Do not commit the test-vault path. Do not point the updater at a production vault
-unless that is a deliberate manual choice outside the repository workflow.
+Do not point the updater at a production vault unless that is a deliberate manual
+choice outside the repository workflow.
 
 The updater is tooling only. It is not run as part of `pnpm run build`, tests, CI,
 or release packaging.
