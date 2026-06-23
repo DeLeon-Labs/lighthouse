@@ -89,7 +89,7 @@ const DEFAULT_SETTINGS = {
   ignoredPaths: "00.daily_note_template\nTemplates\nAttachments\n.obsidian\n.trash"
 };
 
-module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
+module.exports = class LighthousePlugin extends Plugin {
   async onload() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     this.lastActiveMarkdownPath = null;
@@ -106,17 +106,17 @@ module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
       this.settings.dailyNotesFolder = this.settings.dailyNotesFolderPattern;
     }
 
-    this.registerView(VIEW_TYPE, (leaf) => new SimpleDraftsNavigatorView(leaf, this));
+    this.registerView(VIEW_TYPE, (leaf) => new LighthouseView(leaf, this));
 
     this.addCommand({
       id: "open-simple-drafts-navigator",
-      name: "Open Simple Drafts Navigator",
+      name: "Open Lighthouse",
       callback: () => this.activateView()
     });
 
     this.addCommand({
       id: "open-simple-drafts-navigator-main",
-      name: "Open Simple Drafts Navigator in main pane",
+      name: "Open Lighthouse in main pane",
       callback: () => this.openNavigatorInMainPane()
     });
 
@@ -151,7 +151,7 @@ module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
 
     this.addCommand({
       id: "add-current-file-to-active-focus",
-      name: "Add current file to active Navigator Focus",
+      name: "Add current file to active Lighthouse Focus",
       checkCallback: (checking) => {
         const focus = this.getActiveFocus();
         const file = this.getCurrentMarkdownFile();
@@ -163,7 +163,7 @@ module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
 
     this.addCommand({
       id: "add-current-file-to-global-focus",
-      name: "Add current file to all Navigator Focuses",
+      name: "Add current file to all Lighthouse Focuses",
       checkCallback: (checking) => {
         const file = this.getCurrentMarkdownFile();
         const canAdd = file instanceof TFile;
@@ -173,10 +173,10 @@ module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
     });
 
     if (this.settings.showRibbonIcon) {
-      this.ribbonIcon = this.addRibbonIcon("notebook-tabs", "Simple Drafts Navigator", () => this.activateView());
+      this.ribbonIcon = this.addRibbonIcon("notebook-tabs", "Lighthouse", () => this.activateView());
     }
 
-    this.addSettingTab(new SimpleDraftsNavigatorSettingTab(this.app, this));
+    this.addSettingTab(new LighthouseSettingTab(this.app, this));
 
     this.scrollControls = new ScrollControls(this);
     this.scrollControls.init();
@@ -257,7 +257,7 @@ module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
         instance[key] = wrapped;
       }
     } catch (e) {
-      console.warn("Navigator bookmark refresh hooks failed", e);
+      console.warn("Lighthouse bookmark refresh hooks failed", e);
     }
   }
 
@@ -1041,7 +1041,7 @@ module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
 
       // Auto-reveal should only navigate the Files browser when the Files tab is
       // already active. Otherwise clicking a Recent/Pinned/Bookmark item opens the
-      // note and unexpectedly pulls the user away from their current Navigator tab.
+      // note and unexpectedly pulls the user away from their current Lighthouse tab.
       if (this.settings.autoRevealCurrentFile && leaf.view.mode === "files" && leaf.view.revealCurrentFile) {
         leaf.view.revealCurrentFile({ silent: true, flash: true });
       } else if (leaf.view.render) {
@@ -1117,7 +1117,7 @@ module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
         view.editor.scrollIntoView({ from: { line: last, ch: 0 }, to: { line: last, ch: 9999 } }, true);
       }
     } catch (e) {
-      console.warn("Navigator quick capture CM scroll fallback", e);
+      console.warn("Lighthouse quick capture CM scroll fallback", e);
     }
 
     const scrollers = [
@@ -1179,7 +1179,7 @@ module.exports = class SimpleDraftsNavigatorPlugin extends Plugin {
   }
 };
 
-class SimpleDraftsNavigatorView extends ItemView {
+class LighthouseView extends ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.plugin = plugin;
@@ -1190,7 +1190,7 @@ class SimpleDraftsNavigatorView extends ItemView {
   }
 
   getViewType() { return VIEW_TYPE; }
-  getDisplayText() { return "Navigator"; }
+  getDisplayText() { return "Lighthouse"; }
   getIcon() { return "notebook-tabs"; }
 
   async onOpen() {
@@ -1261,7 +1261,7 @@ class SimpleDraftsNavigatorView extends ItemView {
     const focus = this.plugin.getActiveFocus();
     const button = parent.createEl("button", {
       cls: `sdn-icon-button sdn-focus-indicator ${focus ? "is-active" : ""}`,
-      attr: { "aria-label": focus ? `Active Focus: ${focus.name}` : "Navigator Focus: All" }
+      attr: { "aria-label": focus ? `Active Focus: ${focus.name}` : "Lighthouse Focus: All" }
     });
     button.setAttr("title", focus ? `Focus: ${focus.name}. Click to change Focus.` : "Focus: All. Click to change Focus.");
     setIcon(button, focus ? "list-filter" : "list-filter");
@@ -1704,7 +1704,7 @@ class SimpleDraftsNavigatorView extends ItemView {
       return;
     }
     if (shouldHidePath(this.plugin, file.path)) {
-      if (!silent) new Notice("Active file is hidden by Navigator settings.");
+      if (!silent) new Notice("Active file is hidden by Lighthouse settings.");
       return;
     }
 
@@ -2342,7 +2342,7 @@ class SimpleDraftsNavigatorView extends ItemView {
         this.expanded.add(folder.path);
         this.render();
       } catch (e) {
-        console.error("Simple Drafts Navigator move failed", e);
+        console.error("Lighthouse move failed", e);
         new Notice(`Move failed: ${e.message || e}`);
       }
     });
@@ -2354,7 +2354,7 @@ class SimpleDraftsNavigatorView extends ItemView {
     const row = parent.createDiv({ cls: "sdn-focus-switcher" });
     const button = row.createEl("button", {
       cls: `sdn-focus-button ${active ? "is-active" : ""}`,
-      attr: { "aria-label": "Navigator Focus" }
+      attr: { "aria-label": "Lighthouse Focus" }
     });
     const icon = button.createSpan({ cls: "sdn-focus-icon", attr: { "aria-hidden": "true" } });
     setIcon(icon, active ? "list-filter" : "list-filter");
@@ -3328,7 +3328,7 @@ class SimpleDraftsNavigatorView extends ItemView {
       this.render();
       new Notice(`Created bookmark group: ${name.trim()}`);
     } catch (e) {
-      console.error("Navigator bookmark group failed", e);
+      console.error("Lighthouse bookmark group failed", e);
       new Notice(`Bookmark group failed: ${e.message || e}`);
     }
   }
@@ -3385,7 +3385,7 @@ class SimpleDraftsNavigatorView extends ItemView {
       .setTitle("New note")
       .setIcon("file-plus")
       .onClick(async () => {
-        new Notice("Navigator: New note");
+        new Notice("Lighthouse: New note");
         await this.plugin.createNewNote(this.plugin.settings.defaultNewNoteFolder);
         this.render();
       }));
@@ -3395,7 +3395,7 @@ class SimpleDraftsNavigatorView extends ItemView {
       .setIcon("folder-plus")
       .onClick(async () => {
         try {
-          new Notice("Navigator: New folder");
+          new Notice("Lighthouse: New folder");
           const base = normalizePath(this.plugin.settings.defaultNewNoteFolder || "");
           const name = await this.askText("New folder", "Folder name");
           if (!name) return;
@@ -3405,7 +3405,7 @@ class SimpleDraftsNavigatorView extends ItemView {
           this.render();
           new Notice(`Created folder: ${newPath}`);
         } catch (e) {
-          console.error("Navigator new folder failed", e);
+          console.error("Lighthouse new folder failed", e);
           new Notice(`New folder failed: ${e.message || e}`);
         }
       }));
@@ -3422,7 +3422,7 @@ class SimpleDraftsNavigatorView extends ItemView {
           this.render();
           await this.plugin.openFile(file, true);
         } catch (e) {
-          console.error("Navigator new canvas failed", e);
+          console.error("Lighthouse new canvas failed", e);
           new Notice(`New canvas failed: ${e.message || e}`);
         }
       }));
@@ -3439,7 +3439,7 @@ class SimpleDraftsNavigatorView extends ItemView {
           this.render();
           await this.plugin.openFile(file, true);
         } catch (e) {
-          console.error("Navigator new base failed", e);
+          console.error("Lighthouse new base failed", e);
           new Notice(`New base failed: ${e.message || e}`);
         }
       }));
@@ -3485,7 +3485,7 @@ class SimpleDraftsNavigatorView extends ItemView {
         }
       }
     } catch (e) {
-      console.warn("Simple Drafts Navigator command lookup failed", e);
+      console.warn("Lighthouse command lookup failed", e);
     }
     return false;
   }
@@ -3614,7 +3614,7 @@ class SimpleDraftsNavigatorView extends ItemView {
           }
           this.render();
         } catch (e) {
-          console.error("Navigator bookmark action failed", e);
+          console.error("Lighthouse bookmark action failed", e);
           new Notice(`Bookmark action failed: ${e.message || e}`);
         }
       }));
@@ -3623,7 +3623,7 @@ class SimpleDraftsNavigatorView extends ItemView {
     this.addFocusSectionAssignmentMenu(menu, file, null);
 
     menu.addItem(i => i
-      .setTitle("Reveal in Navigator")
+      .setTitle("Reveal in Lighthouse")
       .setIcon("folder-search")
       .onClick(async () => {
         this.mode = "files";
@@ -3768,7 +3768,7 @@ class SimpleDraftsNavigatorView extends ItemView {
           this.expanded.add(targetPath);
           this.render();
         } catch (e) {
-          console.error("Navigator rename folder failed", e);
+          console.error("Lighthouse rename folder failed", e);
           new Notice(`Rename folder failed: ${e.message || e}`);
         }
       }));
@@ -3794,7 +3794,7 @@ class SimpleDraftsNavigatorView extends ItemView {
             this.expanded.add(targetPath);
             this.render();
           } catch (e) {
-            console.error("Navigator move folder to root failed", e);
+            console.error("Lighthouse move folder to root failed", e);
             new Notice(`Move to root failed: ${e.message || e}`);
           }
         }));
@@ -3826,7 +3826,7 @@ class SimpleDraftsNavigatorView extends ItemView {
           }
           this.render();
         } catch (e) {
-          console.error("Navigator bookmark folder action failed", e);
+          console.error("Lighthouse bookmark folder action failed", e);
           new Notice(`Bookmark action failed: ${e.message || e}`);
         }
       }));
@@ -3876,7 +3876,7 @@ class SimpleDraftsNavigatorView extends ItemView {
           this.expanded.delete(folder.path);
           this.render();
         } catch (e) {
-          console.error("Navigator delete folder failed", e);
+          console.error("Lighthouse delete folder failed", e);
           new Notice(`Delete folder failed: ${e.message || e}`);
         }
       }));
@@ -4497,7 +4497,7 @@ class FocusDeleteConfirmModal extends Modal {
     contentEl.createEl("h2", { text: "Delete Focus?" });
     contentEl.createDiv({
       cls: "sdn-modal-description",
-      text: `Delete "${this.focus.name}"? This only removes the Navigator Focus. It does not delete notes, folders, or bookmarks.`
+      text: `Delete "${this.focus.name}"? This only removes the Lighthouse Focus. It does not delete notes, folders, or bookmarks.`
     });
 
     new Setting(contentEl)
@@ -4660,9 +4660,9 @@ class HomeCustomizeModal extends Modal {
   getSectionMeta(sectionId) {
     const map = {
       "bookmark-groups": { label: "Bookmark Groups", desc: "Native Obsidian bookmarks and bookmark groups" },
-      "pinned-notes": { label: "Pinned Notes", desc: "Notes pinned from Navigator Recents" },
+      "pinned-notes": { label: "Pinned Notes", desc: "Notes pinned from Lighthouse Recents" },
       "open-tabs": { label: "Open Tabs", desc: "Currently open markdown notes" },
-      "watch-folders": { label: "Watch Folders", desc: "Folders marked as watched in Navigator Files" }
+      "watch-folders": { label: "Watch Folders", desc: "Folders marked as watched in Lighthouse Files" }
     };
     return map[sectionId] || { label: sectionId, desc: "" };
   }
@@ -4727,7 +4727,7 @@ class TextInputModal extends Modal {
 }
 
 
-class SimpleDraftsNavigatorSettingTab extends PluginSettingTab {
+class LighthouseSettingTab extends PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -4736,7 +4736,7 @@ class SimpleDraftsNavigatorSettingTab extends PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Simple Drafts Navigator" });
+    containerEl.createEl("h2", { text: "Lighthouse" });
 
     containerEl.createEl("h3", { text: "Recents" });
 
@@ -4891,8 +4891,8 @@ class SimpleDraftsNavigatorSettingTab extends PluginSettingTab {
     containerEl.createEl("h3", { text: "Navigation behavior" });
 
     new Setting(containerEl)
-      .setName("Auto-open navigator at startup")
-      .setDesc("Default: on. Opens the navigator automatically when the vault loads.")
+      .setName("Auto-open Lighthouse at startup")
+      .setDesc("Default: on. Opens Lighthouse automatically when the vault loads.")
       .addToggle(t => t.setValue(this.plugin.settings.autoOpenNavigator).onChange(async v => {
         this.plugin.settings.autoOpenNavigator = v;
         await this.plugin.saveSettings();
@@ -4907,8 +4907,8 @@ class SimpleDraftsNavigatorSettingTab extends PluginSettingTab {
       }));
 
     new Setting(containerEl)
-      .setName("Replace current note when opening from navigator")
-      .setDesc("Default: on. Keeps navigation Drafts-like by reusing the current note tab.")
+      .setName("Replace current note when opening from Lighthouse")
+      .setDesc("Default: on. Reuses the current note tab when navigating from Lighthouse.")
       .addToggle(t => t.setValue(this.plugin.settings.replaceCurrentNote).onChange(async v => {
         this.plugin.settings.replaceCurrentNote = v;
         await this.plugin.saveSettings();
@@ -5222,7 +5222,7 @@ async function addBookmarkForFile(app, file) {
   };
 
   // Prefer Obsidian's own methods when available. Fall back to the persisted
-  // bookmark tree shape used by the core plugin so Navigator can still add a
+  // bookmark tree shape used by the core plugin so Lighthouse can still add a
   // simple file bookmark without reimplementing the native bookmark modal.
   if (typeof instance.addBookmark === "function") {
     try { await instance.addBookmark(item); return; } catch (e) { console.warn("addBookmark fallback", e); }
@@ -5267,7 +5267,7 @@ function getBookmarkItems(app) {
     if (Array.isArray(instance.items)) return flattenBookmarks(instance.items);
     if (instance.bookmarkTree && Array.isArray(instance.bookmarkTree.items)) return flattenBookmarks(instance.bookmarkTree.items);
   } catch (e) {
-    console.warn("Simple Drafts Navigator bookmarks lookup failed", e);
+    console.warn("Lighthouse bookmarks lookup failed", e);
   }
   return [];
 }

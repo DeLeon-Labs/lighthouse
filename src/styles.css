@@ -585,7 +585,7 @@ body.is-mobile .sdn-tree-control:hover {
 
 /* v1.5.6: mobile tap cleanup and sidebar touch feedback.
    Mobile browsers can leave :hover visually stuck after a tap, so remove hover-only
-   scroll styling on mobile and use short :active feedback for Navigator rows/buttons. */
+   scroll styling on mobile and use short :active feedback for Lighthouse rows/buttons. */
 body.is-mobile .sdn-scroll-button:hover {
   color: var(--text-normal) !important;
   background: color-mix(in srgb, var(--background-secondary) 94%, transparent) !important;
@@ -1768,7 +1768,7 @@ body.is-mobile .sdn-home-section-content .sdn-bookmark-group .sdn-tree-name {
   opacity: 0.82;
 }
 
-/* Navigator 2.0 Focus drill prototype */
+/* Lighthouse Focus drill prototype */
 .sdn-focus-drill {
   display: flex;
   flex-direction: column;

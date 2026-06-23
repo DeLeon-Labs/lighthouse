@@ -1,9 +1,9 @@
 {
   "id": "simple-drafts-navigator",
-  "name": "Simple Drafts Navigator",
+  "name": "Lighthouse",
   "version": "0.23.0-alpha",
   "minAppVersion": "1.5.0",
-  "description": "A lightweight focus-aware navigator for Obsidian with recents, files, and Sources/Work/Unfiled drill-down Focus panes.",
+  "description": "Lighthouse is a focus-aware workspace for Obsidian with recents, files, and Sources/Work/Unfiled Focus panes.",
   "author": "Jon + ChatGPT",
   "authorUrl": "",
   "isDesktopOnly": false
