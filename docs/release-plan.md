@@ -2,8 +2,10 @@
 
 ## Current state
 
-Lighthouse does not yet have a source-based, automated release process. The
-current `0.23.0-alpha` working copy is a manually preserved installable snapshot.
+Lighthouse now has a local TypeScript/esbuild scaffold that generates and
+validates release files in `dist/`. It does not yet have automated GitHub release
+publishing or a fully typed implementation. The current `0.23.0-alpha` working
+copy remains preserved as the known-working installable snapshot.
 
 Its installable files are:
 

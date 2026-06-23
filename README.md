@@ -30,17 +30,20 @@ and known boundaries.
 
 **Status: alpha.** The current working build is `0.23.0-alpha`.
 
-This repository is not yet a conventional source-based Obsidian plugin project.
-The working implementation is preserved as a JavaScript snapshot in:
+This repository now has a TypeScript build scaffold. The initial `src/main.ts` is
+a behavior-preserving mechanical copy of the current JavaScript runtime with type
+checking temporarily disabled inside that file. It is not yet a fully typed or
+modular implementation.
+
+The known-working implementation remains preserved as a JavaScript snapshot in:
 
 ```text
 simple-drafts-navigator-v0.23.0-alpha-focus-simplification/
 ```
 
-That folder contains the installable runtime files and the only current copy of
-the implementation. A phased TypeScript migration is planned, but it has not
-started. No claim is made that Lighthouse is ready for the Obsidian community
-plugin directory or stable daily use.
+The build generates a guarded three-file package in `dist/`. No claim is made
+that Lighthouse is ready for the Obsidian community plugin directory or stable
+daily use.
 
 ## Install for testing
 
@@ -69,11 +72,11 @@ documentation and migration-planning work.
 The next repository work is planned, not complete:
 
 1. record a repeatable desktop and mobile behavior baseline;
-2. add TypeScript, build, lint, and packaging configuration without replacing
-   the working snapshot;
-3. create a behavior-equivalent TypeScript implementation;
+2. replace the transitional `@ts-nocheck` source with explicit settings and
+   runtime types without changing behavior;
+3. verify the generated build against the preserved JavaScript snapshot;
 4. extract modules and styles in small, separately tested changes;
-5. add reproducible alpha release checks and packaging.
+5. add automated checks around the existing reproducible packaging guard.
 
 Product fixes and enhancements should remain separate from the mechanical
 migration so regressions are easier to identify.

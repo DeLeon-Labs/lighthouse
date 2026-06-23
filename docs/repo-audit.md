@@ -166,8 +166,9 @@ lighthouse/
 ├── esbuild.config.mjs
 ├── LICENSE
 ├── manifest.json
-├── package-lock.json
 ├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
 ├── README.md
 ├── tsconfig.json
 ├── version-bump.mjs
@@ -245,7 +246,8 @@ The root should contain files used to understand, build, verify, and release the
 project:
 
 - `manifest.json`, `versions.json`, and `version-bump.mjs` for Obsidian versioning;
-- `package.json` and its lockfile for reproducible dependencies and scripts;
+- `package.json`, `pnpm-lock.yaml`, and `pnpm-workspace.yaml` for reproducible
+  dependencies, scripts, and an explicit dependency-build allowlist;
 - `tsconfig.json`, `esbuild.config.mjs`, and `eslint.config.mts` for build quality;
 - `.editorconfig` and `.gitignore` for consistent repository behavior;
 - `README.md` and `LICENSE`;

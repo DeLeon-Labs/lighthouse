@@ -3,7 +3,7 @@
 This roadmap separates repository preparation from product work. Items marked
 **planned** are not implemented merely because they appear here.
 
-## Current — preserve and document the alpha
+## Current — preserve, document, and scaffold the alpha
 
 Status: **in progress**
 
@@ -11,21 +11,24 @@ Status: **in progress**
 - Document current user behavior, repository structure, and release boundaries.
 - Keep the plugin ID, manifest, and installable runtime files unchanged while
   keeping vault-specific `data.json` outside the repository.
+- Maintain the TypeScript/esbuild scaffold and guarded three-file `dist/`
+  package without treating the transitional source as fully typed.
 - Define a desktop and mobile smoke-test checklist.
 - Record baseline checksums and reference screenshots.
 
-## Next — add a safe development scaffold
+## Scaffold established — remaining validation
 
-Status: **planned**
+Status: **in progress**
 
-- Add root TypeScript, package, lint, and build configuration.
-- Add a canonical root manifest by copying current values without renaming the
-  plugin or changing identity.
-- Define `src/`, `test/`, and generated `dist/` boundaries.
-- Package only `main.js`, `manifest.json`, and `styles.css` for installation.
-- Add a release guard that rejects `data.json` and unexpected files.
+- Root TypeScript, package, and esbuild configuration is present.
+- The canonical root manifest preserves the current plugin identity.
+- `src/` and generated `dist/` boundaries are established; a `test/` suite is
+  still planned.
+- Packaging emits only `main.js`, `manifest.json`, and `styles.css`.
+- Release verification rejects `data.json` and unexpected files.
+- Automated linting and behavior-parity checks remain planned.
 
-This phase should not replace the current runnable snapshot.
+The scaffold does not replace the preserved runnable snapshot yet.
 
 ## Then — establish TypeScript behavior parity
 
