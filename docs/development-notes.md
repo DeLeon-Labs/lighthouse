@@ -19,7 +19,7 @@ typed refactor.
 │   ├── manifest.json
 │   └── styles.css
 ├── esbuild.config.mjs
-├── manifest.json                 # canonical metadata; identity unchanged
+├── manifest.json                 # canonical metadata; stable plugin ID
 ├── package.json
 ├── tsconfig.json
 └── versions.json
@@ -33,8 +33,9 @@ Read [the repository audit](repo-audit.md) for the original state and
 - `src/main.ts` is the current build entry. It intentionally preserves the
   original CommonJS structure while the typed migration is staged.
 - `src/styles.css` is the current authored stylesheet used by packaging.
-- `manifest.json` is the canonical plugin metadata and is byte-equivalent to the
-  preserved snapshot manifest at scaffold creation.
+- `manifest.json` is the canonical plugin metadata. Its display name is
+  `Lighthouse`; its stable plugin ID remains byte-equivalent to the preserved
+  snapshot manifest.
 - `dist/` is generated release output and must contain exactly `main.js`,
   `manifest.json`, and `styles.css`.
 - `data.json` is not stored in this repository. Obsidian creates it per vault
@@ -143,7 +144,6 @@ the command starts. Until CSS watching is added, rerun the command after changin
 The migration must preserve until deliberately changed:
 
 - manifest ID `simple-drafts-navigator`;
-- manifest display name `Simple Drafts Navigator`;
 - view type `simple-drafts-navigator-view`;
 - existing command IDs;
 - settings defaults and legacy settings fields;
@@ -151,7 +151,9 @@ The migration must preserve until deliberately changed:
 - DOM class names used by the stylesheet;
 - desktop and mobile support.
 
-Changing the display name or plugin ID is not part of this scaffold.
+The canonical manifest display name is `Lighthouse`. Changing the plugin ID is
+not part of this scaffold because it would create a separate Obsidian plugin
+identity and disconnect existing settings.
 
 ## Change discipline
 
@@ -175,3 +177,4 @@ Changing the display name or plugin ID is not part of this scaffold.
 - [Release plan](release-plan.md)
 - [Repository audit](repo-audit.md)
 - [Migration plan](migration-plan.md)
+- [Naming and compatibility](naming-compatibility.md)

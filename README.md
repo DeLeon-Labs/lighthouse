@@ -50,22 +50,29 @@ daily use.
 Use a test vault or a vault with a current backup.
 
 1. Clone or download this repository.
-2. In the test vault, create:
+2. Install dependencies and build the three-file package:
+   ```sh
+   pnpm install --frozen-lockfile
+   pnpm run build
+   ```
+3. In the test vault, create:
    `.obsidian/plugins/simple-drafts-navigator/`
-3. Copy these files from
-   `simple-drafts-navigator-v0.23.0-alpha-focus-simplification/` into that folder:
+4. Copy these files from `dist/` into that folder:
    - `main.js`
    - `manifest.json`
    - `styles.css`
-4. Copy only those three files. Obsidian creates `data.json` inside the installed
+5. Copy only those three files. Obsidian creates `data.json` inside the installed
    plugin folder when it saves settings for that vault; it is not part of this
    repository or the plugin release.
-5. Reload Obsidian.
-6. Enable the plugin in **Settings → Community plugins**.
+6. Reload Obsidian.
+7. Enable the plugin in **Settings → Community plugins**.
 
-The installed plugin currently appears under the manifest name **Simple Drafts
-Navigator**. The plugin ID and manifest are intentionally unchanged during this
-documentation and migration-planning work.
+The installed plugin appears as **Lighthouse**. Its compatibility-sensitive
+plugin ID remains `simple-drafts-navigator`, so existing installations and saved
+settings continue to use `.obsidian/plugins/simple-drafts-navigator/`.
+
+See [Naming and compatibility](docs/naming-compatibility.md) for the legacy
+identifiers that intentionally remain unchanged.
 
 ## Planned next
 
@@ -90,6 +97,7 @@ migration so regressions are easier to identify.
 - [Development notes](docs/development-notes.md)
 - [Repository audit](docs/repo-audit.md)
 - [TypeScript migration plan](docs/migration-plan.md)
+- [Naming and compatibility](docs/naming-compatibility.md)
 
 ## Screenshots
 

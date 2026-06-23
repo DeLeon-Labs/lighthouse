@@ -70,9 +70,10 @@ The current snapshot registers commands to:
 - add the current file to the active Focus;
 - add the current file to global Focus material.
 
-Exact command labels still use the current manifest-era “Simple Drafts
-Navigator” wording in places. Renaming them is not part of the documentation
-work.
+The canonical TypeScript source uses Lighthouse as the public-facing product
+name. Stable command IDs retain legacy wording where changing them could break
+hotkeys or external automation. The preserved historical snapshot still
+contains its original labels for comparison.
 
 ## Scroll controls
 
