@@ -50,7 +50,8 @@ Actions:
   - desktop sidebar/main-pane behavior and mobile tap behavior.
 - Capture reference screenshots for the three tabs and key modals at agreed
   desktop and mobile sizes.
-- Review `data.json`; do not use it as a fixture until it is sanitized.
+- Design sanitized settings fixtures from the documented schema and compatibility
+  cases; do not copy a real vault's `data.json` into the repository.
 
 Exit criteria:
 

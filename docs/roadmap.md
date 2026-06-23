@@ -9,8 +9,8 @@ Status: **in progress**
 
 - Preserve the `0.23.0-alpha` JavaScript snapshot as the behavior baseline.
 - Document current user behavior, repository structure, and release boundaries.
-- Keep the plugin ID, manifest, runtime files, and vault-specific `data.json`
-  unchanged while planning the migration.
+- Keep the plugin ID, manifest, and installable runtime files unchanged while
+  keeping vault-specific `data.json` outside the repository.
 - Define a desktop and mobile smoke-test checklist.
 - Record baseline checksums and reference screenshots.
 

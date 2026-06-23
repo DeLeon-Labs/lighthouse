@@ -54,8 +54,9 @@ Use a test vault or a vault with a current backup.
    - `main.js`
    - `manifest.json`
    - `styles.css`
-4. Do **not** copy `data.json`. It is vault-specific runtime state from a working
-   installation, not part of the plugin release.
+4. Copy only those three files. Obsidian creates `data.json` inside the installed
+   plugin folder when it saves settings for that vault; it is not part of this
+   repository or the plugin release.
 5. Reload Obsidian.
 6. Enable the plugin in **Settings → Community plugins**.
 

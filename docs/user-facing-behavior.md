@@ -96,10 +96,9 @@ Current settings cover areas including:
 - automatic view opening and active-file reveal;
 - scroll-control visibility and size.
 
-Obsidian stores these settings in the installed plugin's `data.json`. The
-repository's current snapshot includes a working-copy `data.json` with
-vault-specific state. It is not a default configuration or release file and must
-be ignored before release packaging.
+Obsidian stores these settings in the installed plugin's per-vault `data.json`.
+The repository intentionally does not contain that runtime file. It is not a
+default configuration or release asset and is blocked by `.gitignore`.
 
 ## Current limitations
 

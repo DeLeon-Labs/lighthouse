@@ -35,7 +35,6 @@ obsidian-lighthouse/
 ├── README.md
 └── simple-drafts-navigator-v0.23.0-alpha-focus-simplification/
     ├── README.md
-    ├── data.json
     ├── main.js
     ├── manifest.json
     └── styles.css
@@ -51,7 +50,6 @@ obsidian-lighthouse/
 | Snapshot `main.js` | CommonJS runtime loaded by Obsidian; also the only current implementation | Preserve as the parity baseline. Future `main.js` must be generated from `src/main.ts`, not edited as source. |
 | Snapshot `styles.css` | CSS loaded by Obsidian; currently the only authored style source as well as a release artifact | Preserve as the visual baseline. Later split authored CSS into source modules and generate a release `styles.css`. |
 | Snapshot `manifest.json` | Installable plugin metadata | Preserve in the snapshot. Add a canonical root `manifest.json` when the build scaffold is introduced. |
-| Snapshot `data.json` | Obsidian plugin settings/state produced by `loadData()` and `saveData()` | Do not treat as source or ship it in a release. It contains vault-specific paths and UI state. If retained as a test fixture, first sanitize and copy it to a clearly named fixture. |
 
 The root `.DS_Store` is ignored and untracked. It is local operating-system
 metadata, not part of the repository.
@@ -73,9 +71,9 @@ Obsidian uses the repository copy to determine the latest plugin version.
 
 `data.json` is different: Obsidian creates it inside an installed plugin folder
 to store user-specific state. It is neither a release artifact nor application
-source. The current file includes folder names, note paths, Focus membership,
-collapsed sections, and other local choices. It should be excluded from future
-release packaging and ignored outside an intentionally sanitized fixture.
+source. It can include folder names, note paths, Focus membership, collapsed
+sections, and other local choices. It has been removed from the tracked snapshot
+and is blocked by the repository-wide ignore rule.
 
 ### Current authored source
 
@@ -262,7 +260,7 @@ project:
 | Snapshot `main.js` | Keep as baseline; create typed source under `src/` and generate a new `dist/main.js` | Behavior checklist and reproducible build. |
 | Snapshot `styles.css` | Keep as baseline; progressively extract authored modules under `src/styles/` | Screenshot comparison on desktop and mobile. |
 | Snapshot `manifest.json` | Copy values to a canonical root `manifest.json`; do not change ID or display name during migration | Build scaffold and version policy. |
-| Snapshot `data.json` | Do not ship. If needed, create a sanitized `test/fixtures/settings.v0.23.json` | Review every vault-specific value and remove personal paths/state. |
+| Runtime `data.json` | Keep ignored and out of releases. If compatibility tests need state, create a purpose-built sanitized `test/fixtures/settings.v0.23.json` | Define representative fields without copying a real vault's state. |
 | Snapshot `README.md` | Preserve with the snapshot; optionally summarize in `docs/releases/0.23.0-alpha.md` | Decide how historical snapshots will be retained. |
 | Remote README images | `assets/screenshots/` | Download and verify ownership, resolution, and alt text. |
 
@@ -280,8 +278,9 @@ project:
 4. **CSS archaeology:** the stylesheet includes many chronological override
    blocks. Consolidating them can change specificity, cascade order, and mobile
    behavior even when declarations look equivalent.
-5. **Private/runtime state:** committed `data.json` is an example of local state
-   entering source control. Future ignores and release checks must prevent this.
+5. **Private/runtime state:** `data.json` was previously committed, showing how
+   local state can enter source control. The ignore rule and future release checks
+   must prevent a recurrence.
 6. **Desktop/mobile parity:** the manifest declares `isDesktopOnly: false`, and
    the code contains mobile-specific controls. Both platforms are required for
    migration acceptance.

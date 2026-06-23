@@ -11,9 +11,9 @@ Its installable files are:
 - `manifest.json`
 - `styles.css`
 
-The adjacent `data.json` is vault-specific plugin state. It is not a release
-file. It must remain excluded from manual test installs and must be ignored by
-the future packaging process before any release is published.
+Obsidian generates `data.json` per vault when the installed plugin saves settings.
+The repository does not contain that runtime file, `.gitignore` blocks it, and
+future packaging must continue to reject it.
 
 ## Release contents boundary
 
@@ -28,14 +28,15 @@ Everything else in the repository is excluded from the installable release.
 
 ### Current files excluded from release
 
-- `simple-drafts-navigator-v0.23.0-alpha-focus-simplification/data.json` —
-  vault-specific settings and UI state;
 - `simple-drafts-navigator-v0.23.0-alpha-focus-simplification/README.md` —
   working-copy documentation;
 - root `README.md`, `LICENSE`, and `DESIGN-LOG` — repository documentation and
   licensing, not plugin runtime assets;
 - `docs/` — project documentation;
 - `.gitignore`, `.DS_Store`, and `.git/` metadata.
+
+No `data.json` is tracked. The repository-wide ignore rule prevents a new
+vault-specific runtime-state file from being added accidentally.
 
 The current snapshot directory is a storage boundary, not a release folder. A
 manual test install should select the three approved files rather than copy the
