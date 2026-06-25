@@ -95,6 +95,7 @@ module.exports = class LighthousePlugin extends Plugin {
     this.lastActiveMarkdownPath = null;
     this.pendingSettingsSave = null;
     this.settingsSaveDelay = 250;
+    const migratedLegacyVaultScopedState = this.migrateLegacyVaultScopedState();
     this.normalizeFontSizeSettings();
     this.normalizeFolderCountMode();
     this.normalizeHomeSettings();
@@ -102,6 +103,7 @@ module.exports = class LighthousePlugin extends Plugin {
     this.normalizeTabActions();
     await this.normalizePinnedNotes({ save: false });
     await this.normalizeWatchedFolders({ save: false });
+    if (migratedLegacyVaultScopedState) await this.saveData(this.settings);
     if (!this.settings.dailyNotesFolder && this.settings.dailyNotesFolderPattern) {
       this.settings.dailyNotesFolder = this.settings.dailyNotesFolderPattern;
     }
@@ -863,6 +865,55 @@ module.exports = class LighthousePlugin extends Plugin {
     return Array.isArray(this.settings.pinnedNotes) ? this.settings.pinnedNotes : [];
   }
 
+  migrateLegacyVaultScopedState() {
+    let changed = false;
+
+    const pinnedNotes = this.coerceLegacyPathList(this.settings.pinnedNotes);
+    if (!arraysEqual(pinnedNotes, this.settings.pinnedNotes)) {
+      this.settings.pinnedNotes = pinnedNotes;
+      changed = true;
+    }
+
+    const watchedFolders = this.coerceLegacyPathList(this.settings.watchedFolders);
+    if (!arraysEqual(watchedFolders, this.settings.watchedFolders)) {
+      this.settings.watchedFolders = watchedFolders;
+      changed = true;
+    }
+
+    return changed;
+  }
+
+  coerceLegacyPathList(value) {
+    const rawPaths = [];
+
+    const collect = (item) => {
+      if (!item) return;
+      if (typeof item === "string") {
+        rawPaths.push(item);
+        return;
+      }
+      if (Array.isArray(item)) {
+        for (const child of item) collect(child);
+        return;
+      }
+      if (typeof item === "object") {
+        for (const child of Object.values(item)) collect(child);
+      }
+    };
+
+    collect(value);
+
+    const seen = new Set();
+    const paths = [];
+    for (const rawPath of rawPaths) {
+      const path = normalizePath(String(rawPath || ""));
+      if (!path || seen.has(path)) continue;
+      seen.add(path);
+      paths.push(path);
+    }
+    return paths;
+  }
+
   getPinnedNoteFiles() {
     return this.getPinnedNotePaths()
       .map(path => this.app.vault.getAbstractFileByPath(path))
@@ -903,7 +954,7 @@ module.exports = class LighthousePlugin extends Plugin {
     let changed = !Array.isArray(this.settings.pinnedNotes);
 
     for (const rawPath of this.getPinnedNotePaths()) {
-      const path = normalizePath(rawPath || "");
+      const path = this.normalizeStoredVaultPath(rawPath, "file");
       const file = this.app.vault.getAbstractFileByPath(path);
       if (!path || seen.has(path) || !(file instanceof TFile) || file.extension !== "md") {
         changed = true;
@@ -946,7 +997,7 @@ module.exports = class LighthousePlugin extends Plugin {
     let changed = !Array.isArray(this.settings.watchedFolders);
 
     for (const rawPath of this.getWatchedFolderPaths()) {
-      const path = normalizePath(rawPath || "");
+      const path = this.normalizeStoredVaultPath(rawPath, "folder");
       const folder = this.app.vault.getAbstractFileByPath(path);
       if (seen.has(path) || !(folder instanceof TFolder)) {
         changed = true;
@@ -960,6 +1011,54 @@ module.exports = class LighthousePlugin extends Plugin {
     if (!changed) return;
     this.settings.watchedFolders = normalized;
     if (save) await this.saveSettings();
+  }
+
+  normalizeStoredVaultPath(rawPath, expectedType) {
+    const path = normalizePath(String(rawPath || ""));
+    if (!path) return "";
+
+    const direct = this.app.vault.getAbstractFileByPath(path);
+    if (expectedType === "file" && direct instanceof TFile) return path;
+    if (expectedType === "folder" && direct instanceof TFolder) return path;
+
+    const currentVaultPath = this.stripCurrentVaultBasePath(rawPath);
+    if (currentVaultPath && currentVaultPath !== path) {
+      const currentVaultItem = this.app.vault.getAbstractFileByPath(currentVaultPath);
+      if (expectedType === "file" && currentVaultItem instanceof TFile) return currentVaultPath;
+      if (expectedType === "folder" && currentVaultItem instanceof TFolder) return currentVaultPath;
+    }
+
+    const suffixPath = this.findVaultPathByStoredSuffix(rawPath, expectedType);
+    return suffixPath || path;
+  }
+
+  stripCurrentVaultBasePath(rawPath) {
+    try {
+      const adapter = this.app.vault.adapter;
+      if (!adapter || typeof adapter.getBasePath !== "function") return "";
+      const basePath = adapter.getBasePath();
+      if (!basePath) return "";
+      const source = String(rawPath || "").replace(/\\/g, "/");
+      const base = String(basePath || "").replace(/\\/g, "/").replace(/\/+$/, "");
+      if (source === base) return "";
+      if (!source.startsWith(`${base}/`)) return "";
+      return normalizePath(source.slice(base.length + 1));
+    } catch (e) {
+      return "";
+    }
+  }
+
+  findVaultPathByStoredSuffix(rawPath, expectedType) {
+    const source = String(rawPath || "").replace(/\\/g, "/");
+    if (!source) return "";
+
+    const paths = expectedType === "file"
+      ? this.app.vault.getMarkdownFiles().map(file => file.path)
+      : getAllFolderPaths(this.app.vault.getRoot());
+
+    return paths
+      .filter(path => path && (source === path || source.endsWith(`/${path}`)))
+      .sort((a, b) => b.length - a.length)[0] || "";
   }
 
   async handleVaultDelete() {
@@ -5131,6 +5230,12 @@ function stripFrontmatter(text) {
     }
   }
   return text;
+}
+
+function arraysEqual(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+  return a.every((value, index) => value === b[index]);
 }
 
 function stripMarkdownPreviewText(text) {
