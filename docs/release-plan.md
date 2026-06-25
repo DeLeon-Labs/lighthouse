@@ -123,7 +123,8 @@ release, confirm:
 - Add compatibility entries to `versions.json` when that file is introduced.
 - Treat a settings-schema change as a compatibility change, even when the UI
   looks unchanged.
-- Do not combine a display-name change with a source migration release.
+- Keep `Lighthouse` as the canonical display name while preserving the existing
+  plugin ID.
 
 ## Release ownership checklist
 

@@ -8,7 +8,7 @@
 
 The migration must not silently change:
 
-- the plugin ID, display name, command IDs, view type, or CSS class names;
+- the plugin ID, command IDs, view type, or CSS class names;
 - the meaning or defaults of saved settings;
 - the Recents, Files, or Focus interaction model;
 - Sources, Work, Unfiled, global-item, or named-Focus behavior;
@@ -119,7 +119,7 @@ Actions:
 
 Avoid during this phase:
 
-- renaming `SimpleDraftsNavigatorPlugin` or the manifest identity;
+- changing the manifest plugin ID or other compatibility identifiers;
 - extracting dozens of modules;
 - changing settings defaults or normalization;
 - consolidating CSS;
@@ -240,8 +240,9 @@ include:
   files from the active tree.
 
 The decision should be made only after at least one TypeScript-built alpha has
-been installed, exercised, and judged equivalent. Plugin renaming is explicitly
-outside this migration and should have its own compatibility decision.
+been installed, exercised, and judged equivalent. The public display name is
+Lighthouse; changing the stable plugin ID remains outside this migration and
+requires its own compatibility decision.
 
 ## Suggested pull-request sequence
 
