@@ -174,6 +174,12 @@ module.exports = class LighthousePlugin extends Plugin {
       }
     });
 
+    this.addCommand({
+      id: "inspect-hidden-vault-files",
+      name: "Inspect hidden vault files",
+      callback: () => new HiddenVaultInspectorModal(this.app).open()
+    });
+
     if (this.settings.showRibbonIcon) {
       this.ribbonIcon = this.addRibbonIcon("notebook-tabs", "Lighthouse", () => this.activateView());
     }
@@ -4259,6 +4265,230 @@ class ScrollControls {
 
 
 
+class HiddenVaultInspectorModal extends Modal {
+  constructor(app) {
+    super(app);
+    this.currentPath = "";
+    this.entries = [];
+    this.loading = false;
+    this.safePreviewBytes = 128 * 1024;
+  }
+
+  onOpen() {
+    this.contentEl.empty();
+    this.contentEl.addClass("sdn-hidden-inspector-modal");
+    this.render();
+  }
+
+  onClose() {
+    this.contentEl.empty();
+  }
+
+  async render() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.addClass("sdn-hidden-inspector-modal");
+
+    const header = contentEl.createDiv({ cls: "sdn-hidden-inspector-header" });
+    const title = header.createDiv({ cls: "sdn-hidden-inspector-title" });
+    title.createEl("h2", { text: "Inspect hidden vault files" });
+    title.createDiv({
+      cls: "sdn-modal-description",
+      text: "Read-only vault browser for hidden folders such as .obsidian/plugins."
+    });
+
+    const closeButton = header.createEl("button", { cls: "sdn-icon-button", attr: { "aria-label": "Close inspector" } });
+    setIcon(closeButton, "x");
+    closeButton.onclick = () => this.close();
+
+    this.renderPathBar(contentEl);
+
+    const list = contentEl.createDiv({ cls: "sdn-hidden-inspector-list" });
+    list.createDiv({ cls: "sdn-home-empty", text: "Loading…" });
+
+    try {
+      const entries = await this.readEntries(this.currentPath);
+      list.empty();
+      if (!entries.length) {
+        list.createDiv({ cls: "sdn-home-empty", text: "No files or folders" });
+        return;
+      }
+      for (const entry of entries) this.renderEntry(list, entry);
+    } catch (error) {
+      list.empty();
+      list.createDiv({ cls: "sdn-home-empty", text: `Could not read folder: ${error.message || error}` });
+    }
+  }
+
+  renderPathBar(parent) {
+    const bar = parent.createDiv({ cls: "sdn-hidden-inspector-pathbar" });
+    const back = bar.createEl("button", { cls: "sdn-hidden-inspector-back", attr: { "aria-label": "Back" } });
+    setIcon(back, "chevron-left");
+    back.createSpan({ text: "Back" });
+    back.disabled = !this.currentPath;
+    back.onclick = () => {
+      this.currentPath = getParentVaultPath(this.currentPath);
+      this.render();
+    };
+
+    const path = bar.createDiv({ cls: "sdn-hidden-inspector-path", text: this.currentPath || "/" });
+    path.title = this.currentPath || "/";
+
+    const copy = bar.createEl("button", { cls: "sdn-hidden-inspector-copy", text: "Copy path" });
+    copy.onclick = async () => {
+      await copyTextToClipboard(this.currentPath || "/");
+      new Notice("Copied path");
+    };
+  }
+
+  async readEntries(path) {
+    const adapter = this.app.vault.adapter;
+    if (!adapter || typeof adapter.list !== "function") throw new Error("Vault adapter does not support folder listing.");
+    const listed = await adapter.list(path || "");
+    const folders = Array.isArray(listed && listed.folders) ? listed.folders : [];
+    const files = Array.isArray(listed && listed.files) ? listed.files : [];
+    const entries = [];
+
+    for (const folderPath of folders) {
+      entries.push(await this.createEntry(folderPath, "folder"));
+    }
+    for (const filePath of files) {
+      entries.push(await this.createEntry(filePath, "file"));
+    }
+
+    return entries.sort((a, b) => {
+      if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  async createEntry(path, type) {
+    const stat = await this.safeStat(path);
+    return {
+      path,
+      type,
+      name: getVaultPathName(path),
+      size: type === "file" && stat && Number.isFinite(stat.size) ? stat.size : null,
+      mtime: stat && Number.isFinite(stat.mtime) ? stat.mtime : null
+    };
+  }
+
+  async safeStat(path) {
+    try {
+      const adapter = this.app.vault.adapter;
+      if (!adapter || typeof adapter.stat !== "function") return null;
+      return await adapter.stat(path);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  renderEntry(parent, entry) {
+    const row = parent.createDiv({ cls: `sdn-hidden-inspector-row is-${entry.type}` });
+    const main = row.createDiv({ cls: "sdn-hidden-inspector-main" });
+    const icon = main.createSpan({ cls: "sdn-hidden-inspector-icon", attr: { "aria-hidden": "true" } });
+    setIcon(icon, entry.type === "folder" ? "folder" : "file-text");
+
+    const text = main.createDiv({ cls: "sdn-hidden-inspector-text" });
+    text.createDiv({ cls: "sdn-hidden-inspector-name", text: entry.name || entry.path || "/" });
+    const meta = [];
+    if (entry.type === "file" && entry.size !== null) meta.push(formatBytes(entry.size));
+    if (entry.mtime !== null) meta.push(formatModifiedTime(entry.mtime));
+    text.createDiv({ cls: "sdn-hidden-inspector-meta", text: meta.join(" · ") || entry.path || "/" });
+
+    const actions = row.createDiv({ cls: "sdn-hidden-inspector-actions" });
+    const copy = actions.createEl("button", { cls: "sdn-hidden-inspector-action", attr: { "aria-label": `Copy ${entry.path}` } });
+    setIcon(copy, "copy");
+    copy.onclick = async (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      await copyTextToClipboard(entry.path);
+      new Notice("Copied path");
+    };
+
+    if (entry.type === "folder") {
+      row.onclick = () => {
+        this.currentPath = normalizePath(entry.path);
+        this.render();
+      };
+      return;
+    }
+
+    const canPreview = this.canPreview(entry);
+    const preview = actions.createEl("button", { cls: "sdn-hidden-inspector-action", attr: { "aria-label": `Preview ${entry.path}` } });
+    setIcon(preview, "eye");
+    preview.disabled = !canPreview;
+    preview.onclick = async (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      await this.openPreview(entry);
+    };
+    row.onclick = async () => {
+      if (canPreview) await this.openPreview(entry);
+    };
+  }
+
+  canPreview(entry) {
+    return entry.type === "file" && entry.size !== null && entry.size <= this.safePreviewBytes && isLikelyTextPath(entry.path);
+  }
+
+  async openPreview(entry) {
+    if (!this.canPreview(entry)) return;
+    try {
+      const adapter = this.app.vault.adapter;
+      if (!adapter || typeof adapter.read !== "function") throw new Error("Vault adapter does not support file reading.");
+      const text = await adapter.read(entry.path);
+      new HiddenVaultPreviewModal(this.app, entry, text).open();
+    } catch (error) {
+      new Notice(`Preview failed: ${error.message || error}`);
+    }
+  }
+}
+
+class HiddenVaultPreviewModal extends Modal {
+  constructor(app, entry, text) {
+    super(app);
+    this.entry = entry;
+    this.text = text || "";
+  }
+
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.addClass("sdn-hidden-inspector-modal");
+    contentEl.addClass("sdn-hidden-preview-modal");
+
+    const header = contentEl.createDiv({ cls: "sdn-hidden-inspector-header" });
+    const title = header.createDiv({ cls: "sdn-hidden-inspector-title" });
+    title.createEl("h2", { text: this.entry.name || "Preview" });
+    title.createDiv({ cls: "sdn-modal-description", text: this.entry.path });
+
+    const closeButton = header.createEl("button", { cls: "sdn-icon-button", attr: { "aria-label": "Close preview" } });
+    setIcon(closeButton, "x");
+    closeButton.onclick = () => this.close();
+
+    const actions = contentEl.createDiv({ cls: "sdn-hidden-preview-actions" });
+    const copyPath = actions.createEl("button", { text: "Copy path" });
+    copyPath.onclick = async () => {
+      await copyTextToClipboard(this.entry.path);
+      new Notice("Copied path");
+    };
+
+    const copyText = actions.createEl("button", { text: "Copy text" });
+    copyText.onclick = async () => {
+      await copyTextToClipboard(this.text);
+      new Notice("Copied text");
+    };
+
+    const pre = contentEl.createEl("pre", { cls: "sdn-hidden-preview-text" });
+    pre.createEl("code", { text: this.text });
+  }
+
+  onClose() {
+    this.contentEl.empty();
+  }
+}
+
 class FilesCustomizeModal extends Modal {
   constructor(app, plugin, view) {
     super(app);
@@ -5238,6 +5468,60 @@ function stripFrontmatter(text) {
     }
   }
   return text;
+}
+
+function getVaultPathName(path) {
+  const clean = normalizePath(path || "");
+  if (!clean) return "/";
+  const parts = clean.split("/").filter(Boolean);
+  return parts[parts.length - 1] || clean;
+}
+
+function getParentVaultPath(path) {
+  const clean = normalizePath(path || "");
+  if (!clean || !clean.includes("/")) return "";
+  return clean.split("/").slice(0, -1).join("/");
+}
+
+function formatBytes(bytes) {
+  const value = Number(bytes);
+  if (!Number.isFinite(value)) return "";
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(value < 10 * 1024 ? 1 : 0)} KB`;
+  return `${(value / (1024 * 1024)).toFixed(value < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+}
+
+function formatModifiedTime(timestamp) {
+  const value = Number(timestamp);
+  if (!Number.isFinite(value)) return "";
+  try {
+    return new Date(value).toLocaleString();
+  } catch (error) {
+    return "";
+  }
+}
+
+function isLikelyTextPath(path) {
+  const lower = String(path || "").toLowerCase();
+  if (!lower || lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".gif") || lower.endsWith(".webp") || lower.endsWith(".heic")) return false;
+  if (lower.endsWith(".pdf") || lower.endsWith(".zip") || lower.endsWith(".mp3") || lower.endsWith(".m4a") || lower.endsWith(".mp4") || lower.endsWith(".mov")) return false;
+  return /\.(md|txt|json|css|js|ts|yml|yaml|toml|xml|html|csv|log|canvas|base)$/.test(lower) || !getVaultPathName(lower).includes(".");
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    await navigator.clipboard.writeText(text || "");
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text || "";
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
 }
 
 function arraysEqual(a, b) {
