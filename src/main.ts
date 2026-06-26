@@ -101,8 +101,8 @@ module.exports = class LighthousePlugin extends Plugin {
     this.normalizeHomeSettings();
     this.normalizeFocusSettings();
     this.normalizeTabActions();
-    await this.normalizePinnedNotes({ save: false });
-    await this.normalizeWatchedFolders({ save: false });
+    await this.normalizePinnedNotes({ save: false, pruneMissing: false });
+    await this.normalizeWatchedFolders({ save: false, pruneMissing: false });
     if (migratedLegacyVaultScopedState) await this.saveData(this.settings);
     if (!this.settings.dailyNotesFolder && this.settings.dailyNotesFolderPattern) {
       this.settings.dailyNotesFolder = this.settings.dailyNotesFolderPattern;
@@ -948,7 +948,7 @@ module.exports = class LighthousePlugin extends Plugin {
     }
   }
 
-  async normalizePinnedNotes({ save = true } = {}) {
+  async normalizePinnedNotes({ save = true, pruneMissing = true } = {}) {
     const seen = new Set();
     const normalized = [];
     let changed = !Array.isArray(this.settings.pinnedNotes);
@@ -956,7 +956,11 @@ module.exports = class LighthousePlugin extends Plugin {
     for (const rawPath of this.getPinnedNotePaths()) {
       const path = this.normalizeStoredVaultPath(rawPath, "file");
       const file = this.app.vault.getAbstractFileByPath(path);
-      if (!path || seen.has(path) || !(file instanceof TFile) || file.extension !== "md") {
+      if (!path || seen.has(path)) {
+        changed = true;
+        continue;
+      }
+      if (pruneMissing && (!(file instanceof TFile) || file.extension !== "md")) {
         changed = true;
         continue;
       }
@@ -991,7 +995,7 @@ module.exports = class LighthousePlugin extends Plugin {
     await this.saveSettings();
   }
 
-  async normalizeWatchedFolders({ save = true } = {}) {
+  async normalizeWatchedFolders({ save = true, pruneMissing = true } = {}) {
     const seen = new Set();
     const normalized = [];
     let changed = !Array.isArray(this.settings.watchedFolders);
@@ -999,7 +1003,11 @@ module.exports = class LighthousePlugin extends Plugin {
     for (const rawPath of this.getWatchedFolderPaths()) {
       const path = this.normalizeStoredVaultPath(rawPath, "folder");
       const folder = this.app.vault.getAbstractFileByPath(path);
-      if (seen.has(path) || !(folder instanceof TFolder)) {
+      if (!path || seen.has(path)) {
+        changed = true;
+        continue;
+      }
+      if (pruneMissing && !(folder instanceof TFolder)) {
         changed = true;
         continue;
       }
