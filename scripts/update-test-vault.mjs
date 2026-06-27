@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const releaseDirectory = path.resolve('dist');
 const defaultTargetDirectory =
-  '/Users/jon/Library/Mobile Documents/iCloud~md~obsidian/Documents/Test Vault/.obsidian/plugins/simple-drafts-navigator';
+  '/Users/jon/Library/Mobile Documents/iCloud~md~obsidian/Documents/TestVault/.obsidian/plugins/lighthouse';
 const targetDirectory =
   process.env.LIGHTHOUSE_TEST_PLUGIN_DIR || defaultTargetDirectory;
 const releaseFiles = ['main.js', 'manifest.json', 'styles.css'];

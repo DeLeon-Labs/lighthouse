@@ -3,18 +3,33 @@
 This roadmap separates repository preparation from product work. Items marked
 **planned** are not implemented merely because they appear here.
 
-## Current — preserve, document, and scaffold the alpha
+## Completed — preserve, document, and scaffold the alpha
 
-Status: **in progress**
+Status: **completed for `v0.24.0-alpha`**
 
 - Preserve the `0.23.0-alpha` JavaScript snapshot as the behavior baseline.
 - Document current user behavior, repository structure, and release boundaries.
-- Keep the plugin ID, manifest, and installable runtime files unchanged while
-  keeping vault-specific `data.json` outside the repository.
+- Keep vault-specific `data.json` outside the repository.
 - Maintain the TypeScript/esbuild scaffold and guarded three-file `dist/`
   package without treating the transitional source as fully typed.
 - Define a desktop and mobile smoke-test checklist.
 - Record baseline checksums and reference screenshots.
+
+`v0.24.0-alpha` closed after the state-retention fix for pinned notes and watch
+folders. The remaining product issues moved to `v0.26.0-alpha` so the next alpha
+can focus on plugin identity.
+
+## Current — hard rename the unreleased alpha
+
+Status: **in progress for `v0.25.0-alpha`**
+
+- Rename the active plugin identity to `lighthouse`.
+- Install future test builds into `.obsidian/plugins/lighthouse/`.
+- Rename active view types, command IDs, plugin constants, test-vault paths, and
+  deployment scripts.
+- Update documentation to describe the canonical Lighthouse identity.
+- Do not add data migration, compatibility aliases, migration notices, workspace
+  restoration, or hotkey preservation in this alpha-only rename.
 
 ## Scaffold established — remaining validation
 
@@ -35,8 +50,7 @@ The scaffold does not replace the preserved runnable snapshot yet.
 Status: **planned**
 
 - Create a typed `src/main.ts` representation of the current implementation.
-- Preserve command IDs, view type, settings defaults, legacy settings fields,
-  CSS classes, and save behavior.
+- Preserve behavior while continuing to use the canonical Lighthouse identity.
 - Validate settings round-trips with sanitized fixtures.
 - Run the complete behavior checklist on desktop and mobile.
 - Document every intentional difference in compiled output.
@@ -65,7 +79,6 @@ migration work.
 
 ## Explicitly deferred
 
-- Renaming the plugin or changing its manifest ID.
 - Deleting or moving the current runtime snapshot.
 - Treating `data.json` as source or including it in a release.
 - Broad visual redesign during the TypeScript migration.

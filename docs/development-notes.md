@@ -19,7 +19,7 @@ typed refactor.
 │   ├── manifest.json
 │   └── styles.css
 ├── esbuild.config.mjs
-├── manifest.json                 # canonical metadata; stable plugin ID
+├── manifest.json                 # canonical Lighthouse plugin metadata
 ├── package.json
 ├── tsconfig.json
 └── versions.json
@@ -33,9 +33,8 @@ Read [the repository audit](repo-audit.md) for the original state and
 - `src/main.ts` is the current build entry. It intentionally preserves the
   original CommonJS structure while the typed migration is staged.
 - `src/styles.css` is the current authored stylesheet used by packaging.
-- `manifest.json` is the canonical plugin metadata. Its display name is
-  `Lighthouse`; its stable plugin ID remains byte-equivalent to the preserved
-  snapshot manifest.
+- `manifest.json` is the canonical Lighthouse plugin metadata. Its plugin ID is
+  `lighthouse`.
 - `dist/` is generated release output and must contain exactly `main.js`,
   `manifest.json`, and `styles.css`.
 - `data.json` is not stored in this repository. Obsidian creates it per vault
@@ -89,7 +88,7 @@ pnpm run build
 The updater defaults to the confirmed iCloud test-vault plugin path:
 
 ```text
-/Users/jon/Library/Mobile Documents/iCloud~md~obsidian/Documents/Test Vault/.obsidian/plugins/simple-drafts-navigator
+/Users/jon/Library/Mobile Documents/iCloud~md~obsidian/Documents/TestVault/.obsidian/plugins/lighthouse
 ```
 
 After building, copy the three release files with:
@@ -107,15 +106,15 @@ pnpm run test:deploy
 If the vault moves, override the default for one command:
 
 ```sh
-LIGHTHOUSE_TEST_PLUGIN_DIR="/absolute/path/to/Another Test Vault/.obsidian/plugins/simple-drafts-navigator" pnpm run test:update
+LIGHTHOUSE_TEST_PLUGIN_DIR="/absolute/path/to/AnotherTestVault/.obsidian/plugins/lighthouse" pnpm run test:update
 ```
 
 The updater:
 
-- uses the confirmed absolute `Test Vault` path unless an explicit environment
+- uses the confirmed absolute `TestVault` path unless an explicit environment
   override is supplied;
 - verifies `dist/` contains exactly `main.js`, `manifest.json`, and `styles.css`;
-- creates the missing `.obsidian/plugins/simple-drafts-navigator` path when run;
+- creates the missing `.obsidian/plugins/lighthouse` path when run;
 - copies only those three files;
 - does not delete or replace the plugin folder;
 - does not read, write, copy, or remove `data.json`; and
@@ -139,21 +138,31 @@ This watches TypeScript and writes `dist/main.js`. Release assets are copied whe
 the command starts. Until CSS watching is added, rerun the command after changing
 `src/styles.css`.
 
-## Compatibility constraints
+## Alpha identity constraints
 
-The migration must preserve until deliberately changed:
+The active alpha identity is intentionally hard-renamed to Lighthouse:
 
-- manifest ID `simple-drafts-navigator`;
-- view type `simple-drafts-navigator-view`;
-- existing command IDs;
-- settings defaults and legacy settings fields;
+- manifest ID `lighthouse`;
+- install folder `.obsidian/plugins/lighthouse`;
+- active view type and command IDs use Lighthouse naming;
+- deployment and test-vault scripts target the Lighthouse plugin folder.
+
+This rename deliberately does not include:
+
+- data migration from older `simple-drafts-navigator` test installs;
+- compatibility aliases;
+- migration notices;
+- workspace restoration; or
+- hotkey preservation.
+
+Behavior work still must preserve:
+
+- settings defaults;
 - settings save and normalization behavior;
-- DOM class names used by the stylesheet;
 - desktop and mobile support.
 
-The canonical manifest display name is `Lighthouse`. Changing the plugin ID is
-not part of this scaffold because it would create a separate Obsidian plugin
-identity and disconnect existing settings.
+The preserved snapshot remains a historical baseline and may contain old naming.
+Do not treat it as the active plugin identity.
 
 ## Change discipline
 
@@ -177,4 +186,3 @@ identity and disconnect existing settings.
 - [Release plan](release-plan.md)
 - [Repository audit](repo-audit.md)
 - [Migration plan](migration-plan.md)
-- [Naming and compatibility](naming-compatibility.md)

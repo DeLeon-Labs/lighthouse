@@ -28,7 +28,7 @@ and known boundaries.
 
 ## Development status
 
-**Status: alpha.** The current working build is `0.23.0-alpha`.
+**Status: alpha.** The current working build is `0.25.0-alpha`.
 
 This repository now has a TypeScript build scaffold. The initial `src/main.ts` is
 a behavior-preserving mechanical copy of the current JavaScript runtime with type
@@ -56,7 +56,7 @@ Use a test vault or a vault with a current backup.
    pnpm run build
    ```
 3. In the test vault, create:
-   `.obsidian/plugins/simple-drafts-navigator/`
+   `.obsidian/plugins/lighthouse/`
 4. Copy these files from `dist/` into that folder:
    - `main.js`
    - `manifest.json`
@@ -67,12 +67,10 @@ Use a test vault or a vault with a current backup.
 6. Reload Obsidian.
 7. Enable the plugin in **Settings → Community plugins**.
 
-The installed plugin appears as **Lighthouse**. Its compatibility-sensitive
-plugin ID remains `simple-drafts-navigator`, so existing installations and saved
-settings continue to use `.obsidian/plugins/simple-drafts-navigator/`.
-
-See [Naming and compatibility](docs/naming-compatibility.md) for the legacy
-identifiers that intentionally remain unchanged.
+The installed plugin appears as **Lighthouse** and uses the canonical plugin ID
+`lighthouse`. This alpha rename does not migrate data from older
+`simple-drafts-navigator` test installs; remove or disable the old test plugin
+folder before validating the renamed build.
 
 ## Planned next
 
@@ -97,7 +95,6 @@ migration so regressions are easier to identify.
 - [Development notes](docs/development-notes.md)
 - [Repository audit](docs/repo-audit.md)
 - [TypeScript migration plan](docs/migration-plan.md)
-- [Naming and compatibility](docs/naming-compatibility.md)
 
 ## Screenshots
 

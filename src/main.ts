@@ -18,7 +18,7 @@ const {
   Modal
 } = require("obsidian");
 
-const VIEW_TYPE = "simple-drafts-navigator-view";
+const VIEW_TYPE = "lighthouse-view";
 
 // Defaults are intentionally conservative: Recents and Files are core, so avoid experimental
 // features here unless they have been tested on both desktop and mobile.
@@ -30,7 +30,7 @@ const DEFAULT_SETTINGS = {
   dailyNotesFolderPattern: "20 Daily Notes/YYYY/YYYY-MM",
   rootDisplayName: "Writing",
   recentLimit: 50,
-  navigatorFontSize: 14,
+  lighthouseFontSize: 14,
   recentFontSize: 14,
   fileTreeFontSize: 13,
   bookmarksFontSize: 13,
@@ -81,7 +81,7 @@ const DEFAULT_SETTINGS = {
   fileTreeSort: "name-asc",
   fileTreeFolderBehavior: "folders-first",
   autoRevealCurrentFile: false,
-  autoOpenNavigator: true,
+  autoOpenLighthouse: true,
   showRibbonIcon: false,
   replaceCurrentNote: true,
   showScrollButtons: true,
@@ -111,15 +111,15 @@ module.exports = class LighthousePlugin extends Plugin {
     this.registerView(VIEW_TYPE, (leaf) => new LighthouseView(leaf, this));
 
     this.addCommand({
-      id: "open-simple-drafts-navigator",
+      id: "open-lighthouse",
       name: "Open Lighthouse",
       callback: () => this.activateView()
     });
 
     this.addCommand({
-      id: "open-simple-drafts-navigator-main",
+      id: "open-lighthouse-main",
       name: "Open Lighthouse in main pane",
-      callback: () => this.openNavigatorInMainPane()
+      callback: () => this.openLighthouseInMainPane()
     });
 
     this.addCommand({
@@ -141,7 +141,7 @@ module.exports = class LighthousePlugin extends Plugin {
     });
 
     this.addCommand({
-      id: "toggle-current-note-pin-in-navigator-recents",
+      id: "toggle-current-note-pin-in-lighthouse-recents",
       name: "Toggle note pin in Recents",
       checkCallback: (checking) => {
         const file = this.getCurrentMarkdownFile();
@@ -191,7 +191,7 @@ module.exports = class LighthousePlugin extends Plugin {
 
     this.app.workspace.onLayoutReady(() => this.installBookmarkRefreshHooks());
 
-    if (this.settings.autoOpenNavigator) {
+    if (this.settings.autoOpenLighthouse) {
       this.app.workspace.onLayoutReady(() => this.activateView());
     }
   }
@@ -227,7 +227,7 @@ module.exports = class LighthousePlugin extends Plugin {
   }
 
   applyRuntimeSettings() {
-    document.documentElement.style.setProperty("--sdn-font-size", `${this.settings.navigatorFontSize}px`);
+    document.documentElement.style.setProperty("--lighthouse-font-size", `${this.settings.lighthouseFontSize}px`);
     if (this.scrollControls) this.scrollControls.updateSettings();
   }
 
@@ -241,11 +241,11 @@ module.exports = class LighthousePlugin extends Plugin {
   installBookmarkRefreshHooks() {
     try {
       const instance = getBookmarksInstance(this.app);
-      if (!instance || instance.__navigatorRefreshHooksInstalled) return;
-      instance.__navigatorRefreshHooksInstalled = true;
+      if (!instance || instance.__lighthouseRefreshHooksInstalled) return;
+      instance.__lighthouseRefreshHooksInstalled = true;
       const refresh = () => window.setTimeout(() => this.refreshViews(), 60);
       for (const key of ["saveData", "requestSave", "save", "addItem", "deleteItem", "removeItem", "createGroup", "addGroup"]) {
-        if (typeof instance[key] !== "function" || instance[key].__navigatorWrapped) continue;
+        if (typeof instance[key] !== "function" || instance[key].__lighthouseWrapped) continue;
         const original = instance[key].bind(instance);
         const wrapped = (...args) => {
           const result = original(...args);
@@ -255,7 +255,7 @@ module.exports = class LighthousePlugin extends Plugin {
           refresh();
           return result;
         };
-        wrapped.__navigatorWrapped = true;
+        wrapped.__lighthouseWrapped = true;
         instance[key] = wrapped;
       }
     } catch (e) {
@@ -264,7 +264,7 @@ module.exports = class LighthousePlugin extends Plugin {
   }
 
   normalizeFontSizeSettings() {
-    const fallback = Number(this.settings.navigatorFontSize) || DEFAULT_SETTINGS.navigatorFontSize;
+    const fallback = Number(this.settings.lighthouseFontSize) || DEFAULT_SETTINGS.lighthouseFontSize;
     if (!Number.isFinite(Number(this.settings.recentFontSize))) this.settings.recentFontSize = fallback;
     if (!Number.isFinite(Number(this.settings.fileTreeFontSize))) this.settings.fileTreeFontSize = Math.max(12, fallback - 1);
     if (!Number.isFinite(Number(this.settings.bookmarksFontSize))) this.settings.bookmarksFontSize = Math.max(12, fallback - 1);
@@ -1166,7 +1166,7 @@ module.exports = class LighthousePlugin extends Plugin {
     this.app.workspace.revealLeaf(leaf);
   }
 
-  async openNavigatorInMainPane() {
+  async openLighthouseInMainPane() {
     const leaf = this.app.workspace.getLeaf(true);
     await leaf.setViewState({ type: VIEW_TYPE, active: true });
     this.app.workspace.setActiveLeaf(leaf, { focus: true });
@@ -1301,23 +1301,23 @@ class LighthouseView extends ItemView {
   getIcon() { return "notebook-tabs"; }
 
   async onOpen() {
-    this.containerEl.addClass("sdn-view");
+    this.containerEl.addClass("lighthouse-view");
     this.render();
   }
 
   render() {
     const root = this.containerEl.children[1];
     root.empty();
-    root.addClass("sdn-root");
-    root.style.setProperty("--sdn-font-size", `${this.plugin.settings.navigatorFontSize}px`);
+    root.addClass("lighthouse-root");
+    root.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.lighthouseFontSize}px`);
 
-    const header = root.createDiv({ cls: "sdn-header" });
+    const header = root.createDiv({ cls: "lighthouse-header" });
 
-    const navActions = header.createDiv({ cls: "sdn-nav-actions" });
+    const navActions = header.createDiv({ cls: "lighthouse-nav-actions" });
     this.renderHeaderNavActions(navActions);
 
-    const actions = header.createDiv({ cls: "sdn-actions" });
-    const daily = actions.createEl("button", { cls: "sdn-icon-button", attr: { "aria-label": "Daily note" } });
+    const actions = header.createDiv({ cls: "lighthouse-actions" });
+    const daily = actions.createEl("button", { cls: "lighthouse-icon-button", attr: { "aria-label": "Daily note" } });
     setIcon(daily, "calendar-days");
     daily.onclick = async (evt) => {
       evt.preventDefault();
@@ -1325,7 +1325,7 @@ class LighthouseView extends ItemView {
       await this.plugin.openDailyNote();
     };
 
-    const quick = actions.createEl("button", { cls: "sdn-icon-button", attr: { "aria-label": "Quick capture" } });
+    const quick = actions.createEl("button", { cls: "lighthouse-icon-button", attr: { "aria-label": "Quick capture" } });
     setIcon(quick, "zap");
     quick.onclick = async (evt) => {
       evt.preventDefault();
@@ -1333,27 +1333,27 @@ class LighthouseView extends ItemView {
       await this.plugin.openQuickCapture();
     };
 
-    const add = actions.createEl("button", { cls: "sdn-icon-button", attr: { "aria-label": "New note" } });
+    const add = actions.createEl("button", { cls: "lighthouse-icon-button", attr: { "aria-label": "New note" } });
     setIcon(add, "plus");
     add.onclick = () => this.plugin.createNewNote();
 
-    const tabs = root.createDiv({ cls: "sdn-tabs" });
-    const tabButtons = tabs.createDiv({ cls: "sdn-tab-buttons" });
+    const tabs = root.createDiv({ cls: "lighthouse-tabs" });
+    const tabButtons = tabs.createDiv({ cls: "lighthouse-tab-buttons" });
     this.makeTab(tabButtons, "recent", "Recent");
     this.makeTab(tabButtons, "files", "Files");
     this.makeTab(tabButtons, "bookmarks", "Focus");
 
-    const body = root.createDiv({ cls: "sdn-body" });
+    const body = root.createDiv({ cls: "lighthouse-body" });
     if (this.mode === "recent") {
-      body.style.setProperty("--sdn-font-size", `${this.plugin.settings.recentFontSize || this.plugin.settings.navigatorFontSize}px`);
+      body.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.recentFontSize || this.plugin.settings.lighthouseFontSize}px`);
       this.renderRecent(body);
     }
     if (this.mode === "files") {
-      body.style.setProperty("--sdn-font-size", `${this.plugin.settings.fileTreeFontSize || this.plugin.settings.navigatorFontSize}px`);
+      body.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.fileTreeFontSize || this.plugin.settings.lighthouseFontSize}px`);
       this.renderFiles(body);
     }
     if (this.mode === "bookmarks") {
-      body.style.setProperty("--sdn-font-size", `${this.plugin.settings.bookmarksFontSize || this.plugin.settings.recentFontSize || this.plugin.settings.navigatorFontSize}px`);
+      body.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.bookmarksFontSize || this.plugin.settings.recentFontSize || this.plugin.settings.lighthouseFontSize}px`);
       this.renderBookmarks(body);
     }
   }
@@ -1367,7 +1367,7 @@ class LighthouseView extends ItemView {
   renderActiveFocusIndicator(parent) {
     const focus = this.plugin.getActiveFocus();
     const button = parent.createEl("button", {
-      cls: `sdn-icon-button sdn-focus-indicator ${focus ? "is-active" : ""}`,
+      cls: `lighthouse-icon-button lighthouse-focus-indicator ${focus ? "is-active" : ""}`,
       attr: { "aria-label": focus ? `Active Focus: ${focus.name}` : "Lighthouse Focus: All" }
     });
     button.setAttr("title", focus ? `Focus: ${focus.name}. Click to change Focus.` : "Focus: All. Click to change Focus.");
@@ -1382,7 +1382,7 @@ class LighthouseView extends ItemView {
   renderTabActionButton(parent, mode, actionId, slot) {
     const meta = this.getTabActionMeta(mode, actionId);
     if (!meta) return;
-    const button = parent.createEl("button", { cls: "sdn-icon-button sdn-tab-action-button", attr: { "aria-label": meta.label } });
+    const button = parent.createEl("button", { cls: "lighthouse-icon-button lighthouse-tab-action-button", attr: { "aria-label": meta.label } });
     button.dataset.mode = mode;
     button.dataset.actionId = actionId;
     button.dataset.slot = String(slot);
@@ -1413,13 +1413,13 @@ class LighthouseView extends ItemView {
 
   resetTabActionDragStyles(parent) {
     if (!parent) return;
-    parent.querySelectorAll(".sdn-tab-action-button").forEach(el => {
+    parent.querySelectorAll(".lighthouse-tab-action-button").forEach(el => {
       el.style.transform = "";
       el.style.transition = "";
-      el.removeClass("sdn-dragging");
-      el.removeClass("sdn-action-swap-target");
+      el.removeClass("lighthouse-dragging");
+      el.removeClass("lighthouse-action-swap-target");
     });
-    parent.removeClass("sdn-action-drag-active");
+    parent.removeClass("lighthouse-action-drag-active");
   }
 
   attachActionButtonSwapDrag(button, parent, mode, initialSlot) {
@@ -1481,7 +1481,7 @@ class LighthouseView extends ItemView {
       axisLocked = false;
       dragging = false;
       swapped = false;
-      other = Array.from(parent.querySelectorAll(".sdn-tab-action-button")).find(el => el !== button) || null;
+      other = Array.from(parent.querySelectorAll(".lighthouse-tab-action-button")).find(el => el !== button) || null;
       travel = 0;
       threshold = 0;
       if (other) {
@@ -1506,8 +1506,8 @@ class LighthouseView extends ItemView {
         }
         axisLocked = true;
         dragging = true;
-        button.addClass("sdn-dragging");
-        parent.addClass("sdn-action-drag-active");
+        button.addClass("lighthouse-dragging");
+        parent.addClass("lighthouse-action-drag-active");
         button.style.transition = "none";
         other.style.transition = "transform 145ms cubic-bezier(0.2, 0.85, 0.25, 1)";
       }
@@ -1526,8 +1526,8 @@ class LighthouseView extends ItemView {
       const crossed = Math.abs(dx) >= threshold;
       if (crossed !== swapped) {
         swapped = crossed;
-        if (swapped) other.addClass("sdn-action-swap-target");
-        else other.removeClass("sdn-action-swap-target");
+        if (swapped) other.addClass("lighthouse-action-swap-target");
+        else other.removeClass("lighthouse-action-swap-target");
         other.style.transform = swapped ? `translateX(${-travel}px)` : "translateX(0px)";
       }
     }, { passive: false });
@@ -1537,17 +1537,17 @@ class LighthouseView extends ItemView {
   }
 
   clearTabActionDragState() {
-    this.containerEl.querySelectorAll(".sdn-tab-action-button.sdn-drop-target, .sdn-tab-action-button.sdn-shift-left, .sdn-tab-action-button.sdn-shift-right, .sdn-tab-action-button.sdn-swap-left, .sdn-tab-action-button.sdn-swap-right, .sdn-tab-action-button.sdn-action-swap-target, .sdn-tab-action-button.sdn-action-swap-commit")
+    this.containerEl.querySelectorAll(".lighthouse-tab-action-button.lighthouse-drop-target, .lighthouse-tab-action-button.lighthouse-shift-left, .lighthouse-tab-action-button.lighthouse-shift-right, .lighthouse-tab-action-button.lighthouse-swap-left, .lighthouse-tab-action-button.lighthouse-swap-right, .lighthouse-tab-action-button.lighthouse-action-swap-target, .lighthouse-tab-action-button.lighthouse-action-swap-commit")
       .forEach(el => {
-        el.removeClass("sdn-drop-target");
-        el.removeClass("sdn-shift-left");
-        el.removeClass("sdn-shift-right");
-        el.removeClass("sdn-ios-nudge-left");
-        el.removeClass("sdn-ios-nudge-right");
-        el.removeClass("sdn-swap-left");
-        el.removeClass("sdn-swap-right");
-        el.removeClass("sdn-action-swap-target");
-        el.removeClass("sdn-action-swap-commit");
+        el.removeClass("lighthouse-drop-target");
+        el.removeClass("lighthouse-shift-left");
+        el.removeClass("lighthouse-shift-right");
+        el.removeClass("lighthouse-ios-nudge-left");
+        el.removeClass("lighthouse-ios-nudge-right");
+        el.removeClass("lighthouse-swap-left");
+        el.removeClass("lighthouse-swap-right");
+        el.removeClass("lighthouse-action-swap-target");
+        el.removeClass("lighthouse-action-swap-commit");
       });
   }
 
@@ -1674,7 +1674,7 @@ class LighthouseView extends ItemView {
   }
 
   makeTab(parent, mode, label) {
-    const tab = parent.createEl("button", { cls: `sdn-tab ${this.mode === mode ? "is-active" : ""}`, text: label });
+    const tab = parent.createEl("button", { cls: `lighthouse-tab ${this.mode === mode ? "is-active" : ""}`, text: label });
     if (mode === "recent") {
       tab.setAttr("aria-label", "Recent. Right-click for view options.");
       tab.setAttr("title", "Right-click for Recent options");
@@ -1821,12 +1821,12 @@ class LighthouseView extends ItemView {
     this.render();
 
     window.setTimeout(() => {
-      const row = [...this.containerEl.querySelectorAll(".sdn-tree-row")].find(el => el.dataset && el.dataset.path === file.path);
+      const row = [...this.containerEl.querySelectorAll(".lighthouse-tree-row")].find(el => el.dataset && el.dataset.path === file.path);
       if (!row) return;
       row.scrollIntoView({ block: "center", inline: "nearest" });
       if (flash) {
-        row.addClass("sdn-revealed-file");
-        window.setTimeout(() => row.removeClass("sdn-revealed-file"), 1400);
+        row.addClass("lighthouse-revealed-file");
+        window.setTimeout(() => row.removeClass("lighthouse-revealed-file"), 1400);
       }
     }, 0);
   }
@@ -1934,9 +1934,9 @@ class LighthouseView extends ItemView {
       .sort((a, b) => this.compareRecentFiles(a, b))
       .slice(0, this.plugin.settings.recentLimit);
 
-    const list = parent.createDiv({ cls: "sdn-list" });
+    const list = parent.createDiv({ cls: "lighthouse-list" });
     list.oncontextmenu = (evt) => {
-      if (evt.target && evt.target.closest && evt.target.closest(".sdn-recent-item")) return;
+      if (evt.target && evt.target.closest && evt.target.closest(".lighthouse-recent-item")) return;
       evt.preventDefault();
       evt.stopPropagation();
       this.showRecentSortMenu(evt);
@@ -1954,15 +1954,15 @@ class LighthouseView extends ItemView {
 
   renderPinnedHeader(parent, count) {
     const collapsed = this.plugin.settings.pinnedNotesCollapsed === true;
-    const row = parent.createDiv({ cls: "sdn-pinned-header" });
+    const row = parent.createDiv({ cls: "lighthouse-pinned-header" });
     row.setAttr("role", "button");
     row.setAttr("aria-expanded", collapsed ? "false" : "true");
 
-    const caret = row.createSpan({ cls: "sdn-pinned-caret" });
+    const caret = row.createSpan({ cls: "lighthouse-pinned-caret" });
     setIcon(caret, collapsed ? "chevron-right" : "chevron-down");
 
-    const label = row.createSpan({ cls: "sdn-pinned-label", text: "Pinned" });
-    row.createSpan({ cls: "sdn-pinned-count", text: String(count) });
+    const label = row.createSpan({ cls: "lighthouse-pinned-label", text: "Pinned" });
+    row.createSpan({ cls: "lighthouse-pinned-count", text: String(count) });
 
     row.onclick = async (evt) => {
       evt.preventDefault();
@@ -1974,7 +1974,7 @@ class LighthouseView extends ItemView {
   }
 
   renderPinnedSeparator(parent) {
-    parent.createDiv({ cls: "sdn-pinned-separator" });
+    parent.createDiv({ cls: "lighthouse-pinned-separator" });
   }
 
   compareRecentFiles(a, b) {
@@ -2115,18 +2115,18 @@ class LighthouseView extends ItemView {
   }
 
   renderRecentItem(parent, file, options = {}) {
-    const item = parent.createDiv({ cls: `sdn-recent-item ${options.pinned ? "is-pinned" : ""}` });
-    const titleRow = item.createDiv({ cls: "sdn-note-title-row" });
+    const item = parent.createDiv({ cls: `lighthouse-recent-item ${options.pinned ? "is-pinned" : ""}` });
+    const titleRow = item.createDiv({ cls: "lighthouse-note-title-row" });
     if (options.pinned) {
-      const pinIcon = titleRow.createSpan({ cls: "sdn-pin-icon", attr: { "aria-label": "Pinned note" } });
+      const pinIcon = titleRow.createSpan({ cls: "lighthouse-pin-icon", attr: { "aria-label": "Pinned note" } });
       setIcon(pinIcon, "pin");
     }
-    titleRow.createDiv({ cls: "sdn-note-title", text: file.basename });
-    const previewEl = item.createDiv({ cls: `sdn-preview sdn-preview-lines-${this.plugin.settings.previewLines}` });
-    const locEl = item.createDiv({ cls: "sdn-location", text: file.parent ? file.parent.path : "/" });
+    titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
+    const previewEl = item.createDiv({ cls: `lighthouse-preview lighthouse-preview-lines-${this.plugin.settings.previewLines}` });
+    const locEl = item.createDiv({ cls: "lighthouse-location", text: file.parent ? file.parent.path : "/" });
     locEl.toggle(this.plugin.settings.showRecentLocation);
     const dateText = this.getRecentDateText(file);
-    const dateEl = item.createDiv({ cls: "sdn-recent-date", text: dateText });
+    const dateEl = item.createDiv({ cls: "lighthouse-recent-date", text: dateText });
     dateEl.toggle(!!dateText);
 
     if (this.plugin.settings.previewLines > 0) {
@@ -2144,17 +2144,17 @@ class LighthouseView extends ItemView {
 
   // Files tab mirrors a lightweight Obsidian file explorer with one expand/collapse toggle.
   renderFiles(parent) {
-    const wrap = parent.createDiv({ cls: "sdn-file-wrap" });
+    const wrap = parent.createDiv({ cls: "lighthouse-file-wrap" });
 
-    const tree = wrap.createDiv({ cls: "sdn-tree" });
+    const tree = wrap.createDiv({ cls: "lighthouse-tree" });
     tree.oncontextmenu = (evt) => {
-      if (evt.target && evt.target.closest && evt.target.closest(".sdn-tree-row, .sdn-tree-control")) return;
+      if (evt.target && evt.target.closest && evt.target.closest(".lighthouse-tree-row, .lighthouse-tree-control")) return;
       evt.preventDefault();
       evt.stopPropagation();
       this.showBackgroundFilesMenu(evt);
     };
     wrap.oncontextmenu = (evt) => {
-      if (evt.target && evt.target.closest && evt.target.closest(".sdn-tree-row, .sdn-tree-control")) return;
+      if (evt.target && evt.target.closest && evt.target.closest(".lighthouse-tree-row, .lighthouse-tree-control")) return;
       evt.preventDefault();
       evt.stopPropagation();
       this.showBackgroundFilesMenu(evt);
@@ -2169,7 +2169,7 @@ class LighthouseView extends ItemView {
       const { folders, files, items, mixed } = this.sortFileTreeChildren(focusedItems);
       const ordered = mixed ? items : [...folders, ...files];
       if (!ordered.length) {
-        parent.createDiv({ cls: "sdn-empty", text: "No items in this Focus" });
+        parent.createDiv({ cls: "lighthouse-empty", text: "No items in this Focus" });
         return;
       }
       for (const item of ordered) {
@@ -2181,7 +2181,7 @@ class LighthouseView extends ItemView {
 
     const focus = this.plugin.getActiveFocus();
     if (focus && this.plugin.settings.focusFilterFiles !== false) {
-      parent.createDiv({ cls: "sdn-empty", text: "No Files items in this Focus" });
+      parent.createDiv({ cls: "lighthouse-empty", text: "No Files items in this Focus" });
       return;
     }
 
@@ -2261,14 +2261,14 @@ class LighthouseView extends ItemView {
 
   renderFolderNode(parent, folder, depth) {
     const path = folder.path;
-    const row = parent.createDiv({ cls: "sdn-tree-row sdn-folder-row", attr: { "data-depth": depth } });
+    const row = parent.createDiv({ cls: "lighthouse-tree-row lighthouse-folder-row", attr: { "data-depth": depth } });
     row.style.paddingLeft = `${depth * 18 + 4}px`;
     row.dataset.path = folder.path;
     row.dataset.type = "folder";
     row.draggable = true;
-    const arrow = row.createSpan({ cls: "sdn-arrow" });
+    const arrow = row.createSpan({ cls: "lighthouse-arrow" });
     setIcon(arrow, this.expanded.has(path) ? "chevron-down" : "chevron-right");
-    row.createSpan({ cls: "sdn-folder-name", text: folder.name });
+    row.createSpan({ cls: "lighthouse-folder-name", text: folder.name });
     this.renderBookmarkedIndicator(row, folder);
     if (this.revealedPath === folder.path) row.addClass("is-revealed");
     this.renderWatchFolderStatus(row, folder);
@@ -2288,7 +2288,7 @@ class LighthouseView extends ItemView {
     if (this.plugin.settings.showBookmarkedFileIndicators === false) return;
     if (!(item instanceof TFile || item instanceof TFolder)) return;
     if (!isBookmarkedPath(this.app, item.path)) return;
-    const icon = row.createSpan({ cls: "sdn-bookmark-status-icon", attr: { "aria-label": "Bookmarked" } });
+    const icon = row.createSpan({ cls: "lighthouse-bookmark-status-icon", attr: { "aria-label": "Bookmarked" } });
     setIcon(icon, "bookmark");
   }
 
@@ -2306,14 +2306,14 @@ class LighthouseView extends ItemView {
 
     if (isWatched && this.plugin.settings.showWatchIndicator !== false) {
       if (count > 0) {
-        row.createSpan({ cls: "sdn-watch-dot", attr: { "aria-label": "Watched folder contains files" } });
+        row.createSpan({ cls: "lighthouse-watch-dot", attr: { "aria-label": "Watched folder contains files" } });
       } else if (showEmptyStatus) {
-        row.createSpan({ cls: "sdn-watch-dot sdn-watch-dot-empty", attr: { "aria-label": "Watched folder is empty" } });
+        row.createSpan({ cls: "lighthouse-watch-dot lighthouse-watch-dot-empty", attr: { "aria-label": "Watched folder is empty" } });
       }
     }
 
     if (shouldShowCount && (count > 0 || (isEmptyWatchedFolder && showZeroCount))) {
-      row.createSpan({ cls: "sdn-watch-count", text: `(${count})` });
+      row.createSpan({ cls: "lighthouse-watch-count", text: `(${count})` });
     }
   }
 
@@ -2337,13 +2337,13 @@ class LighthouseView extends ItemView {
   }
 
   renderFileNode(parent, file, depth) {
-    const row = parent.createDiv({ cls: "sdn-tree-row sdn-file-row", attr: { "data-depth": depth } });
+    const row = parent.createDiv({ cls: "lighthouse-tree-row lighthouse-file-row", attr: { "data-depth": depth } });
     row.style.paddingLeft = `${depth * 18 + 28}px`;
     row.dataset.path = file.path;
     row.dataset.type = "file";
     if (this.revealedPath === file.path) row.addClass("is-revealed");
     row.draggable = true;
-    row.createSpan({ cls: "sdn-file-name", text: file.basename });
+    row.createSpan({ cls: "lighthouse-file-name", text: file.basename });
     this.renderBookmarkedIndicator(row, file);
     this.attachDragSource(row, file);
     row.onclick = () => {
@@ -2359,11 +2359,11 @@ class LighthouseView extends ItemView {
     row.addEventListener("dragstart", (evt) => {
       evt.stopPropagation();
       this.dragSourcePath = item.path;
-      row.addClass("sdn-dragging");
+      row.addClass("lighthouse-dragging");
       if (evt.dataTransfer) {
         evt.dataTransfer.effectAllowed = "move";
         evt.dataTransfer.setData("text/plain", item.path);
-        evt.dataTransfer.setData("application/x-simple-drafts-path", item.path);
+        evt.dataTransfer.setData("application/x-lighthouse-path", item.path);
       }
     });
 
@@ -2371,8 +2371,8 @@ class LighthouseView extends ItemView {
       this.dragSourcePath = null;
       this.dragHoverFolderPath = null;
       clearTimeout(this.dragExpandTimer);
-      row.removeClass("sdn-dragging");
-      this.containerEl.querySelectorAll(".sdn-drop-target").forEach(el => el.removeClass("sdn-drop-target"));
+      row.removeClass("lighthouse-dragging");
+      this.containerEl.querySelectorAll(".lighthouse-drop-target").forEach(el => el.removeClass("lighthouse-drop-target"));
     });
   }
 
@@ -2389,7 +2389,7 @@ class LighthouseView extends ItemView {
       if (!canDropHere()) return;
       evt.preventDefault();
       evt.stopPropagation();
-      row.addClass("sdn-drop-target");
+      row.addClass("lighthouse-drop-target");
     });
 
     row.addEventListener("dragover", (evt) => {
@@ -2397,7 +2397,7 @@ class LighthouseView extends ItemView {
       evt.preventDefault();
       evt.stopPropagation();
       if (evt.dataTransfer) evt.dataTransfer.dropEffect = "move";
-      row.addClass("sdn-drop-target");
+      row.addClass("lighthouse-drop-target");
       if (this.dragHoverFolderPath !== folder.path) {
         this.dragHoverFolderPath = folder.path;
         clearTimeout(this.dragExpandTimer);
@@ -2413,7 +2413,7 @@ class LighthouseView extends ItemView {
     row.addEventListener("dragleave", (evt) => {
       const related = evt.relatedTarget;
       if (related && row.contains(related)) return;
-      row.removeClass("sdn-drop-target");
+      row.removeClass("lighthouse-drop-target");
       this.dragHoverFolderPath = null;
       clearTimeout(this.dragExpandTimer);
     });
@@ -2421,9 +2421,9 @@ class LighthouseView extends ItemView {
     row.addEventListener("drop", async (evt) => {
       evt.preventDefault();
       evt.stopPropagation();
-      row.removeClass("sdn-drop-target");
+      row.removeClass("lighthouse-drop-target");
 
-      const sourcePath = this.dragSourcePath || (evt.dataTransfer && (evt.dataTransfer.getData("application/x-simple-drafts-path") || evt.dataTransfer.getData("text/plain")));
+      const sourcePath = this.dragSourcePath || (evt.dataTransfer && (evt.dataTransfer.getData("application/x-lighthouse-path") || evt.dataTransfer.getData("text/plain")));
       if (!sourcePath) {
         new Notice("Move failed: no dragged item found.");
         return;
@@ -2458,15 +2458,15 @@ class LighthouseView extends ItemView {
 
   renderFocusSwitcher(parent) {
     const active = this.plugin.getActiveFocus();
-    const row = parent.createDiv({ cls: "sdn-focus-switcher" });
+    const row = parent.createDiv({ cls: "lighthouse-focus-switcher" });
     const button = row.createEl("button", {
-      cls: `sdn-focus-button ${active ? "is-active" : ""}`,
+      cls: `lighthouse-focus-button ${active ? "is-active" : ""}`,
       attr: { "aria-label": "Lighthouse Focus" }
     });
-    const icon = button.createSpan({ cls: "sdn-focus-icon", attr: { "aria-hidden": "true" } });
+    const icon = button.createSpan({ cls: "lighthouse-focus-icon", attr: { "aria-hidden": "true" } });
     setIcon(icon, active ? "list-filter" : "list-filter");
-    button.createSpan({ cls: "sdn-focus-name", text: this.plugin.getActiveFocusName() });
-    const caret = button.createSpan({ cls: "sdn-focus-caret", attr: { "aria-hidden": "true" } });
+    button.createSpan({ cls: "lighthouse-focus-name", text: this.plugin.getActiveFocusName() });
+    const caret = button.createSpan({ cls: "lighthouse-focus-caret", attr: { "aria-hidden": "true" } });
     setIcon(caret, "chevron-down");
     button.onclick = (evt) => this.showFocusMenu(evt);
   }
@@ -2519,7 +2519,7 @@ class LighthouseView extends ItemView {
   }
 
   renderBookmarksHome(parent) {
-    const list = parent.createDiv({ cls: "sdn-list sdn-home-list" });
+    const list = parent.createDiv({ cls: "lighthouse-list lighthouse-home-list" });
     this.renderFocusSwitcher(list);
     const activeFocus = this.plugin.getActiveFocus();
     if (activeFocus) {
@@ -2529,7 +2529,7 @@ class LighthouseView extends ItemView {
     const layout = this.plugin.getHomeLayout();
 
     if (!layout.length) {
-      list.createDiv({ cls: "sdn-empty", text: "No sections enabled" });
+      list.createDiv({ cls: "lighthouse-empty", text: "No sections enabled" });
       return;
     }
 
@@ -2537,14 +2537,14 @@ class LighthouseView extends ItemView {
   }
 
   renderHomeSection(parent, sectionId) {
-    const section = parent.createDiv({ cls: "sdn-home-section" });
+    const section = parent.createDiv({ cls: "lighthouse-home-section" });
     section.dataset.homeSection = sectionId;
     this.attachHomeSectionDrag(section, sectionId);
     this.renderHomeSectionHeader(section, sectionId);
 
     const collapsed = this.plugin.isHomeSectionCollapsed(sectionId);
     if (collapsed) section.addClass("is-collapsed");
-    const content = section.createDiv({ cls: "sdn-home-section-content" });
+    const content = section.createDiv({ cls: "lighthouse-home-section-content" });
     if (collapsed) return;
     if (sectionId === "bookmark-groups") this.renderHomeBookmarkGroups(content);
     if (sectionId === "pinned-notes") this.renderHomePinnedNotes(content);
@@ -2554,15 +2554,15 @@ class LighthouseView extends ItemView {
 
   renderHomeSectionHeader(parent, sectionId) {
     const meta = this.getHomeSectionMeta(sectionId);
-    const header = parent.createDiv({ cls: "sdn-home-section-header" });
+    const header = parent.createDiv({ cls: "lighthouse-home-section-header" });
     header.setAttr("role", "button");
     header.setAttr("aria-expanded", this.plugin.isHomeSectionCollapsed(sectionId) ? "false" : "true");
-    const caret = header.createSpan({ cls: "sdn-home-section-caret", attr: { "aria-hidden": "true" } });
+    const caret = header.createSpan({ cls: "lighthouse-home-section-caret", attr: { "aria-hidden": "true" } });
     setIcon(caret, this.plugin.isHomeSectionCollapsed(sectionId) ? "chevron-right" : "chevron-down");
-    const icon = header.createSpan({ cls: "sdn-home-section-icon" });
+    const icon = header.createSpan({ cls: "lighthouse-home-section-icon" });
     setIcon(icon, meta.icon);
-    header.createSpan({ cls: "sdn-home-section-title", text: meta.label });
-    const grip = header.createSpan({ cls: "sdn-home-drag-handle", attr: { "aria-label": "Drag to reorder section" } });
+    header.createSpan({ cls: "lighthouse-home-section-title", text: meta.label });
+    const grip = header.createSpan({ cls: "lighthouse-home-drag-handle", attr: { "aria-label": "Drag to reorder section" } });
     setIcon(grip, "grip-vertical");
     header.onclick = async (evt) => {
       evt.preventDefault();
@@ -2609,23 +2609,23 @@ class LighthouseView extends ItemView {
     section.draggable = true;
     section.addEventListener("dragstart", (evt) => {
       this.dragHomeSectionId = sectionId;
-      section.addClass("sdn-dragging");
+      section.addClass("lighthouse-dragging");
       if (evt.dataTransfer) {
         evt.dataTransfer.effectAllowed = "move";
-        evt.dataTransfer.setData("application/x-navigator-home-section", sectionId);
+        evt.dataTransfer.setData("application/x-lighthouse-home-section", sectionId);
       }
     });
     section.addEventListener("dragend", () => {
-      section.removeClass("sdn-dragging");
+      section.removeClass("lighthouse-dragging");
       this.dragHomeSectionId = null;
-      this.containerEl.querySelectorAll(".sdn-home-section.sdn-drop-target").forEach(el => el.removeClass("sdn-drop-target"));
+      this.containerEl.querySelectorAll(".lighthouse-home-section.lighthouse-drop-target").forEach(el => el.removeClass("lighthouse-drop-target"));
     });
     section.addEventListener("dragover", (evt) => {
       if (!this.dragHomeSectionId || this.dragHomeSectionId === sectionId) return;
       evt.preventDefault();
-      section.addClass("sdn-drop-target");
+      section.addClass("lighthouse-drop-target");
     });
-    section.addEventListener("dragleave", () => section.removeClass("sdn-drop-target"));
+    section.addEventListener("dragleave", () => section.removeClass("lighthouse-drop-target"));
     section.addEventListener("drop", async (evt) => {
       if (!this.dragHomeSectionId || this.dragHomeSectionId === sectionId) return;
       evt.preventDefault();
@@ -2635,7 +2635,7 @@ class LighthouseView extends ItemView {
   }
 
   renderHomeEmpty(parent) {
-    parent.createDiv({ cls: "sdn-home-empty", text: "Empty" });
+    parent.createDiv({ cls: "lighthouse-home-empty", text: "Empty" });
   }
 
   getHomeSectionMeta(sectionId) {
@@ -2673,7 +2673,7 @@ class LighthouseView extends ItemView {
   }
 
   renderFocusDrillView(parent, focus) {
-    const wrap = parent.createDiv({ cls: "sdn-focus-drill" });
+    const wrap = parent.createDiv({ cls: "lighthouse-focus-drill" });
     this.renderFocusDrillSection(wrap, focus, "sources", this.plugin.getFocusSectionLabel(focus, "sources"), "book-open");
     this.renderFocusDrillSection(wrap, focus, "work", this.plugin.getFocusSectionLabel(focus, "work"), "hammer");
     if (this.getFocusSectionSourcePaths(focus, "unfiled").length) {
@@ -2716,19 +2716,19 @@ class LighthouseView extends ItemView {
   }
 
   renderFocusDrillSection(parent, focus, sectionId, label, icon) {
-    const section = parent.createDiv({ cls: `sdn-focus-pane sdn-focus-pane-${sectionId}` });
-    const header = section.createDiv({ cls: "sdn-focus-pane-header" });
-    const left = header.createDiv({ cls: "sdn-focus-pane-heading" });
-    const iconEl = left.createSpan({ cls: "sdn-focus-pane-icon" });
+    const section = parent.createDiv({ cls: `lighthouse-focus-pane lighthouse-focus-pane-${sectionId}` });
+    const header = section.createDiv({ cls: "lighthouse-focus-pane-header" });
+    const left = header.createDiv({ cls: "lighthouse-focus-pane-heading" });
+    const iconEl = left.createSpan({ cls: "lighthouse-focus-pane-icon" });
     setIcon(iconEl, icon);
-    left.createSpan({ cls: "sdn-focus-pane-title", text: label });
+    left.createSpan({ cls: "lighthouse-focus-pane-title", text: label });
     left.title = "Right-click to rename";
     this.attachContextMenu(left, (evt) => this.showFocusSectionMenu(evt, focus, sectionId, label));
     this.attachFocusSectionDrop(section, focus, sectionId);
     const drillPath = this.focusDrillPaths && this.focusDrillPaths[sectionId];
     if (drillPath) {
       const folder = this.app.vault.getAbstractFileByPath(drillPath);
-      const back = header.createEl("button", { cls: "sdn-focus-back", attr: { "aria-label": `Back from ${folder ? folder.name : label}` } });
+      const back = header.createEl("button", { cls: "lighthouse-focus-back", attr: { "aria-label": `Back from ${folder ? folder.name : label}` } });
       setIcon(back, "chevron-left");
       back.createSpan({ text: folder ? folder.name : "Back" });
       back.onclick = (evt) => {
@@ -2742,10 +2742,10 @@ class LighthouseView extends ItemView {
         this.render();
       };
     }
-    const content = section.createDiv({ cls: "sdn-focus-pane-content" });
+    const content = section.createDiv({ cls: "lighthouse-focus-pane-content" });
     const items = this.sortFocusFlatItems(this.getFocusDrillItems(focus, sectionId), "sources");
     if (!items.length) {
-      content.createDiv({ cls: "sdn-home-empty", text: "Empty" });
+      content.createDiv({ cls: "lighthouse-home-empty", text: "Empty" });
       return;
     }
     for (const item of items) {
@@ -2755,14 +2755,14 @@ class LighthouseView extends ItemView {
   }
 
   renderFocusDrillFolder(parent, folder, sectionId) {
-    const row = parent.createDiv({ cls: "sdn-recent-item sdn-bookmark-item sdn-focus-drill-item is-folder", attr: { draggable: "true" } });
+    const row = parent.createDiv({ cls: "lighthouse-recent-item lighthouse-bookmark-item lighthouse-focus-drill-item is-folder", attr: { draggable: "true" } });
     this.attachFocusItemDrag(row, folder, sectionId);
-    const titleRow = row.createDiv({ cls: "sdn-bookmark-title-row" });
-    const itemIcon = titleRow.createSpan({ cls: "sdn-bookmark-item-icon", attr: { "aria-hidden": "true" } });
+    const titleRow = row.createDiv({ cls: "lighthouse-bookmark-title-row" });
+    const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "folder");
-    titleRow.createDiv({ cls: "sdn-note-title", text: folder.name });
+    titleRow.createDiv({ cls: "lighthouse-note-title", text: folder.name });
     const count = Array.isArray(folder.children) ? folder.children.filter(child => !shouldHidePath(this.plugin, child.path)).length : 0;
-    titleRow.createSpan({ cls: "sdn-folder-count", text: `(${count})` });
+    titleRow.createSpan({ cls: "lighthouse-folder-count", text: `(${count})` });
     row.onclick = (evt) => {
       evt.preventDefault();
       this.focusDrillPaths[sectionId] = folder.path;
@@ -2772,13 +2772,13 @@ class LighthouseView extends ItemView {
   }
 
   renderFocusDrillFile(parent, file, sectionId) {
-    const row = parent.createDiv({ cls: "sdn-recent-item sdn-bookmark-item sdn-focus-drill-item is-note", attr: { draggable: "true" } });
+    const row = parent.createDiv({ cls: "lighthouse-recent-item lighthouse-bookmark-item lighthouse-focus-drill-item is-note", attr: { draggable: "true" } });
     this.attachFocusItemDrag(row, file, sectionId);
-    const titleRow = row.createDiv({ cls: "sdn-bookmark-title-row" });
-    const itemIcon = titleRow.createSpan({ cls: "sdn-bookmark-item-icon", attr: { "aria-hidden": "true" } });
+    const titleRow = row.createDiv({ cls: "lighthouse-bookmark-title-row" });
+    const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "file-text");
-    titleRow.createDiv({ cls: "sdn-note-title", text: file.basename });
-    if (this.plugin.settings.showBookmarksLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "sdn-focus-source-label", text: file.parent.path });
+    titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
+    if (this.plugin.settings.showBookmarksLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-focus-source-label", text: file.parent.path });
     row.onclick = () => this.plugin.openFile(file);
     this.attachContextMenu(row, (evt) => this.showFileMenu(evt, file));
   }
@@ -2806,15 +2806,15 @@ class LighthouseView extends ItemView {
       if (!path) return;
       evt.preventDefault();
       if (evt.dataTransfer) evt.dataTransfer.dropEffect = "move";
-      section.addClass("sdn-drop-target");
+      section.addClass("lighthouse-drop-target");
     });
-    section.addEventListener("dragleave", () => section.removeClass("sdn-drop-target"));
+    section.addEventListener("dragleave", () => section.removeClass("lighthouse-drop-target"));
     section.addEventListener("drop", async (evt) => {
       const path = (this.dragFocusItem && this.dragFocusItem.path) || (evt.dataTransfer && evt.dataTransfer.getData("text/plain"));
       if (!path) return;
       evt.preventDefault();
       evt.stopPropagation();
-      section.removeClass("sdn-drop-target");
+      section.removeClass("lighthouse-drop-target");
       const focusId = focus && focus.id ? focus.id : "global";
       await this.plugin.setFocusSectionMembership(path, focusId, sectionId, true);
     });
@@ -2919,31 +2919,31 @@ class LighthouseView extends ItemView {
   }
 
   renderFocusFlatFile(parent, file, item = {}) {
-    const row = parent.createDiv({ cls: "sdn-recent-item sdn-bookmark-item sdn-focus-flat-item is-note" });
-    row.style.setProperty("--sdn-depth", "0");
-    const titleRow = row.createDiv({ cls: "sdn-bookmark-title-row" });
-    titleRow.createSpan({ cls: "sdn-bookmark-caret-spacer", attr: { "aria-hidden": "true" } });
-    const itemIcon = titleRow.createSpan({ cls: "sdn-bookmark-item-icon", attr: { "aria-hidden": "true" } });
+    const row = parent.createDiv({ cls: "lighthouse-recent-item lighthouse-bookmark-item lighthouse-focus-flat-item is-note" });
+    row.style.setProperty("--lighthouse-depth", "0");
+    const titleRow = row.createDiv({ cls: "lighthouse-bookmark-title-row" });
+    titleRow.createSpan({ cls: "lighthouse-bookmark-caret-spacer", attr: { "aria-hidden": "true" } });
+    const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "file-text");
-    titleRow.createDiv({ cls: "sdn-note-title", text: file.basename });
+    titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
     const label = item.sourceLabel || (file.parent && file.parent.name) || "";
-    if (label) row.createDiv({ cls: "sdn-focus-source-label", text: label });
-    else if (this.plugin.settings.showBookmarksLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "sdn-location sdn-home-location", text: file.parent.path });
+    if (label) row.createDiv({ cls: "lighthouse-focus-source-label", text: label });
+    else if (this.plugin.settings.showBookmarksLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: file.parent.path });
     row.onclick = () => this.plugin.openFile(file);
     this.attachContextMenu(row, (evt) => this.showFileMenu(evt, file));
   }
 
   renderFocusFlatFolder(parent, folder, item = {}) {
-    const row = parent.createDiv({ cls: "sdn-recent-item sdn-bookmark-item sdn-focus-flat-item is-folder" });
-    row.style.setProperty("--sdn-depth", "0");
-    const titleRow = row.createDiv({ cls: "sdn-bookmark-title-row" });
-    titleRow.createSpan({ cls: "sdn-bookmark-caret-spacer", attr: { "aria-hidden": "true" } });
-    const itemIcon = titleRow.createSpan({ cls: "sdn-bookmark-item-icon", attr: { "aria-hidden": "true" } });
+    const row = parent.createDiv({ cls: "lighthouse-recent-item lighthouse-bookmark-item lighthouse-focus-flat-item is-folder" });
+    row.style.setProperty("--lighthouse-depth", "0");
+    const titleRow = row.createDiv({ cls: "lighthouse-bookmark-title-row" });
+    titleRow.createSpan({ cls: "lighthouse-bookmark-caret-spacer", attr: { "aria-hidden": "true" } });
+    const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "folder");
-    const name = titleRow.createDiv({ cls: "sdn-note-title sdn-bookmark-folder-link", text: folder.name });
+    const name = titleRow.createDiv({ cls: "lighthouse-note-title lighthouse-bookmark-folder-link", text: folder.name });
     name.setAttr("title", "Reveal in Files");
     const label = item.sourceLabel || "Source folder";
-    if (label) row.createDiv({ cls: "sdn-focus-source-label", text: label });
+    if (label) row.createDiv({ cls: "lighthouse-focus-source-label", text: label });
     row.onclick = () => this.revealFolderInFiles(folder, true);
     this.attachContextMenu(row, (evt) => this.showFolderMenu(evt, folder));
   }
@@ -3067,15 +3067,15 @@ class LighthouseView extends ItemView {
   }
 
   renderHomeNoteItem(parent, file, options = {}) {
-    const row = parent.createDiv({ cls: `sdn-recent-item sdn-home-note-item ${options.pinned ? "is-pinned" : ""}` });
-    const titleRow = row.createDiv({ cls: "sdn-note-title-row" });
+    const row = parent.createDiv({ cls: `lighthouse-recent-item lighthouse-home-note-item ${options.pinned ? "is-pinned" : ""}` });
+    const titleRow = row.createDiv({ cls: "lighthouse-note-title-row" });
     if (options.pinned) {
-      const pinIcon = titleRow.createSpan({ cls: "sdn-pin-icon", attr: { "aria-label": "Pinned note" } });
+      const pinIcon = titleRow.createSpan({ cls: "lighthouse-pin-icon", attr: { "aria-label": "Pinned note" } });
       setIcon(pinIcon, "pin");
     }
-    titleRow.createDiv({ cls: "sdn-note-title", text: file.basename });
+    titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
     const loc = file.parent ? file.parent.path : "/";
-    if (this.plugin.settings.showBookmarksLocation !== false && loc && loc !== "/") row.createDiv({ cls: "sdn-location sdn-home-location", text: loc });
+    if (this.plugin.settings.showBookmarksLocation !== false && loc && loc !== "/") row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: loc });
     row.onclick = () => this.plugin.openFile(file);
     this.attachContextMenu(row, (evt) => this.showRecentItemMenu(evt, file));
   }
@@ -3087,13 +3087,13 @@ class LighthouseView extends ItemView {
       return;
     }
     for (const file of files) {
-      const row = parent.createDiv({ cls: "sdn-recent-item sdn-home-note-item sdn-open-tab-item" });
-      const titleRow = row.createDiv({ cls: "sdn-note-title-row" });
-      const fileIcon = titleRow.createSpan({ cls: "sdn-bookmark-item-icon", attr: { "aria-hidden": "true" } });
+      const row = parent.createDiv({ cls: "lighthouse-recent-item lighthouse-home-note-item lighthouse-open-tab-item" });
+      const titleRow = row.createDiv({ cls: "lighthouse-note-title-row" });
+      const fileIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
       setIcon(fileIcon, "file-text");
-      titleRow.createDiv({ cls: "sdn-note-title", text: file.basename });
+      titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
       const loc = file.parent ? file.parent.path : "/";
-      if (this.plugin.settings.showBookmarksLocation !== false && loc && loc !== "/") row.createDiv({ cls: "sdn-location sdn-home-location", text: loc });
+      if (this.plugin.settings.showBookmarksLocation !== false && loc && loc !== "/") row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: loc });
       row.onclick = () => this.activateOpenFile(file);
       this.attachContextMenu(row, (evt) => this.showFileMenu(evt, file));
     }
@@ -3137,21 +3137,21 @@ class LighthouseView extends ItemView {
     }
 
     for (const folder of folders) {
-      const row = parent.createDiv({ cls: "sdn-tree-row sdn-folder-row sdn-home-watch-row" });
+      const row = parent.createDiv({ cls: "lighthouse-tree-row lighthouse-folder-row lighthouse-home-watch-row" });
       row.dataset.path = folder.path;
       row.dataset.type = "folder";
-      const icon = row.createSpan({ cls: "sdn-tree-caret" });
+      const icon = row.createSpan({ cls: "lighthouse-tree-caret" });
       setIcon(icon, "folder");
-      row.createSpan({ cls: "sdn-folder-name", text: folder.name || folder.path });
+      row.createSpan({ cls: "lighthouse-folder-name", text: folder.name || folder.path });
       const count = this.getFolderFileCount(folder);
       if (this.plugin.settings.showWatchIndicator !== false) {
         if (count > 0) {
-          row.createSpan({ cls: "sdn-watch-dot", attr: { "aria-label": "Watched folder contains files" } });
+          row.createSpan({ cls: "lighthouse-watch-dot", attr: { "aria-label": "Watched folder contains files" } });
         } else if (this.plugin.settings.showEmptyWatchFolderStatus !== false) {
-          row.createSpan({ cls: "sdn-watch-dot sdn-watch-dot-empty", attr: { "aria-label": "Watched folder is empty" } });
+          row.createSpan({ cls: "lighthouse-watch-dot lighthouse-watch-dot-empty", attr: { "aria-label": "Watched folder is empty" } });
         }
       }
-      if (this.plugin.settings.showBookmarksInfo !== false && (count > 0 || this.plugin.settings.showZeroWatchCounts !== false)) row.createSpan({ cls: "sdn-watch-count", text: `(${count})` });
+      if (this.plugin.settings.showBookmarksInfo !== false && (count > 0 || this.plugin.settings.showZeroWatchCounts !== false)) row.createSpan({ cls: "lighthouse-watch-count", text: `(${count})` });
       row.onclick = () => {
         this.mode = "files";
         expandAncestors(this.expanded, folder.path);
@@ -3163,8 +3163,8 @@ class LighthouseView extends ItemView {
   }
 
   renderBookmarkGroupEmpty(parent, depth = 1) {
-    const empty = parent.createDiv({ cls: "sdn-home-empty sdn-bookmark-group-empty", text: "Empty" });
-    empty.style.setProperty("--sdn-depth", String(depth));
+    const empty = parent.createDiv({ cls: "lighthouse-home-empty lighthouse-bookmark-group-empty", text: "Empty" });
+    empty.style.setProperty("--lighthouse-depth", String(depth));
   }
 
   isBookmarkFolderCollapsed(path) {
@@ -3225,15 +3225,15 @@ class LighthouseView extends ItemView {
     this.expanded.add(folder.path);
     this.render();
     window.setTimeout(() => {
-      const row = [...this.containerEl.querySelectorAll(".sdn-tree-row")].find(el => el.dataset && el.dataset.path === folder.path);
+      const row = [...this.containerEl.querySelectorAll(".lighthouse-tree-row")].find(el => el.dataset && el.dataset.path === folder.path);
       if (!row) return;
       row.scrollIntoView({ block: "center", inline: "nearest" });
       if (flash) {
-        row.addClass("sdn-revealed-file");
-        row.addClass("sdn-revealed-from-bookmark");
+        row.addClass("lighthouse-revealed-file");
+        row.addClass("lighthouse-revealed-from-bookmark");
         window.setTimeout(() => {
-          row.removeClass("sdn-revealed-file");
-          row.removeClass("sdn-revealed-from-bookmark");
+          row.removeClass("lighthouse-revealed-file");
+          row.removeClass("lighthouse-revealed-from-bookmark");
         }, 1600);
       }
     }, 0);
@@ -3285,29 +3285,29 @@ class LighthouseView extends ItemView {
       return;
     }
     if (!(af instanceof TFile)) return;
-    const row = parent.createDiv({ cls: `sdn-recent-item sdn-bookmark-item sdn-bookmark-fs-item sdn-bookmark-depth-${depth} is-note ${fromFolderContents ? "is-folder-child" : ""}` });
-    row.style.setProperty("--sdn-depth", String(depth));
-    const titleRow = row.createDiv({ cls: "sdn-bookmark-title-row" });
-    titleRow.createSpan({ cls: "sdn-bookmark-caret-spacer", attr: { "aria-hidden": "true" } });
-    const itemIcon = titleRow.createSpan({ cls: "sdn-bookmark-item-icon", attr: { "aria-hidden": "true" } });
+    const row = parent.createDiv({ cls: `lighthouse-recent-item lighthouse-bookmark-item lighthouse-bookmark-fs-item lighthouse-bookmark-depth-${depth} is-note ${fromFolderContents ? "is-folder-child" : ""}` });
+    row.style.setProperty("--lighthouse-depth", String(depth));
+    const titleRow = row.createDiv({ cls: "lighthouse-bookmark-title-row" });
+    titleRow.createSpan({ cls: "lighthouse-bookmark-caret-spacer", attr: { "aria-hidden": "true" } });
+    const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "file-text");
-    titleRow.createDiv({ cls: "sdn-note-title", text: af.basename });
-    if (this.plugin.settings.showBookmarksLocation !== false && af.parent && af.parent.path) row.createDiv({ cls: "sdn-location sdn-home-location", text: af.parent.path });
+    titleRow.createDiv({ cls: "lighthouse-note-title", text: af.basename });
+    if (this.plugin.settings.showBookmarksLocation !== false && af.parent && af.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: af.parent.path });
     row.onclick = () => this.plugin.openFile(af);
     this.attachContextMenu(row, (evt) => this.showFileMenu(evt, af));
   }
 
   renderBookmarkFolderRow(parent, folder, depth, fromFolderContents = false) {
     const collapsed = this.isBookmarkFolderCollapsed(folder.path);
-    const row = parent.createDiv({ cls: `sdn-recent-item sdn-bookmark-item sdn-bookmark-folder-row sdn-bookmark-depth-${depth} is-folder ${fromFolderContents ? "is-folder-child" : ""}` });
-    row.style.setProperty("--sdn-depth", String(depth));
+    const row = parent.createDiv({ cls: `lighthouse-recent-item lighthouse-bookmark-item lighthouse-bookmark-folder-row lighthouse-bookmark-depth-${depth} is-folder ${fromFolderContents ? "is-folder-child" : ""}` });
+    row.style.setProperty("--lighthouse-depth", String(depth));
     row.setAttr("aria-expanded", collapsed ? "false" : "true");
-    const titleRow = row.createDiv({ cls: "sdn-bookmark-title-row" });
-    const caret = titleRow.createSpan({ cls: "sdn-bookmark-inline-caret", attr: { "aria-label": collapsed ? "Expand folder" : "Collapse folder" } });
+    const titleRow = row.createDiv({ cls: "lighthouse-bookmark-title-row" });
+    const caret = titleRow.createSpan({ cls: "lighthouse-bookmark-inline-caret", attr: { "aria-label": collapsed ? "Expand folder" : "Collapse folder" } });
     setIcon(caret, collapsed ? "chevron-right" : "chevron-down");
-    const itemIcon = titleRow.createSpan({ cls: "sdn-bookmark-item-icon", attr: { "aria-hidden": "true" } });
+    const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "folder");
-    const name = titleRow.createDiv({ cls: "sdn-note-title sdn-bookmark-folder-link", text: folder.name });
+    const name = titleRow.createDiv({ cls: "lighthouse-note-title lighthouse-bookmark-folder-link", text: folder.name });
     name.setAttr("title", "Reveal in Files");
 
     caret.onclick = async (evt) => {
@@ -3337,18 +3337,18 @@ class LighthouseView extends ItemView {
 
     if (isBookmarkGroupItem(item)) {
       const collapsed = this.isBookmarkGroupCollapsed(key);
-      const row = parent.createDiv({ cls: `sdn-bookmark-group sdn-tree-row sdn-bookmark-depth-${depth}` });
-      row.style.setProperty("--sdn-depth", String(depth));
+      const row = parent.createDiv({ cls: `lighthouse-bookmark-group lighthouse-tree-row lighthouse-bookmark-depth-${depth}` });
+      row.style.setProperty("--lighthouse-depth", String(depth));
       row.setAttr("role", "button");
       row.setAttr("aria-expanded", collapsed ? "false" : "true");
       row.dataset.bookmarkGroup = key;
       if (depth === 0) this.attachBookmarkGroupDrag(row, key);
 
-      const caret = row.createSpan({ cls: "sdn-tree-caret" });
+      const caret = row.createSpan({ cls: "lighthouse-tree-caret" });
       setIcon(caret, collapsed ? "chevron-right" : "chevron-down");
 
-      const label = row.createSpan({ cls: "sdn-tree-name", text: title });
-      if (this.plugin.settings.showBookmarksInfo !== false) row.createSpan({ cls: "sdn-folder-count sdn-bookmark-group-count", text: `(${countBookmarkLeafItems(children)})` });
+      const label = row.createSpan({ cls: "lighthouse-tree-name", text: title });
+      if (this.plugin.settings.showBookmarksInfo !== false) row.createSpan({ cls: "lighthouse-folder-count lighthouse-bookmark-group-count", text: `(${countBookmarkLeafItems(children)})` });
 
       row.onclick = async (evt) => {
         evt.preventDefault();
@@ -3385,26 +3385,26 @@ class LighthouseView extends ItemView {
 
   attachBookmarkGroupDrag(row, key) {
     row.draggable = true;
-    row.addClass("sdn-bookmark-group-draggable");
+    row.addClass("lighthouse-bookmark-group-draggable");
     row.addEventListener("dragstart", (evt) => {
       this.dragBookmarkGroupKey = key;
-      row.addClass("sdn-dragging");
+      row.addClass("lighthouse-dragging");
       if (evt.dataTransfer) {
         evt.dataTransfer.effectAllowed = "move";
-        evt.dataTransfer.setData("application/x-navigator-bookmark-group", key);
+        evt.dataTransfer.setData("application/x-lighthouse-bookmark-group", key);
       }
     });
     row.addEventListener("dragend", () => {
-      row.removeClass("sdn-dragging");
+      row.removeClass("lighthouse-dragging");
       this.dragBookmarkGroupKey = null;
-      this.containerEl.querySelectorAll(".sdn-bookmark-group.sdn-drop-target").forEach(el => el.removeClass("sdn-drop-target"));
+      this.containerEl.querySelectorAll(".lighthouse-bookmark-group.lighthouse-drop-target").forEach(el => el.removeClass("lighthouse-drop-target"));
     });
     row.addEventListener("dragover", (evt) => {
       if (!this.dragBookmarkGroupKey || this.dragBookmarkGroupKey === key) return;
       evt.preventDefault();
-      row.addClass("sdn-drop-target");
+      row.addClass("lighthouse-drop-target");
     });
-    row.addEventListener("dragleave", () => row.removeClass("sdn-drop-target"));
+    row.addEventListener("dragleave", () => row.removeClass("lighthouse-drop-target"));
     row.addEventListener("drop", async (evt) => {
       if (!this.dragBookmarkGroupKey || this.dragBookmarkGroupKey === key) return;
       evt.preventDefault();
@@ -3738,11 +3738,11 @@ class LighthouseView extends ItemView {
         this.expanded = getAncestorFolderSet(file.path);
         this.render();
         window.setTimeout(() => {
-          const row = [...this.containerEl.querySelectorAll(".sdn-tree-row")].find(el => el.dataset && el.dataset.path === file.path);
+          const row = [...this.containerEl.querySelectorAll(".lighthouse-tree-row")].find(el => el.dataset && el.dataset.path === file.path);
           if (!row) return;
           row.scrollIntoView({ block: "center", inline: "nearest" });
-          row.addClass("sdn-revealed-file");
-          window.setTimeout(() => row.removeClass("sdn-revealed-file"), 1400);
+          row.addClass("lighthouse-revealed-file");
+          window.setTimeout(() => row.removeClass("lighthouse-revealed-file"), 1400);
         }, 0);
       }));
 
@@ -4004,12 +4004,12 @@ class ScrollControls {
   }
 
   init() {
-    this.el = document.body.createDiv({ cls: "sdn-scroll-controls" });
+    this.el = document.body.createDiv({ cls: "lighthouse-scroll-controls" });
 
-    this.topBtn = this.el.createEl("button", { cls: "sdn-scroll-button", attr: { "aria-label": "Scroll to top" } });
+    this.topBtn = this.el.createEl("button", { cls: "lighthouse-scroll-button", attr: { "aria-label": "Scroll to top" } });
     setIcon(this.topBtn, "arrow-up");
 
-    this.bottomBtn = this.el.createEl("button", { cls: "sdn-scroll-button", attr: { "aria-label": "Scroll to bottom" } });
+    this.bottomBtn = this.el.createEl("button", { cls: "lighthouse-scroll-button", attr: { "aria-label": "Scroll to bottom" } });
     setIcon(this.bottomBtn, "arrow-down");
 
     this.topBtn.onclick = () => {
@@ -4089,7 +4089,7 @@ class ScrollControls {
 
   updateSettings() {
     const size = this.plugin.settings.scrollButtonSize || 34;
-    this.el.style.setProperty("--sdn-scroll-size", `${size}px`);
+    this.el.style.setProperty("--lighthouse-scroll-size", `${size}px`);
     this.position();
   }
 
@@ -4189,10 +4189,10 @@ class ScrollControls {
 
   animateClick(button) {
     if (!button) return;
-    button.removeClass("sdn-scroll-pulse");
+    button.removeClass("lighthouse-scroll-pulse");
     void button.offsetWidth;
-    button.addClass("sdn-scroll-pulse");
-    window.setTimeout(() => button.removeClass("sdn-scroll-pulse"), 300);
+    button.addClass("lighthouse-scroll-pulse");
+    window.setTimeout(() => button.removeClass("lighthouse-scroll-pulse"), 300);
   }
 
   revealMobileBriefly(ms = 1600) {
@@ -4269,9 +4269,9 @@ class FilesCustomizeModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("sdn-focus-edit-modal");
+    contentEl.addClass("lighthouse-focus-edit-modal");
     contentEl.createEl("h2", { text: "Customize Files" });
-    contentEl.createDiv({ cls: "sdn-modal-description", text: "Adjust file tree sorting, folder behavior, and watch folder status display." });
+    contentEl.createDiv({ cls: "lighthouse-modal-description", text: "Adjust file tree sorting, folder behavior, and watch folder status display." });
 
     contentEl.createEl("h3", { text: "Sorting" });
     new Setting(contentEl)
@@ -4351,7 +4351,7 @@ class FilesCustomizeModal extends Modal {
           this.plugin.refreshViews();
         }));
 
-    const buttons = contentEl.createDiv({ cls: "sdn-modal-buttons" });
+    const buttons = contentEl.createDiv({ cls: "lighthouse-modal-buttons" });
     new Setting(buttons)
       .addButton(button => button
         .setButtonText("Done")
@@ -4473,9 +4473,9 @@ class FocusEditModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("sdn-focus-edit-modal");
+    contentEl.addClass("lighthouse-focus-edit-modal");
     contentEl.createEl("h2", { text: this.focus.id ? "Edit Focus" : "New Focus" });
-    contentEl.createDiv({ cls: "sdn-modal-description", text: "A Focus is a constrained working context. It only shows items intentionally assigned to Sources, Work, or Unfiled." });
+    contentEl.createDiv({ cls: "lighthouse-modal-description", text: "A Focus is a constrained working context. It only shows items intentionally assigned to Sources, Work, or Unfiled." });
 
     const nameSetting = new Setting(contentEl).setName("Name").setDesc("Example: Writing, Audio, Clients, Mobile");
     nameSetting.addText(text => {
@@ -4496,7 +4496,7 @@ class FocusEditModal extends Modal {
     });
 
     contentEl.createEl("h3", { text: "Focus sections" });
-    contentEl.createDiv({ cls: "sdn-modal-description", text: "Right-click section headers in Focus to rename them. Unfiled only appears when it contains items." });
+    contentEl.createDiv({ cls: "lighthouse-modal-description", text: "Right-click section headers in Focus to rename them. Unfiled only appears when it contains items." });
 
     const sourceItems = Array.isArray(this.focus.sourceItems) ? this.focus.sourceItems : (Array.isArray(this.focus.items) ? this.focus.items : []);
     const workItems = Array.isArray(this.focus.workItems) ? this.focus.workItems : [];
@@ -4511,7 +4511,7 @@ class FocusEditModal extends Modal {
     this.renderFocusItemSummary(contentEl, "Global Work", globalWorkItems, "focusGlobalWorkItems");
     this.renderFocusItemSummary(contentEl, "Global Unfiled", globalUnfiledItems, "focusGlobalUnfiledItems");
 
-    const buttons = contentEl.createDiv({ cls: "sdn-modal-buttons sdn-modal-sticky-footer" });
+    const buttons = contentEl.createDiv({ cls: "lighthouse-modal-buttons lighthouse-modal-sticky-footer" });
     new Setting(buttons)
       .addButton(button => button
         .setButtonText("Cancel")
@@ -4539,16 +4539,16 @@ class FocusEditModal extends Modal {
   renderFocusItemSummary(parent, label, paths, key) {
     const isGlobal = key === "focusGlobalSourceItems" || key === "focusGlobalWorkItems" || key === "focusGlobalUnfiledItems";
     const clean = (paths || []).filter(Boolean);
-    const summary = parent.createDiv({ cls: "sdn-focus-item-summary" });
-    summary.createDiv({ cls: "sdn-focus-item-summary-label", text: `${label}: ${clean.length}` });
+    const summary = parent.createDiv({ cls: "lighthouse-focus-item-summary" });
+    summary.createDiv({ cls: "lighthouse-focus-item-summary-label", text: `${label}: ${clean.length}` });
     if (!clean.length) {
-      summary.createDiv({ cls: "sdn-home-empty", text: "None" });
+      summary.createDiv({ cls: "lighthouse-home-empty", text: "None" });
       return;
     }
     for (const path of clean) {
-      const row = summary.createDiv({ cls: "sdn-focus-item-summary-row" });
-      row.createDiv({ cls: "sdn-focus-item-summary-path", text: path });
-      const remove = row.createEl("button", { cls: "sdn-focus-item-remove", attr: { "aria-label": `Remove ${path}` } });
+      const row = summary.createDiv({ cls: "lighthouse-focus-item-summary-row" });
+      row.createDiv({ cls: "lighthouse-focus-item-summary-path", text: path });
+      const remove = row.createEl("button", { cls: "lighthouse-focus-item-remove", attr: { "aria-label": `Remove ${path}` } });
       setIcon(remove, "x");
       remove.onclick = (evt) => {
         evt.preventDefault();
@@ -4600,10 +4600,10 @@ class FocusDeleteConfirmModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("sdn-focus-edit-modal");
+    contentEl.addClass("lighthouse-focus-edit-modal");
     contentEl.createEl("h2", { text: "Delete Focus?" });
     contentEl.createDiv({
-      cls: "sdn-modal-description",
+      cls: "lighthouse-modal-description",
       text: `Delete "${this.focus.name}"? This only removes the Lighthouse Focus. It does not delete notes, folders, or bookmarks.`
     });
 
@@ -4613,7 +4613,7 @@ class FocusDeleteConfirmModal extends Modal {
         .setValue(false)
         .onChange(value => { this.dontShowAgain = value; }));
 
-    const buttons = contentEl.createDiv({ cls: "sdn-modal-buttons" });
+    const buttons = contentEl.createDiv({ cls: "lighthouse-modal-buttons" });
     new Setting(buttons)
       .addButton(button => button
         .setButtonText("Delete Focus")
@@ -4646,14 +4646,14 @@ class FocusUnsavedChangesModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("sdn-focus-edit-modal");
+    contentEl.addClass("lighthouse-focus-edit-modal");
     contentEl.createEl("h2", { text: "Unsaved Focus changes" });
     contentEl.createDiv({
-      cls: "sdn-modal-description",
+      cls: "lighthouse-modal-description",
       text: "You have not saved this Focus state. Do you want to save your changes before closing?"
     });
 
-    const buttons = contentEl.createDiv({ cls: "sdn-modal-buttons" });
+    const buttons = contentEl.createDiv({ cls: "lighthouse-modal-buttons" });
     new Setting(buttons)
       .addButton(button => button
         .setButtonText("Save")
@@ -4691,9 +4691,9 @@ class HomeCustomizeModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("sdn-focus-edit-modal");
+    contentEl.addClass("lighthouse-focus-edit-modal");
     contentEl.createEl("h2", { text: "Customize Bookmarks" });
-    contentEl.createDiv({ cls: "sdn-modal-description", text: "Choose what appears in the Bookmarks view and how much detail it shows." });
+    contentEl.createDiv({ cls: "lighthouse-modal-description", text: "Choose what appears in the Bookmarks view and how much detail it shows." });
 
     contentEl.createEl("h3", { text: "Sections" });
     const sections = ["bookmark-groups", "pinned-notes", "open-tabs", "watch-folders"];
@@ -4756,7 +4756,7 @@ class HomeCustomizeModal extends Modal {
           await this.plugin.saveSettings();
         }));
 
-    const buttons = contentEl.createDiv({ cls: "sdn-modal-buttons" });
+    const buttons = contentEl.createDiv({ cls: "lighthouse-modal-buttons" });
     new Setting(buttons)
       .addButton(button => button
         .setButtonText("Done")
@@ -4792,8 +4792,8 @@ class TextInputModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("sdn-focus-edit-modal");
-    contentEl.addClass("sdn-text-input-modal");
+    contentEl.addClass("lighthouse-focus-edit-modal");
+    contentEl.addClass("lighthouse-text-input-modal");
 
     contentEl.createEl("h2", { text: this.title });
 
@@ -4803,7 +4803,7 @@ class TextInputModal extends Modal {
       attr: { placeholder: this.placeholder }
     });
 
-    const buttonRow = contentEl.createDiv({ cls: "sdn-modal-buttons" });
+    const buttonRow = contentEl.createDiv({ cls: "lighthouse-modal-buttons" });
     const cancel = buttonRow.createEl("button", { text: "Cancel" });
     const submit = buttonRow.createEl("button", { text: "Create", cls: "mod-cta" });
 
@@ -4850,9 +4850,9 @@ class LighthouseSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Recent font size")
       .setDesc("Default: 14 px.")
-      .addSlider(s => s.setLimits(11, 24, 1).setValue(this.plugin.settings.recentFontSize || this.plugin.settings.navigatorFontSize).setDynamicTooltip().onChange(async v => {
+      .addSlider(s => s.setLimits(11, 24, 1).setValue(this.plugin.settings.recentFontSize || this.plugin.settings.lighthouseFontSize).setDynamicTooltip().onChange(async v => {
         this.plugin.settings.recentFontSize = v;
-        this.plugin.settings.navigatorFontSize = v;
+        this.plugin.settings.lighthouseFontSize = v;
         await this.plugin.saveSettings();
       }));
 
@@ -4908,7 +4908,7 @@ class LighthouseSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("File tree font size")
       .setDesc("Default: 13 px. Keep this smaller for denser folder browsing.")
-      .addSlider(s => s.setLimits(11, 24, 1).setValue(this.plugin.settings.fileTreeFontSize || Math.max(11, this.plugin.settings.navigatorFontSize - 1)).setDynamicTooltip().onChange(async v => {
+      .addSlider(s => s.setLimits(11, 24, 1).setValue(this.plugin.settings.fileTreeFontSize || Math.max(11, this.plugin.settings.lighthouseFontSize - 1)).setDynamicTooltip().onChange(async v => {
         this.plugin.settings.fileTreeFontSize = v;
         await this.plugin.saveSettings();
       }));
@@ -4918,7 +4918,7 @@ class LighthouseSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Bookmarks font size")
       .setDesc("Default: 13 px. Applies only to the Bookmarks/Home view.")
-      .addSlider(s => s.setLimits(11, 24, 1).setValue(this.plugin.settings.bookmarksFontSize || Math.max(11, this.plugin.settings.navigatorFontSize - 1)).setDynamicTooltip().onChange(async v => {
+      .addSlider(s => s.setLimits(11, 24, 1).setValue(this.plugin.settings.bookmarksFontSize || Math.max(11, this.plugin.settings.lighthouseFontSize - 1)).setDynamicTooltip().onChange(async v => {
         this.plugin.settings.bookmarksFontSize = v;
         await this.plugin.saveSettings();
       }));
@@ -5000,8 +5000,8 @@ class LighthouseSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Auto-open Lighthouse at startup")
       .setDesc("Default: on. Opens Lighthouse automatically when the vault loads.")
-      .addToggle(t => t.setValue(this.plugin.settings.autoOpenNavigator).onChange(async v => {
-        this.plugin.settings.autoOpenNavigator = v;
+      .addToggle(t => t.setValue(this.plugin.settings.autoOpenLighthouse).onChange(async v => {
+        this.plugin.settings.autoOpenLighthouse = v;
         await this.plugin.saveSettings();
       }));
 
