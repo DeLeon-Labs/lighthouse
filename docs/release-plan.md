@@ -110,10 +110,10 @@ Status: **planned**
 notes and watched folders. The remaining product issues were moved forward so
 the next alpha can focus on identity.
 
-## Planned `0.25.0-alpha` gate
+## Completed `0.25.0-alpha` gate
 
-`v0.25.0-alpha` is the hard Lighthouse rename for the unreleased alpha. Before
-release, confirm:
+`v0.25.0-alpha` completed the hard Lighthouse rename for the unreleased alpha.
+The release gate confirmed:
 
 - the manifest plugin ID is `lighthouse`;
 - test installs use `.obsidian/plugins/lighthouse/`;
@@ -131,11 +131,61 @@ This is not a compatibility migration. It does not preserve old plugin folders,
 workspace leaves, hotkeys, or saved settings from `simple-drafts-navigator` test
 installs.
 
+## Planned `0.26.0-alpha` gate
+
+`v0.26.0-alpha` is the Focus Context Model milestone. It should leave the
+repository with architecture clear enough for implementation branches to follow.
+
+Before release, confirm:
+
+- issue #16 is complete;
+- the canonical architecture document defines Lighthouse as the context engine
+  for Obsidian;
+- Focus is documented as a saved context definition;
+- Sources and Work are documented as optional layouts, not the underlying model;
+- the item model, provider boundary, view model, persistence model, and
+  inheritance model are documented;
+- Files, Recents, and Focus have distinct responsibilities;
+- Lighthouse remains vault-native;
+- external systems are deferred to future provider plugins; and
+- no major implementation work is mixed into the model milestone.
+
+## Planned `0.27.0-alpha` gate
+
+`v0.27.0-alpha` is the Focus Experience milestone. It should make Focus easier
+to create, populate, understand, and use.
+
+Before release, confirm:
+
+- empty Focus friction is removed or deliberately redesigned;
+- single-panel and structured-panel layouts operate over the same Focus data;
+- section assignment does not change underlying membership;
+- drag-and-drop assignment behavior is tested;
+- active-Focus inheritance is implemented according to the model;
+- Focus settings are simpler and documented; and
+- mobile interaction issues assigned to the milestone are tested.
+
+## Planned `0.28.0-alpha` gate
+
+`v0.28.0-alpha` is the Ecosystem API milestone. It should expose Lighthouse as a
+context engine for future plugins without implementing external providers in
+core.
+
+Before release, confirm:
+
+- the Lighthouse API surface is documented;
+- Focus events/hooks are documented;
+- the provider interface is documented;
+- ecosystem examples remain vault-native; and
+- GitHub, web, email, calendar, and other external providers remain out of core.
+
 ## Version and compatibility rules
 
 - Treat `lighthouse` as the canonical plugin ID for active builds.
 - Do not add legacy data migration or compatibility aliases during the
   `v0.25.0-alpha` hard rename.
+- Keep core Lighthouse vault-native until the provider interface is designed and
+  reviewed.
 - Add compatibility entries to `versions.json` when that file is introduced.
 - Treat a settings-schema change as a compatibility change, even when the UI
   looks unchanged.

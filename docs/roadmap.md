@@ -16,12 +16,12 @@ Status: **completed for `v0.24.0-alpha`**
 - Record baseline checksums and reference screenshots.
 
 `v0.24.0-alpha` closed after the state-retention fix for pinned notes and watch
-folders. The remaining product issues moved to `v0.26.0-alpha` so the next alpha
-can focus on plugin identity.
+folders. The remaining product issues were moved forward so the next alpha could
+focus on plugin identity.
 
-## Current — hard rename the unreleased alpha
+## Completed — hard rename the unreleased alpha
 
-Status: **in progress for `v0.25.0-alpha`**
+Status: **completed for `v0.25.0-alpha`**
 
 - Rename the active plugin identity to `lighthouse`.
 - Install future test builds into `.obsidian/plugins/lighthouse/`.
@@ -30,6 +30,57 @@ Status: **in progress for `v0.25.0-alpha`**
 - Update documentation to describe the canonical Lighthouse identity.
 - Do not add data migration, compatibility aliases, migration notices, workspace
   restoration, or hotkey preservation in this alpha-only rename.
+
+## Current — Focus Context Model
+
+Status: **planned for `v0.26.0-alpha`**
+
+Lighthouse is the context engine for Obsidian. The next milestone defines that
+architecture before major implementation.
+
+Scope:
+
+- complete issue #16;
+- define the Focus model;
+- define the Lighthouse item model;
+- define the vault-native provider boundary;
+- define Files vs Recents vs Focus;
+- define Focus inheritance;
+- define persistence expectations;
+- update architecture documentation.
+
+No major implementation work belongs in this milestone.
+
+## Next — Focus Experience
+
+Status: **planned for `v0.27.0-alpha`**
+
+Make Focus effortless and enjoyable after the model is clear.
+
+Scope:
+
+- redesign Focus creation flow;
+- eliminate empty Focus friction;
+- implement single-panel and structured-panel layouts;
+- drag and drop section assignment;
+- automatic Focus inheritance;
+- simplify Focus settings.
+
+## Later — Ecosystem API
+
+Status: **planned for `v0.28.0-alpha`**
+
+Expose Lighthouse as the context engine for future plugins while remaining
+vault-native.
+
+Scope:
+
+- Lighthouse API;
+- Focus events and hooks;
+- provider interface;
+- ecosystem documentation.
+
+Do not implement GitHub or other external providers in this milestone.
 
 ## Scaffold established — remaining validation
 
@@ -68,18 +119,18 @@ Status: **planned**
 - Modularize CSS only with computed-style and screenshot comparison.
 - Add unit checks for pure logic and repeatable release checks.
 
-## Product work after the baseline is safe
+## Product work after the context model is safe
 
 Status: **planned; scope not yet committed**
 
-Likely areas include persistence reliability, Focus surfacing, navigation and
-file visibility, and mobile interaction quality. Each change should be linked to
-a tracked issue, assigned to a release, and tested independently of repository
-migration work.
+Likely areas include Focus surfacing, navigation and file visibility, and mobile
+interaction quality. Each change should be linked to a tracked issue, assigned
+to a release, and tested independently of architecture/model work.
 
 ## Explicitly deferred
 
 - Deleting or moving the current runtime snapshot.
 - Treating `data.json` as source or including it in a release.
+- Implementing external providers in core Lighthouse.
 - Broad visual redesign during the TypeScript migration.
 - Claiming stable or community-directory readiness before release checks exist.

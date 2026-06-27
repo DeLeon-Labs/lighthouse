@@ -23,6 +23,11 @@ The current build also includes commands for opening Lighthouse, creating a note
 in a configured folder, opening a quick-capture note, opening the daily note,
 pinning the active note, and adding material to Focus.
 
+The next planning direction defines Lighthouse as the context engine for
+Obsidian. Focus should become a saved context definition; Sources and Work are
+optional layouts over that context, not the underlying model. Lighthouse begins
+vault-native, with external systems deferred to future provider plugins.
+
 See [user-facing behavior](docs/user-facing-behavior.md) for the current behavior
 and known boundaries.
 
@@ -89,6 +94,7 @@ migration so regressions are easier to identify.
 ## Documentation
 
 - [Vision](docs/vision.md)
+- [Architecture](docs/architecture.md)
 - [Current user-facing behavior](docs/user-facing-behavior.md)
 - [Roadmap](docs/roadmap.md)
 - [Release plan](docs/release-plan.md)

@@ -25,8 +25,9 @@ typed refactor.
 └── versions.json
 ```
 
-Read [the repository audit](repo-audit.md) for the original state and
-[the migration plan](migration-plan.md) before converting runtime code.
+Read [the architecture document](architecture.md) before implementing Focus
+model changes. Read [the repository audit](repo-audit.md) for the original state
+and [the migration plan](migration-plan.md) before converting runtime code.
 
 ## File roles
 
@@ -164,10 +165,27 @@ Behavior work still must preserve:
 The preserved snapshot remains a historical baseline and may contain old naming.
 Do not treat it as the active plugin identity.
 
+## Focus architecture constraints
+
+The next implementation phase follows [the architecture document](architecture.md).
+
+Core rules:
+
+- Lighthouse is the context engine for Obsidian.
+- Focus is a saved context definition.
+- Sources and Work are optional layouts, not the underlying model.
+- Lighthouse begins vault-native.
+- External systems belong in future provider plugins.
+
+Do not implement the Focus architecture inside documentation/planning branches.
+Implementation branches should reference issue #16 and the architecture document
+before changing runtime behavior.
+
 ## Change discipline
 
 - Keep build scaffolding, type conversion, refactoring, visual changes, and issue
   fixes in separate commits.
+- Keep planning/documentation branches free of runtime implementation changes.
 - Treat `@ts-nocheck` removal as a typed migration with behavior checks, not a
   search-and-replace cleanup.
 - Keep the current snapshot available until a TypeScript-built alpha passes the
@@ -181,6 +199,7 @@ Do not treat it as the active plugin identity.
 ## Documentation map
 
 - [Vision](vision.md)
+- [Architecture](architecture.md)
 - [Current user-facing behavior](user-facing-behavior.md)
 - [Roadmap](roadmap.md)
 - [Release plan](release-plan.md)
