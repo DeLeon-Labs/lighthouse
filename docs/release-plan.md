@@ -4,8 +4,9 @@
 
 Lighthouse now has a local TypeScript/esbuild scaffold that generates and
 validates release files in `dist/`. It does not yet have automated GitHub release
-publishing or a fully typed implementation. The current `0.23.0-alpha` working
-copy remains preserved as the known-working installable snapshot.
+publishing or a fully typed implementation. The `0.23.0-alpha` working copy
+remains preserved as the known-working installable snapshot, while the active
+alpha build is `0.25.0-alpha`.
 
 Its installable files are:
 
@@ -103,28 +104,42 @@ Status: **planned**
 - Mark pre-stable builds clearly as alpha.
 - Test the uploaded assets in a clean vault before announcing the release.
 
-## Planned `0.24.0-alpha` gate
+## Completed `0.24.0-alpha` gate
 
-The next alpha should not be cut solely because the version exists. Before
+`v0.24.0-alpha` is treated as complete after the state-retention fix for pinned
+notes and watched folders. The remaining product issues were moved forward so
+the next alpha can focus on identity.
+
+## Planned `0.25.0-alpha` gate
+
+`v0.25.0-alpha` is the hard Lighthouse rename for the unreleased alpha. Before
 release, confirm:
 
-- its scope is defined by assigned issues;
-- completed fixes are separated from the TypeScript migration;
+- the manifest plugin ID is `lighthouse`;
+- test installs use `.obsidian/plugins/lighthouse/`;
+- view type, command IDs, plugin constants, test-vault paths, deployment scripts,
+  active aliases/functions, and documentation use Lighthouse naming;
+- no active user-facing `Simple Drafts Navigator` naming remains;
+- the old compatibility documentation has been removed or replaced;
 - the manual behavior checklist passes or exceptions are documented;
 - desktop and mobile results are recorded;
 - no vault-specific `data.json` is present;
 - the three installable assets match the version in the manifest; and
 - rollback to `0.23.0-alpha` is possible.
 
+This is not a compatibility migration. It does not preserve old plugin folders,
+workspace leaves, hotkeys, or saved settings from `simple-drafts-navigator` test
+installs.
+
 ## Version and compatibility rules
 
-- Do not change the plugin ID during the repository migration.
-- Preserve old settings fields until an explicit migration is tested.
+- Treat `lighthouse` as the canonical plugin ID for active builds.
+- Do not add legacy data migration or compatibility aliases during the
+  `v0.25.0-alpha` hard rename.
 - Add compatibility entries to `versions.json` when that file is introduced.
 - Treat a settings-schema change as a compatibility change, even when the UI
   looks unchanged.
-- Keep `Lighthouse` as the canonical display name while preserving the existing
-  plugin ID.
+- Keep `Lighthouse` as the canonical display name.
 
 ## Release ownership checklist
 

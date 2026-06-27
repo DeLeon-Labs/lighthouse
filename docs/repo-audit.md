@@ -2,7 +2,8 @@
 
 - Audit date: 2026-06-22
 - Repository: `DeLeon-Labs/lighthouse`
-- Current plugin snapshot: `0.23.0-alpha`
+- Active alpha build: `0.25.0-alpha`
+- Preserved behavior snapshot: `0.23.0-alpha`
 - Scope: repository organization only; no behavior, plugin ID, or product-name
   changes are included
 
@@ -261,17 +262,16 @@ project:
 | `DESIGN-LOG` | `docs/design-log.md` | Agree on Markdown naming and preserve history. |
 | Snapshot `main.js` | Keep as baseline; create typed source under `src/` and generate a new `dist/main.js` | Behavior checklist and reproducible build. |
 | Snapshot `styles.css` | Keep as baseline; progressively extract authored modules under `src/styles/` | Screenshot comparison on desktop and mobile. |
-| Snapshot `manifest.json` | Copy values to a canonical root `manifest.json`; do not change ID or display name during migration | Build scaffold and version policy. |
+| Snapshot `manifest.json` | Keep with the historical snapshot; the canonical root `manifest.json` now owns the active Lighthouse identity | Build scaffold and version policy. |
 | Runtime `data.json` | Keep ignored and out of releases. If compatibility tests need state, create a purpose-built sanitized `test/fixtures/settings.v0.23.json` | Define representative fields without copying a real vault's state. |
 | Snapshot `README.md` | Preserve with the snapshot; optionally summarize in `docs/releases/0.23.0-alpha.md` | Decide how historical snapshots will be retained. |
 | Remote README images | `assets/screenshots/` | Download and verify ownership, resolution, and alt text. |
 
 ## Risks and constraints
 
-1. **Identity stability:** the manifest ID is currently
-   `simple-drafts-navigator`. Changing it would make Obsidian treat Lighthouse as
-   a different plugin and disconnect existing saved state. Do not rename it as
-   part of this migration.
+1. **Identity reset:** the active alpha now uses the canonical `lighthouse`
+   plugin ID. Older `simple-drafts-navigator` test installs are intentionally
+   not migrated as part of the hard rename.
 2. **Saved-state compatibility:** settings normalization includes legacy fields
    such as `items` and `focusGlobalItems`. Type definitions must preserve them
    until an explicit, tested migration removes them.

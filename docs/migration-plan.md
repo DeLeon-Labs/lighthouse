@@ -6,16 +6,19 @@
 
 ## Non-negotiable constraints
 
-The migration must not silently change:
+The TypeScript migration must not silently change:
 
-- the plugin ID, command IDs, view type, or CSS class names;
 - the meaning or defaults of saved settings;
 - the Recents, Files, or Focus interaction model;
 - Sources, Work, Unfiled, global-item, or named-Focus behavior;
 - desktop or mobile support;
 - release contents expected by Obsidian.
 
-The existing snapshot remains untouched until the TypeScript build is accepted.
+The active alpha identity is now Lighthouse. The `v0.25.0-alpha` hard rename is
+separate from the TypeScript behavior migration and deliberately does not
+preserve old `simple-drafts-navigator` plugin folders, workspace leaves, hotkeys,
+or saved settings. The existing snapshot remains untouched until the TypeScript
+build is accepted.
 No files are moved or deleted by this plan without a separate reviewed proposal.
 
 ## Migration principles
@@ -240,9 +243,9 @@ include:
   files from the active tree.
 
 The decision should be made only after at least one TypeScript-built alpha has
-been installed, exercised, and judged equivalent. The public display name is
-Lighthouse; changing the stable plugin ID remains outside this migration and
-requires its own compatibility decision.
+been installed, exercised, and judged equivalent. The active plugin identity is
+Lighthouse; old naming can remain inside the preserved snapshot as historical
+baseline material.
 
 ## Suggested pull-request sequence
 
@@ -262,7 +265,7 @@ requires its own compatibility decision.
 Choose how the development build will reach a test vault:
 
 - symlink or copy `dist/` into a dedicated vault's
-  `.obsidian/plugins/simple-drafts-navigator/` directory; or
+  `.obsidian/plugins/lighthouse/` directory; or
 - configure the build to write to a developer-supplied test-vault path that is
   excluded from Git.
 
