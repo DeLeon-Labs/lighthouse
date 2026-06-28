@@ -120,6 +120,9 @@ The following items are planned, not current guarantees:
 - improved state reliability and cross-device expectations;
 - a documented Focus context model where Focus is a saved context definition;
 - vault-native provider boundaries for future item types;
+- an internal module architecture for toggleable first-party modules;
+- optional companion plugin integrations that do not make Lighthouse a
+  catch-all plugin;
 - fixes for tracked navigation, Focus surfacing, attachment, scroll, and mobile
   interaction issues;
 - future documented context handoffs within the DeLeon Labs ecosystem.

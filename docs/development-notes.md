@@ -181,11 +181,51 @@ Do not implement the Focus architecture inside documentation/planning branches.
 Implementation branches should reference issue #16 and the architecture document
 before changing runtime behavior.
 
+## Modular architecture constraints
+
+Lighthouse should grow through clean boundaries:
+
+- Lighthouse Core remains focused on Focus states, Recents, Files, pinned notes,
+  watch folders, Bookmarks/Home, context switching, and Focus-aware filtering.
+- Lighthouse Core Modules are first-party optional modules such as Graph Focus
+  and Sidecar Notes.
+- DeLeon Labs Companion Plugins are separate tools such as Note Actions, Source
+  Companion, Squido, Crate Digger, voice memo tools, publishing tools, and
+  fragment remixing tools.
+
+Do not use Obsidian `manifest.json` to identify internal Lighthouse modules.
+Use an internal module registry or module manifest object.
+
+Module implementation expectations:
+
+- stable module ID;
+- display name and description;
+- category;
+- enabled-by-default policy;
+- settings key;
+- optional commands/views/settings UI;
+- cleanup handler;
+- no command/view/listener registration while disabled.
+
+Store module enabled states and module-specific settings in normal Lighthouse
+plugin settings. Avoid per-module JSON files unless there is a clear reason.
+
+Recommended development order:
+
+1. documentation first;
+2. settings/data model proposal;
+3. internal module registry;
+4. settings UI sidebar;
+5. one low-risk optional module as proof of concept;
+6. broader refactor only after the pattern proves stable.
+
 ## Change discipline
 
 - Keep build scaffolding, type conversion, refactoring, visual changes, and issue
   fixes in separate commits.
 - Keep planning/documentation branches free of runtime implementation changes.
+- Start modularization with future optional modules before moving stable core
+  behavior.
 - Treat `@ts-nocheck` removal as a typed migration with behavior checks, not a
   search-and-replace cleanup.
 - Keep the current snapshot available until a TypeScript-built alpha passes the

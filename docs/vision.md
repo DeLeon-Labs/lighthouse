@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Lighthouse is the context engine for Obsidian. It helps a person recover and
-shape the context around active work. It should make three questions easier to
-answer:
+Lighthouse is the focus and navigation center for meaningful working context in
+Obsidian. It helps a person recover and shape the context around active work. It
+should make three questions easier to answer:
 
 1. What was I working on?
 2. Where does this material live?
@@ -18,6 +18,10 @@ Lighthouse should become a dependable context layer rather than another place
 where a person's notes are stored. The vault remains the canonical home for
 notes and attachments. Lighthouse stores context definitions, navigation,
 selection, and presentation state that helps a person work with that material.
+
+Lighthouse is part of a broader modular Obsidian tool ecosystem. It should not
+become the entire ecosystem. It should decide where the user is and what context
+they are in; companion plugins should decide what actions can be taken there.
 
 The desired experience is calm and legible:
 
@@ -39,6 +43,9 @@ content, verify sources, or provide a general synchronization service.
 
 External systems such as GitHub, web sources, citations, email, and calendar
 belong in future provider plugins, not in the first Focus architecture pass.
+Related first-party ideas should become toggleable Lighthouse Core Modules when
+they are native to the focus/navigation experience, or separate DeLeon Labs
+Companion Plugins when they are independent tools.
 
 The current alpha stores plugin settings and Focus state through Obsidian's
 plugin data mechanism. Cross-device consistency depends on how the user's
@@ -53,6 +60,8 @@ The following items are planned directions, not finished features:
   compatibility migrations;
 - reproducible builds, checks, and alpha release packaging;
 - a documented Focus context model and vault-native provider boundary;
+- a documented module architecture that separates Lighthouse Core, Core Modules,
+  and Companion Plugins;
 - clearer documentation of Focus semantics, inheritance, and state boundaries;
 - safer persistence and cross-device behavior;
 - documented context handoffs and provider APIs after the local Lighthouse

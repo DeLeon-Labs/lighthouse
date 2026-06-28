@@ -179,6 +179,29 @@ Before release, confirm:
 - ecosystem examples remain vault-native; and
 - GitHub, web, email, calendar, and other external providers remain out of core.
 
+## Planned Lighthouse Modular Architecture gate
+
+The Lighthouse Modular Architecture milestone defines the internal module system
+and companion-plugin boundary. It is not permission to rewrite stable behavior in
+one pass.
+
+Before release, confirm:
+
+- Lighthouse Core, Core Modules, and Companion Plugins are documented;
+- Obsidian `manifest.json` remains the plugin manifest only, not a module
+  manifest;
+- the internal module metadata shape is documented;
+- module enabled states live in normal Lighthouse settings;
+- the settings sidebar structure is documented;
+- Core Modules and Companion Plugins settings sections are defined;
+- companion plugins remain optional and independently usable;
+- disabled modules avoid registering commands, views, listeners, or expensive
+  startup work;
+- migration notes exist for current settings;
+- developer notes explain how to add future modules; and
+- the first implementation target is low-risk and optional, not a disruptive
+  rewrite of stable Focus behavior.
+
 ## Version and compatibility rules
 
 - Treat `lighthouse` as the canonical plugin ID for active builds.
@@ -186,6 +209,8 @@ Before release, confirm:
   `v0.25.0-alpha` hard rename.
 - Keep core Lighthouse vault-native until the provider interface is designed and
   reviewed.
+- Keep Lighthouse focused on context and navigation. Related actions belong in
+  core modules or companion plugins depending on scope.
 - Add compatibility entries to `versions.json` when that file is introduced.
 - Treat a settings-schema change as a compatibility change, even when the UI
   looks unchanged.

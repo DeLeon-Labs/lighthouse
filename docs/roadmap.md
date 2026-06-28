@@ -51,6 +51,45 @@ Scope:
 
 No major implementation work belongs in this milestone.
 
+## Parallel architecture track — Lighthouse Modular Architecture
+
+Status: **planned as a dedicated milestone**
+
+Lighthouse should remain a focused context system, not a growing feature pile.
+The modular architecture track creates clean internal and ecosystem boundaries
+so new capabilities can be added without making the core fragile.
+
+Product boundary:
+
+- Lighthouse is the focus, navigation, and working-context center.
+- Core modules are first-party optional features that feel native to Lighthouse.
+- Companion plugins are separate DeLeon Labs tools that may integrate with
+  Lighthouse but must not be folded into it.
+
+Scope:
+
+- document module architecture and ecosystem boundaries;
+- refactor `main.ts` into a lightweight bootstrap/controller;
+- create an internal module registry;
+- define module metadata and enabled-state settings;
+- redesign settings into sidebar sections;
+- add Core Modules and Companion Plugins settings areas;
+- add a placeholder integration registry;
+- document public Lighthouse API boundaries;
+- add migration and developer notes.
+
+Implementation order:
+
+1. documentation first;
+2. settings/data model proposal;
+3. internal module registry;
+4. settings UI sidebar;
+5. move one low-risk optional module first;
+6. only then continue broader refactor.
+
+Graph Focus and Sidecar Notes are better first module-registry candidates than
+the existing stable Focus core.
+
 ## Next — Focus Experience
 
 Status: **planned for `v0.27.0-alpha`**
@@ -132,5 +171,7 @@ to a release, and tested independently of architecture/model work.
 - Deleting or moving the current runtime snapshot.
 - Treating `data.json` as source or including it in a release.
 - Implementing external providers in core Lighthouse.
+- Using Obsidian `manifest.json` to identify internal Lighthouse modules.
+- Making companion plugins hard dependencies of Lighthouse.
 - Broad visual redesign during the TypeScript migration.
 - Claiming stable or community-directory readiness before release checks exist.

@@ -23,10 +23,15 @@ The current build also includes commands for opening Lighthouse, creating a note
 in a configured folder, opening a quick-capture note, opening the daily note,
 pinning the active note, and adding material to Focus.
 
-The next planning direction defines Lighthouse as the context engine for
-Obsidian. Focus should become a saved context definition; Sources and Work are
-optional layouts over that context, not the underlying model. Lighthouse begins
-vault-native, with external systems deferred to future provider plugins.
+The next planning direction defines Lighthouse as the focus and navigation
+center for meaningful working context in Obsidian. Focus should become a saved
+context definition; Sources and Work are optional layouts over that context, not
+the underlying model.
+
+Lighthouse is part of a broader modular Obsidian tool ecosystem. It should stay
+focused: first-party optional features belong in toggleable Lighthouse Core
+Modules, while independent tools belong in DeLeon Labs Companion Plugins that can
+optionally integrate through APIs.
 
 See [user-facing behavior](docs/user-facing-behavior.md) for the current behavior
 and known boundaries.

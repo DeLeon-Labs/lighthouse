@@ -6,7 +6,8 @@ code changes begin.
 
 ## Core philosophy
 
-Lighthouse is the context engine for Obsidian.
+Lighthouse is the focus and navigation center for meaningful working context in
+Obsidian.
 
 Its job is not to replace the vault, become a second file manager, or pull every
 external system into the core plugin. Its job is to help a person define,
@@ -25,14 +26,96 @@ The next architecture should make this distinction clear:
 Sources and Work are useful layouts, but they are not the underlying data model.
 They are optional ways to present and organize a Focus.
 
+The architectural principle is:
+
+- Lighthouse decides where the user is and what working context they are in.
+- Other plugins decide what actions can be taken there.
+
+## Ecosystem framing
+
+Lighthouse belongs inside a broader DeLeon Labs software direction, but it should
+not try to become the entire ecosystem.
+
+Working vocabulary:
+
+- **DeLeon Labs** — the broader experimental studio.
+- **Nautilus** — possible name for the modular creative software ecosystem.
+- **Lighthouse** — the focus, navigation, and working-context center inside
+  Obsidian.
+- **Companion plugins** — separate tools that can optionally integrate with
+  Lighthouse through APIs.
+
+This keeps the core plugin focused. Related features should be placed as
+Lighthouse Core, Lighthouse Core Modules, or DeLeon Labs Companion Plugins.
+
+## Feature classification
+
+### Lighthouse Core
+
+Lighthouse Core is essential to the plugin's identity and remains inside the main
+plugin:
+
+- Focus states;
+- Recents;
+- Files;
+- pinned notes;
+- watch folders;
+- Bookmarks / Home;
+- context switching;
+- Focus-aware filtering.
+
+### Lighthouse Core Modules
+
+Core Modules are first-party optional modules that feel native to Lighthouse but
+should be internally modular and toggleable:
+
+- Graph Focus;
+- Sidecar Notes / focused capture;
+- future workspace-specific utilities.
+
+Core Modules should:
+
+- live in separate files/folders, not inside one giant `main.ts`;
+- register themselves through an internal module registry;
+- have stable internal module IDs;
+- expose display name, description, enabled state, settings schema, and optional
+  commands/views;
+- be toggleable in Lighthouse settings;
+- optionally expose settings UI sections;
+- register commands, views, event listeners, and cleanup handlers only when
+  enabled;
+- avoid requiring companion plugins to function.
+
+### DeLeon Labs Companion Plugins
+
+Companion plugins are separate plugins or tools that may integrate with
+Lighthouse but should not be folded into Lighthouse:
+
+- Note Actions;
+- Source Companion / Citation Source Integrity;
+- Squido;
+- Crate Digger;
+- voice memo tools;
+- publishing tools;
+- fragment remixing tools.
+
+Companion plugins should:
+
+- work independently when Lighthouse is not installed;
+- optionally detect Lighthouse;
+- optionally consume Lighthouse context state through a public API;
+- register integrations when available;
+- avoid hard dependencies unless explicitly designed later.
+
 ## Conceptual model
 
-Lighthouse has four conceptual layers:
+Lighthouse has five conceptual layers:
 
-1. Providers expose things Lighthouse can reference.
-2. Items are normalized references to those things.
-3. Focus definitions save which items matter and why.
-4. Views render a Focus or vault state for a particular user task.
+1. Core app/controller coordinates lifecycle, settings, modules, and API.
+2. Providers expose things Lighthouse can reference.
+3. Items are normalized references to those things.
+4. Focus definitions save which items matter and why.
+5. Views render a Focus or vault state for a particular user task.
 
 The first implementation remains vault-native. A built-in vault provider can
 expose notes, folders, supported attachments, and safe Obsidian bookmark data.
@@ -85,6 +168,46 @@ implemented in the core plugin during the Focus Context Model phase.
 
 The core rule is simple: Lighthouse owns context; providers own source-specific
 lookup.
+
+## Core module model
+
+Obsidian's `manifest.json` identifies the plugin itself. It must not be used to
+identify internal Lighthouse modules.
+
+Internal modules should use a Lighthouse-owned module manifest or registry
+object. Suggested shape:
+
+```ts
+interface LighthouseModule {
+  id: string;
+  name: string;
+  description: string;
+  category: "core" | "core-module" | "integration" | "experimental" | "companion-detected";
+  enabledByDefault: boolean;
+  requiresDesktop?: boolean;
+  settingsKey: string;
+  register(context: LighthousePluginContext): void | Promise<void>;
+  unregister?(): void | Promise<void>;
+  renderSettings?(containerEl: HTMLElement, context: LighthouseSettingsContext): void;
+}
+```
+
+Suggested module IDs:
+
+- `focus`;
+- `recents`;
+- `files`;
+- `pins`;
+- `watch-folders`;
+- `bookmarks-home`;
+- `graph-focus`;
+- `sidecar-notes`.
+
+The first implementation should modularize future optional features before
+ripping apart stable core behavior. Graph Focus and Sidecar Notes are better
+first candidates for the registry than Focus itself. Once the pattern is stable,
+existing core areas can move into module folders incrementally where it improves
+clarity.
 
 ## Focus model
 
@@ -147,6 +270,8 @@ Persistence expectations:
 - Normalize old Focus state deliberately when schema changes.
 - Track provider IDs so future item references can coexist.
 - Store layout preferences separately from membership.
+- Store module enabled states and module-specific settings in normal Lighthouse
+  plugin settings.
 - Never treat `data.json` as a source file or release asset.
 
 Rename, move, and delete behavior should be explicit:
@@ -179,6 +304,149 @@ Possible inheritance options:
 The architecture should define inheritance in the model first. UX details belong
 to the Focus Experience milestone.
 
+## Settings model
+
+Lighthouse settings should behave more like an app settings panel than one long
+scrolling page.
+
+Recommended sidebar sections:
+
+- General;
+- Focus;
+- Recents;
+- Files;
+- Pins;
+- Watch Folders;
+- Bookmarks / Home;
+- Core Modules;
+- Companion Plugins;
+- Integrations;
+- Advanced.
+
+Core Modules settings should list first-party optional modules such as Graph
+Focus and Sidecar Notes with toggles and module-provided settings panels.
+
+Companion Plugins settings should show optional integrations such as Note
+Actions, Source Companion, Squido, and Crate Digger. Possible statuses:
+
+- Not installed;
+- Detected;
+- Connected;
+- Disabled;
+- Requires update.
+
+This section can be placeholder/documentation-first until integrations exist.
+No companion plugin should be required at this stage.
+
+Use Lighthouse's normal plugin settings data as the source of truth. Do not
+create separate JSON files for every module unless there is a specific reason.
+
+Suggested shape:
+
+```ts
+settings.modules = {
+  graphFocus: {
+    enabled: false
+  },
+  sidecarNotes: {
+    enabled: false
+  }
+};
+
+settings.integrations = {
+  noteActions: {
+    enabled: true
+  },
+  sourceCompanion: {
+    enabled: true
+  },
+  squido: {
+    enabled: true
+  }
+};
+```
+
+## Suggested source structure
+
+The target structure should move toward:
+
+```text
+src/
+  main.ts
+  core/
+    LighthousePlugin.ts
+    settings.ts
+    types.ts
+    events.ts
+    api.ts
+  modules/
+    focus/
+      index.ts
+      settings.ts
+      views.ts
+      types.ts
+    recents/
+      index.ts
+      settings.ts
+      view.ts
+    files/
+      index.ts
+      settings.ts
+      view.ts
+    pins/
+      index.ts
+      settings.ts
+    watch-folders/
+      index.ts
+      settings.ts
+    bookmarks-home/
+      index.ts
+      settings.ts
+    graph-focus/
+      index.ts
+      settings.ts
+    sidecar-notes/
+      index.ts
+      settings.ts
+  integrations/
+    note-actions.ts
+    source-companion.ts
+    squido.ts
+  ui/
+    settings/
+      SettingsRoot.ts
+      SettingsSidebar.ts
+      SettingsPanel.ts
+  data/
+    defaults.ts
+    migrations.ts
+```
+
+`main.ts` should become a lightweight entry point:
+
+- load settings;
+- initialize `LighthousePlugin` or the core app controller;
+- register core modules;
+- register the settings tab;
+- register the public API;
+- handle unload cleanup.
+
+Feature implementation should not continue accumulating directly inside
+`main.ts`.
+
+## Performance model
+
+The module architecture should reduce startup risk, not add complexity.
+
+Performance rules:
+
+- only register module commands/views/listeners when the module is enabled;
+- unregister or clean up when disabled;
+- avoid constantly scanning the vault for disabled modules;
+- keep settings rendering lazy by section;
+- avoid large synchronous startup work;
+- prefer event-driven updates over polling.
+
 ## Future ecosystem direction
 
 Lighthouse should remain vault-native first.
@@ -195,6 +463,22 @@ other plugins can integrate with. That means:
 GitHub, web, email, calendar, and other external systems should not enter the
 core plugin during the Focus Context Model phase. They belong in future provider
 plugins once the vault-native architecture is stable.
+
+## Development order
+
+The modular architecture should be introduced incrementally:
+
+1. Documentation first.
+2. Settings/data model proposal.
+3. Internal module registry.
+4. Settings UI sidebar.
+5. Move one low-risk feature/module first as proof of concept.
+6. Continue broader refactor only after the pattern proves stable.
+
+The first low-risk module should probably be a future optional module such as
+Graph Focus or Sidecar Notes, not the existing Focus core. Good architecture here
+is not about adding complexity. It is about creating clean boundaries so
+Lighthouse can grow without becoming fragile.
 
 ## Milestone map
 
@@ -238,6 +522,28 @@ Scope:
 - ecosystem documentation.
 
 Remain vault-native. Do not implement GitHub or other external providers yet.
+
+### `Lighthouse Modular Architecture`
+
+Define and incrementally build the internal module system and ecosystem
+boundaries.
+
+Scope:
+
+- document Lighthouse module architecture and ecosystem boundaries;
+- refactor `main.ts` into a lightweight bootstrap/controller;
+- create an internal module registry;
+- move existing core areas into module folders where practical;
+- add module metadata structure;
+- add module enabled-state settings model;
+- redesign settings UI with sidebar sections;
+- add Core Modules settings section;
+- add Companion Plugins settings section;
+- add placeholder integration registry;
+- document public Lighthouse API for companion plugins;
+- document boundaries between Lighthouse, core modules, and companion plugins;
+- add migration notes for existing settings;
+- add developer notes for future modules.
 
 ## Issue review
 
