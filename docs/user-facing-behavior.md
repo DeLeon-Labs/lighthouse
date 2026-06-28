@@ -71,9 +71,8 @@ The current snapshot registers commands to:
 - add the current file to global Focus material.
 
 The canonical TypeScript source uses Lighthouse as the public-facing product
-name. Stable command IDs retain legacy wording where changing them could break
-hotkeys or external automation. The preserved historical snapshot still
-contains its original labels for comparison.
+name. The preserved historical snapshot still contains its original labels for
+comparison.
 
 ## Scroll controls
 
@@ -119,6 +118,11 @@ The following items are planned, not current guarantees:
 - safer, typed settings and explicit compatibility migrations;
 - reproducible TypeScript builds and alpha release packaging;
 - improved state reliability and cross-device expectations;
+- a documented Focus context model where Focus is a saved context definition;
+- vault-native provider boundaries for future item types;
+- an internal module architecture for toggleable first-party modules;
+- optional companion plugin integrations that do not make Lighthouse a
+  catch-all plugin;
 - fixes for tracked navigation, Focus surfacing, attachment, scroll, and mobile
   interaction issues;
 - future documented context handoffs within the DeLeon Labs ecosystem.
