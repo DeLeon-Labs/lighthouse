@@ -18,6 +18,10 @@ const {
   Modal
 } = require("obsidian");
 
+const { focusModule } = require("./modules/focus");
+const { LighthouseModuleRegistry } = require("./modules/registry");
+const { DEFAULT_INTEGRATION_SETTINGS, DEFAULT_MODULE_SETTINGS, normalizeModuleSettings } = require("./modules/settings");
+
 const VIEW_TYPE = "lighthouse-view";
 
 // Defaults are intentionally conservative: Recents and Files are core, so avoid experimental
@@ -86,7 +90,9 @@ const DEFAULT_SETTINGS = {
   replaceCurrentNote: true,
   showScrollButtons: true,
   scrollButtonSize: 34,
-  ignoredPaths: "00.daily_note_template\nTemplates\nAttachments\n.obsidian\n.trash"
+  ignoredPaths: "00.daily_note_template\nTemplates\nAttachments\n.obsidian\n.trash",
+  modules: DEFAULT_MODULE_SETTINGS,
+  integrations: DEFAULT_INTEGRATION_SETTINGS
 };
 
 module.exports = class LighthousePlugin extends Plugin {
@@ -96,6 +102,7 @@ module.exports = class LighthousePlugin extends Plugin {
     this.pendingSettingsSave = null;
     this.settingsSaveDelay = 250;
     const migratedLegacyVaultScopedState = this.migrateLegacyVaultScopedState();
+    normalizeModuleSettings(this.settings);
     this.normalizeFontSizeSettings();
     this.normalizeFolderCountMode();
     this.normalizeHomeSettings();
@@ -107,6 +114,10 @@ module.exports = class LighthousePlugin extends Plugin {
     if (!this.settings.dailyNotesFolder && this.settings.dailyNotesFolderPattern) {
       this.settings.dailyNotesFolder = this.settings.dailyNotesFolderPattern;
     }
+
+    this.moduleRegistry = new LighthouseModuleRegistry({ app: this.app, plugin: this, settings: this.settings });
+    this.moduleRegistry.registerModules([focusModule]);
+    await this.moduleRegistry.enableRegisteredModules();
 
     this.registerView(VIEW_TYPE, (leaf) => new LighthouseView(leaf, this));
 
@@ -198,6 +209,7 @@ module.exports = class LighthousePlugin extends Plugin {
 
   onunload() {
     this.flushSettingsSave();
+    if (this.moduleRegistry) this.moduleRegistry.unload().catch(error => console.warn("Lighthouse module cleanup failed", error));
     this.app.workspace.detachLeavesOfType(VIEW_TYPE);
     if (this.scrollControls) this.scrollControls.destroy();
   }
