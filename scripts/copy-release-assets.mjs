@@ -5,34 +5,32 @@ import path from 'node:path';
 const assets = [
   ['src/styles.css', 'styles.css'],
 ];
+const shouldWriteBuildInfo = process.env.LIGHTHOUSE_BUILD_INFO === '1';
 
 await mkdir('dist', { recursive: true });
 
-await writeStampedManifest();
+await copyFile('manifest.json', path.join('dist', 'manifest.json'));
 
 for (const [source, destination] of assets) {
   await copyFile(source, path.join('dist', destination));
 }
 
-async function writeStampedManifest() {
-  const manifest = JSON.parse(await readFile('manifest.json', 'utf8'));
-  const stamp = getBuildStamp();
-
-  if (stamp) {
-    manifest.description = `${manifest.description} Test build: ${stamp}.`;
-  }
-
-  await writeFile(path.join('dist', 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+if (shouldWriteBuildInfo) {
+  await writeBuildInfo();
 }
 
-function getBuildStamp() {
-  const branch = getGitOutput(['branch', '--show-current']);
-  const commit = getGitOutput(['rev-parse', '--short', 'HEAD']);
-  const dirty = getGitOutput(['status', '--porcelain']) ? ' dirty' : '';
+async function writeBuildInfo() {
+  const manifest = JSON.parse(await readFile('manifest.json', 'utf8'));
+  const buildInfo = {
+    version: manifest.version || '',
+    branch: getGitOutput(['branch', '--show-current']),
+    commit: getGitOutput(['rev-parse', 'HEAD']),
+    buildTimestamp: new Date().toISOString(),
+    dirty: getGitOutput(['status', '--porcelain']) !== '',
+    brokerUrl: process.env.LIGHTHOUSE_BROKER_URL || ''
+  };
 
-  if (!branch && !commit) return '';
-  if (branch && commit) return `${branch} @ ${commit}${dirty}`;
-  return `${branch || commit}${dirty}`;
+  await writeFile(path.join('dist', 'build-info.json'), `${JSON.stringify(buildInfo, null, 2)}\n`);
 }
 
 function getGitOutput(args) {

@@ -1974,3 +1974,51 @@ body.is-mobile .lighthouse-focus-back {
 .lighthouse-focus-pane-unfiled {
   min-height: 72px;
 }
+
+.lighthouse-developer-section {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.lighthouse-developer-section summary {
+  cursor: pointer;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.lighthouse-developer-build-info {
+  margin-top: 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lighthouse-developer-build-row {
+  display: grid;
+  grid-template-columns: minmax(96px, 0.35fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.lighthouse-developer-build-row:last-child {
+  border-bottom: 0;
+}
+
+.lighthouse-developer-build-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.lighthouse-developer-build-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-normal);
+  font-family: var(--font-monospace);
+}
+
+body.is-mobile .lighthouse-developer-build-row {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}

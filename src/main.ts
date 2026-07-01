@@ -92,9 +92,11 @@ const DEFAULT_SETTINGS = {
 module.exports = class LighthousePlugin extends Plugin {
   async onload() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.buildInfo = null;
     this.lastActiveMarkdownPath = null;
     this.pendingSettingsSave = null;
     this.settingsSaveDelay = 250;
+    await this.loadBuildInfo();
     const migratedLegacyVaultScopedState = this.migrateLegacyVaultScopedState();
     this.normalizeFontSizeSettings();
     this.normalizeFolderCountMode();
@@ -200,6 +202,24 @@ module.exports = class LighthousePlugin extends Plugin {
     this.flushSettingsSave();
     this.app.workspace.detachLeavesOfType(VIEW_TYPE);
     if (this.scrollControls) this.scrollControls.destroy();
+  }
+
+  async loadBuildInfo() {
+    this.buildInfo = null;
+    const pluginDirectory = this.manifest && this.manifest.dir;
+    if (!pluginDirectory) return;
+
+    try {
+      const raw = await this.app.vault.adapter.read(normalizePath(`${pluginDirectory}/build-info.json`));
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") this.buildInfo = parsed;
+    } catch (error) {
+      this.buildInfo = null;
+    }
+  }
+
+  getBuildInfo() {
+    return this.buildInfo;
   }
 
   async saveSettings() {
@@ -5095,7 +5115,43 @@ class LighthouseSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
           this.plugin.refreshViews();
         }));
+
+    this.renderDeveloperSection(containerEl);
   }
+
+  renderDeveloperSection(containerEl) {
+    const buildInfo = this.plugin.getBuildInfo ? this.plugin.getBuildInfo() : null;
+    if (!buildInfo) return;
+
+    const details = containerEl.createEl("details", { cls: "lighthouse-developer-section" });
+    details.createEl("summary", { text: "Developer" });
+    const body = details.createDiv({ cls: "lighthouse-developer-build-info" });
+
+    this.renderBuildInfoRow(body, "Version", buildInfo.version);
+    this.renderBuildInfoRow(body, "Branch", buildInfo.branch);
+    this.renderBuildInfoRow(body, "Commit", formatBuildCommit(buildInfo.commit));
+    this.renderBuildInfoRow(body, "Built", formatBuildTimestamp(buildInfo.buildTimestamp));
+    this.renderBuildInfoRow(body, "Dirty state", buildInfo.dirty ? "Dirty" : "Clean");
+    this.renderBuildInfoRow(body, "Broker URL", buildInfo.brokerUrl || "Not configured");
+  }
+
+  renderBuildInfoRow(containerEl, label, value) {
+    const row = containerEl.createDiv({ cls: "lighthouse-developer-build-row" });
+    row.createDiv({ cls: "lighthouse-developer-build-label", text: label });
+    row.createDiv({ cls: "lighthouse-developer-build-value", text: value || "Unavailable" });
+  }
+}
+
+function formatBuildCommit(commit) {
+  if (!commit || typeof commit !== "string") return "";
+  return commit.length > 12 ? commit.slice(0, 12) : commit;
+}
+
+function formatBuildTimestamp(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return `${date.toLocaleString()} (${value})`;
 }
 
 function addFolderSuggestSetting(containerEl, plugin, name, key) {
