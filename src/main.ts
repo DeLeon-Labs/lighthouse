@@ -18,7 +18,12 @@ const {
   Modal
 } = require("obsidian");
 
-const { focusModule } = require("./modules/focus");
+const {
+  focusModule,
+  normalizeFocusDefinitions,
+  normalizeFocusSectionLabels,
+  uniqueStringList
+} = require("./modules/focus");
 const { LighthouseModuleRegistry } = require("./modules/registry");
 const { DEFAULT_INTEGRATION_SETTINGS, DEFAULT_MODULE_SETTINGS, normalizeModuleSettings } = require("./modules/settings");
 
@@ -375,49 +380,15 @@ module.exports = class LighthousePlugin extends Plugin {
 
 
   normalizeFocusSettings() {
-    const validSections = new Set(["bookmark-groups", "pinned-notes", "open-tabs", "watch-folders"]);
-    const cleanList = (value) => Array.isArray(value) ? Array.from(new Set(value.filter(Boolean).map(String))) : [];
-    const raw = Array.isArray(this.settings.focuses) ? this.settings.focuses : [];
-    const seen = new Set();
-    this.settings.focuses = raw.map((focus) => {
-      const id = focus && focus.id ? String(focus.id) : `focus-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-      if (seen.has(id)) return null;
-      seen.add(id);
-      const legacyItems = cleanList(focus && focus.items);
-      const visibleFolders = cleanList(focus && focus.visibleFolders);
-      const workItems = cleanList(focus && focus.workItems);
-      const unfiledItems = cleanList(focus && focus.unfiledItems);
-      const assignedSet = new Set([...workItems, ...unfiledItems]);
-      const sourceSeed = cleanList(focus && focus.sourceItems);
-      const sourceItems = sourceSeed.length ? sourceSeed.filter(path => !assignedSet.has(path)) : legacyItems.filter(path => !assignedSet.has(path));
-      const rawLabels = focus && focus.sectionLabels && typeof focus.sectionLabels === "object" ? focus.sectionLabels : {};
-      const sectionLabels = {
-        sources: rawLabels.sources && String(rawLabels.sources).trim() ? String(rawLabels.sources).trim() : "Sources",
-        work: rawLabels.work && String(rawLabels.work).trim() ? String(rawLabels.work).trim() : "Work",
-        unfiled: rawLabels.unfiled && String(rawLabels.unfiled).trim() ? String(rawLabels.unfiled).trim() : "Unfiled"
-      };
-      return {
-        id,
-        name: focus && focus.name ? String(focus.name) : "Untitled Focus",
-        visibleBookmarkGroups: cleanList(focus && focus.visibleBookmarkGroups),
-        visibleSections: cleanList(focus && focus.visibleSections).filter(section => validSections.has(section)),
-        visibleWatchFolders: cleanList(focus && focus.visibleWatchFolders),
-        filesMode: focus && focus.filesMode === "filtered" ? "filtered" : "all",
-        visibleFolders,
-        items: sourceItems,
-        sourceItems,
-        workItems,
-        unfiledItems,
-        sectionLabels,
-        displayMode: "drill"
-      };
-    }).filter(Boolean);
+    this.settings.focuses = normalizeFocusDefinitions(this.settings.focuses, {
+      createId: () => `focus-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    });
     const ids = new Set(this.settings.focuses.map(f => f.id));
     if (!this.settings.activeFocusId || (this.settings.activeFocusId !== "all" && !ids.has(this.settings.activeFocusId))) this.settings.activeFocusId = "all";
-    this.settings.focusGlobalItems = cleanList(this.settings.focusGlobalItems);
-    this.settings.focusGlobalSourceItems = cleanList(this.settings.focusGlobalSourceItems);
-    this.settings.focusGlobalWorkItems = cleanList(this.settings.focusGlobalWorkItems);
-    this.settings.focusGlobalUnfiledItems = cleanList(this.settings.focusGlobalUnfiledItems);
+    this.settings.focusGlobalItems = uniqueStringList(this.settings.focusGlobalItems);
+    this.settings.focusGlobalSourceItems = uniqueStringList(this.settings.focusGlobalSourceItems);
+    this.settings.focusGlobalWorkItems = uniqueStringList(this.settings.focusGlobalWorkItems);
+    this.settings.focusGlobalUnfiledItems = uniqueStringList(this.settings.focusGlobalUnfiledItems);
     const globalWorkSet = new Set([...this.settings.focusGlobalWorkItems, ...this.settings.focusGlobalUnfiledItems]);
     if (!this.settings.focusGlobalSourceItems.length && this.settings.focusGlobalItems.length) {
       this.settings.focusGlobalSourceItems = this.settings.focusGlobalItems.filter(path => !globalWorkSet.has(path));
@@ -425,12 +396,7 @@ module.exports = class LighthousePlugin extends Plugin {
       this.settings.focusGlobalSourceItems = this.settings.focusGlobalSourceItems.filter(path => !globalWorkSet.has(path));
     }
     this.settings.focusGlobalItems = [...this.settings.focusGlobalSourceItems];
-    const globalLabels = this.settings.focusSectionLabels && typeof this.settings.focusSectionLabels === "object" ? this.settings.focusSectionLabels : {};
-    this.settings.focusSectionLabels = {
-      sources: globalLabels.sources && String(globalLabels.sources).trim() ? String(globalLabels.sources).trim() : "Sources",
-      work: globalLabels.work && String(globalLabels.work).trim() ? String(globalLabels.work).trim() : "Work",
-      unfiled: globalLabels.unfiled && String(globalLabels.unfiled).trim() ? String(globalLabels.unfiled).trim() : "Unfiled"
-    };
+    this.settings.focusSectionLabels = normalizeFocusSectionLabels(this.settings.focusSectionLabels);
     if (typeof this.settings.focusFilterRecents !== "boolean") this.settings.focusFilterRecents = true;
     if (typeof this.settings.focusFilterFiles !== "boolean") this.settings.focusFilterFiles = true;
     if (typeof this.settings.focusFilterBookmarks !== "boolean") this.settings.focusFilterBookmarks = true;
