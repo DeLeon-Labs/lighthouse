@@ -885,7 +885,7 @@ module.exports = class LighthousePlugin extends Plugin {
       ],
       bookmarks: [
         { id: "new-bookmark-group", label: "New bookmark group", icon: "folder-plus" },
-        { id: "customize-bookmarks", label: "Customize Bookmarks view", icon: "sliders-horizontal" },
+        { id: "customize-bookmarks", label: "Customize Focus view", icon: "sliders-horizontal" },
         { id: "sort-items", label: "Sort items", icon: "arrow-up-down" },
         { id: "collapse-expand-sections", label: "Collapse/expand bookmarked folders", icon: "chevrons-up-down" }
       ]
@@ -4724,8 +4724,8 @@ class HomeCustomizeModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.addClass("lighthouse-focus-edit-modal");
-    contentEl.createEl("h2", { text: "Customize Bookmarks" });
-    contentEl.createDiv({ cls: "lighthouse-modal-description", text: "Choose what appears in the Bookmarks view and how much detail it shows." });
+    contentEl.createEl("h2", { text: "Customize Focus" });
+    contentEl.createDiv({ cls: "lighthouse-modal-description", text: "Choose what appears in the Focus view and how much detail it shows." });
 
     contentEl.createEl("h3", { text: "Sections" });
     const sections = ["bookmark-groups", "pinned-notes", "open-tabs", "watch-folders"];
@@ -4744,7 +4744,7 @@ class HomeCustomizeModal extends Modal {
     contentEl.createEl("h3", { text: "Sorting" });
     new Setting(contentEl)
       .setName("Item sort")
-      .setDesc("Applies to notes and folders inside Bookmarks sections. Section order stays draggable.")
+      .setDesc("Applies to notes and folders inside Focus sections. Section order stays draggable.")
       .addDropdown(dropdown => dropdown
         .addOption("name-asc", "Name, A to Z")
         .addOption("name-desc", "Name, Z to A")
@@ -4760,7 +4760,7 @@ class HomeCustomizeModal extends Modal {
     contentEl.createEl("h3", { text: "Display" });
     new Setting(contentEl)
       .setName("Show note and folder locations")
-      .setDesc("Default: off. Shows the smaller path line under Bookmarks notes and folders")
+      .setDesc("Default: off. Shows the smaller path line under Focus notes and folders.")
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.showBookmarksLocation !== false)
         .onChange(async (value) => {
@@ -4770,7 +4770,7 @@ class HomeCustomizeModal extends Modal {
 
     new Setting(contentEl)
       .setName("Show counts and extra info")
-      .setDesc("Shows counts and secondary info in Bookmarks sections")
+      .setDesc("Shows counts and secondary info in Focus sections.")
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.showBookmarksInfo !== false)
         .onChange(async (value) => {
