@@ -196,7 +196,7 @@ before changing runtime behavior.
 Lighthouse should grow through clean boundaries:
 
 - Lighthouse Core remains focused on Focus states, Recents, Files, pinned notes,
-  watch folders, Bookmarks/Home, context switching, and Focus-aware filtering.
+  watch folders, the Focus view, context switching, and Focus-aware filtering.
 - Lighthouse Core Modules are first-party optional modules such as Graph Focus
   and Sidecar Notes.
 - DeLeon Labs Companion Plugins are separate tools such as Note Actions, Source

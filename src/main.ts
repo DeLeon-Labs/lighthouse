@@ -37,7 +37,7 @@ const DEFAULT_SETTINGS = {
   lighthouseFontSize: 14,
   recentFontSize: 14,
   fileTreeFontSize: 13,
-  bookmarksFontSize: 13,
+  focusFontSize: 13,
   previewLines: 1,
   showRecentLocation: true,
   recentSort: "modified-desc",
@@ -58,11 +58,11 @@ const DEFAULT_SETTINGS = {
   collapsedBookmarkFolders: [],
   expandedBookmarkFolders: [],
   collapsedHomeSections: [],
-  showBookmarksLocation: false,
-  showBookmarksInfo: true,
+  showFocusLocation: false,
+  showFocusInfo: true,
   homeSections: ["bookmark-groups", "pinned-notes", "open-tabs", "watch-folders"],
   homeSectionOrder: ["bookmark-groups", "pinned-notes", "open-tabs", "watch-folders"],
-  bookmarksItemSort: "name-asc",
+  focusItemSort: "name-asc",
   bookmarkGroupOrder: [],
   workspaceHomeLayouts: {},
   workspaceHomeLayoutVersion: 1,
@@ -80,7 +80,7 @@ const DEFAULT_SETTINGS = {
   tabActionButtons: {
     recent: ["toggle-pin", "sort-items"],
     files: ["reveal-current", "toggle-folders"],
-    bookmarks: ["new-bookmark-group", "customize-bookmarks"]
+    focus: ["new-bookmark-group", "customize-focus"]
   },
   fileTreeSort: "name-asc",
   fileTreeFolderBehavior: "folders-first",
@@ -299,7 +299,7 @@ module.exports = class LighthousePlugin extends Plugin {
     const fallback = Number(this.settings.lighthouseFontSize) || DEFAULT_SETTINGS.lighthouseFontSize;
     if (!Number.isFinite(Number(this.settings.recentFontSize))) this.settings.recentFontSize = fallback;
     if (!Number.isFinite(Number(this.settings.fileTreeFontSize))) this.settings.fileTreeFontSize = Math.max(12, fallback - 1);
-    if (!Number.isFinite(Number(this.settings.bookmarksFontSize))) this.settings.bookmarksFontSize = Math.max(12, fallback - 1);
+    if (!Number.isFinite(Number(this.settings.focusFontSize))) this.settings.focusFontSize = Math.max(12, fallback - 1);
   }
 
 
@@ -351,22 +351,22 @@ module.exports = class LighthousePlugin extends Plugin {
     if (!this.settings.homeSections.length) this.settings.homeSections = ["bookmark-groups"];
 
     const allowedItemSorts = new Set(["name-asc", "name-desc", "modified-desc", "modified-asc", "created-desc", "created-asc", "name", "modified", "created", "custom"]);
-    if (!allowedItemSorts.has(this.settings.bookmarksItemSort)) {
+    if (!allowedItemSorts.has(this.settings.focusItemSort)) {
       const legacySorts = this.settings.homeSectionSorts && typeof this.settings.homeSectionSorts === "object" ? this.settings.homeSectionSorts : {};
       const legacyMap = { name: "name-asc", modified: "modified-desc", created: "created-desc", custom: "name-asc" };
       const firstLegacySort = defaultOrder.map(section => legacySorts[section]).find(sort => ["name", "modified", "created"].includes(sort));
-      this.settings.bookmarksItemSort = legacyMap[firstLegacySort] || "name-asc";
+      this.settings.focusItemSort = legacyMap[firstLegacySort] || "name-asc";
     }
 
     const legacySortMap = { custom: "name-asc", name: "name-asc", modified: "modified-desc", created: "created-desc" };
-    if (legacySortMap[this.settings.bookmarksItemSort]) this.settings.bookmarksItemSort = legacySortMap[this.settings.bookmarksItemSort];
+    if (legacySortMap[this.settings.focusItemSort]) this.settings.focusItemSort = legacySortMap[this.settings.focusItemSort];
 
     this.settings.bookmarkGroupOrder = Array.isArray(this.settings.bookmarkGroupOrder) ? this.settings.bookmarkGroupOrder.filter(Boolean) : [];
     this.settings.collapsedHomeSections = Array.isArray(this.settings.collapsedHomeSections) ? this.settings.collapsedHomeSections.filter(section => validSections.has(section)) : [];
     this.settings.collapsedBookmarkFolders = Array.isArray(this.settings.collapsedBookmarkFolders) ? this.settings.collapsedBookmarkFolders.filter(Boolean) : [];
     this.settings.expandedBookmarkFolders = Array.isArray(this.settings.expandedBookmarkFolders) ? this.settings.expandedBookmarkFolders.filter(Boolean) : [];
-    if (typeof this.settings.showBookmarksLocation !== "boolean") this.settings.showBookmarksLocation = false;
-    if (typeof this.settings.showBookmarksInfo !== "boolean") this.settings.showBookmarksInfo = true;
+    if (typeof this.settings.showFocusLocation !== "boolean") this.settings.showFocusLocation = false;
+    if (typeof this.settings.showFocusInfo !== "boolean") this.settings.showFocusInfo = true;
     if (typeof this.settings.showBookmarkedFileIndicators !== "boolean") this.settings.showBookmarkedFileIndicators = true;
     if (typeof this.settings.hideRedundantBookmarks !== "boolean") this.settings.hideRedundantBookmarks = true;
     this.settings.workspaceHomeLayouts = this.settings.workspaceHomeLayouts && typeof this.settings.workspaceHomeLayouts === "object" ? this.settings.workspaceHomeLayouts : {};
@@ -728,7 +728,7 @@ module.exports = class LighthousePlugin extends Plugin {
     return {
       homeSections: this.settings.homeSections,
       homeSectionOrder: this.settings.homeSectionOrder,
-      bookmarksItemSort: this.settings.bookmarksItemSort
+      focusItemSort: this.settings.focusItemSort
     };
   }
 
@@ -769,13 +769,13 @@ module.exports = class LighthousePlugin extends Plugin {
     this.requestSaveSettings();
   }
 
-  async setBookmarksItemSort(sort) {
+  async setFocusItemSort(sort) {
     this.normalizeHomeSettings();
     const allowedSorts = new Set(["name-asc", "name-desc", "modified-desc", "modified-asc", "created-desc", "created-asc"]);
     const legacySortMap = { custom: "name-asc", name: "name-asc", modified: "modified-desc", created: "created-desc" };
     if (legacySortMap[sort]) sort = legacySortMap[sort];
     if (!allowedSorts.has(sort)) sort = "name-asc";
-    this.settings.bookmarksItemSort = sort;
+    this.settings.focusItemSort = sort;
     this.requestSaveSettings();
   }
 
@@ -812,7 +812,7 @@ module.exports = class LighthousePlugin extends Plugin {
     const allowed = {
       recent: new Set(["toggle-pin", "sort-items", "toggle-pinned-section"]),
       files: new Set(["reveal-current", "toggle-folders", "sort-items", "customize-files", "new-folder"]),
-      bookmarks: new Set(["new-bookmark-group", "customize-bookmarks", "sort-items", "collapse-expand-sections"])
+      focus: new Set(["new-bookmark-group", "customize-focus", "sort-items", "collapse-expand-sections"])
     };
     const current = this.settings.tabActionButtons && typeof this.settings.tabActionButtons === "object" ? this.settings.tabActionButtons : {};
     const normalized = {};
@@ -883,9 +883,9 @@ module.exports = class LighthousePlugin extends Plugin {
         { id: "customize-files", label: "Customize Files view", icon: "sliders-horizontal" },
         { id: "new-folder", label: "New folder", icon: "folder-plus" }
       ],
-      bookmarks: [
+      focus: [
         { id: "new-bookmark-group", label: "New bookmark group", icon: "folder-plus" },
-        { id: "customize-bookmarks", label: "Customize Focus view", icon: "sliders-horizontal" },
+        { id: "customize-focus", label: "Customize Focus view", icon: "sliders-horizontal" },
         { id: "sort-items", label: "Sort items", icon: "arrow-up-down" },
         { id: "collapse-expand-sections", label: "Collapse/expand bookmarked folders", icon: "chevrons-up-down" }
       ]
@@ -1373,7 +1373,7 @@ class LighthouseView extends ItemView {
     const tabButtons = tabs.createDiv({ cls: "lighthouse-tab-buttons" });
     this.makeTab(tabButtons, "recent", "Recent");
     this.makeTab(tabButtons, "files", "Files");
-    this.makeTab(tabButtons, "bookmarks", "Focus");
+    this.makeTab(tabButtons, "focus", "Focus");
 
     const body = root.createDiv({ cls: "lighthouse-body" });
     if (this.mode === "recent") {
@@ -1384,9 +1384,9 @@ class LighthouseView extends ItemView {
       body.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.fileTreeFontSize || this.plugin.settings.lighthouseFontSize}px`);
       this.renderFiles(body);
     }
-    if (this.mode === "bookmarks") {
-      body.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.bookmarksFontSize || this.plugin.settings.recentFontSize || this.plugin.settings.lighthouseFontSize}px`);
-      this.renderBookmarks(body);
+    if (this.mode === "focus") {
+      body.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.focusFontSize || this.plugin.settings.recentFontSize || this.plugin.settings.lighthouseFontSize}px`);
+      this.renderFocus(body);
     }
   }
 
@@ -1598,7 +1598,7 @@ class LighthouseView extends ItemView {
       const allExpanded = folderPaths.length > 0 && folderPaths.every(path => this.expanded.has(path));
       return allExpanded ? "chevrons-down-up" : "chevrons-up-down";
     }
-    if (mode === "bookmarks" && actionId === "collapse-expand-sections") {
+    if (mode === "focus" && actionId === "collapse-expand-sections") {
       const paths = this.getBookmarkFolderPaths();
       const expanded = new Set(this.plugin.settings.expandedBookmarkFolders || []);
       const allExpanded = paths.length > 0 && paths.every(path => expanded.has(path));
@@ -1670,10 +1670,10 @@ class LighthouseView extends ItemView {
       }
     }
 
-    if (mode === "bookmarks") {
+    if (mode === "focus") {
       if (actionId === "new-bookmark-group") return this.createBookmarkGroupFromHeader();
-      if (actionId === "customize-bookmarks") return new HomeCustomizeModal(this.app, this.plugin).open();
-      if (actionId === "sort-items") return this.showBookmarksItemSortMenu(evt);
+      if (actionId === "customize-focus") return new FocusCustomizeModal(this.app, this.plugin).open();
+      if (actionId === "sort-items") return this.showFocusItemSortMenu(evt);
       if (actionId === "collapse-expand-sections") {
         await this.toggleAllBookmarkFolders();
         return;
@@ -1725,13 +1725,13 @@ class LighthouseView extends ItemView {
         this.showFilesTabMenu(evt);
       };
     }
-    if (mode === "bookmarks") {
-      tab.setAttr("aria-label", "Bookmarks. Right-click for view options.");
-      tab.setAttr("title", "Right-click for Bookmarks options");
+    if (mode === "focus") {
+      tab.setAttr("aria-label", "Focus. Right-click for view options.");
+      tab.setAttr("title", "Right-click for Focus options");
       tab.oncontextmenu = (evt) => {
         evt.preventDefault();
         evt.stopPropagation();
-        this.showBookmarksTabMenu(evt);
+        this.showFocusTabMenu(evt);
       };
     }
     tab.onclick = () => {
@@ -1817,17 +1817,17 @@ class LighthouseView extends ItemView {
     this.showMenu(menu, evt);
   }
 
-  showBookmarksTabMenu(evt) {
+  showFocusTabMenu(evt) {
     const menu = new Menu();
     menu.addItem(i => {
       i.setTitle("Sort items").setIcon("arrow-up-down");
-      this.addSubmenuItems(i, evt, submenu => this.addBookmarksSortItems(submenu), () => this.showBookmarksItemSortMenu(evt));
+      this.addSubmenuItems(i, evt, submenu => this.addFocusSortItems(submenu), () => this.showFocusItemSortMenu(evt));
     });
     menu.addSeparator();
     menu.addItem(i => i
       .setTitle("Customize view")
       .setIcon("sliders-horizontal")
-      .onClick(() => new HomeCustomizeModal(this.app, this.plugin).open()));
+      .onClick(() => new FocusCustomizeModal(this.app, this.plugin).open()));
     menu.addItem(i => i
       .setTitle("New bookmark group")
       .setIcon("folder-plus")
@@ -2546,11 +2546,11 @@ class LighthouseView extends ItemView {
     new FocusDeleteConfirmModal(this.app, this.plugin, focus).open();
   }
 
-  renderBookmarks(parent) {
-    this.renderBookmarksHome(parent);
+  renderFocus(parent) {
+    this.renderFocusHome(parent);
   }
 
-  renderBookmarksHome(parent) {
+  renderFocusHome(parent) {
     const list = parent.createDiv({ cls: "lighthouse-list lighthouse-home-list" });
     this.renderFocusSwitcher(list);
     const activeFocus = this.plugin.getActiveFocus();
@@ -2603,14 +2603,14 @@ class LighthouseView extends ItemView {
     };
   }
 
-  getBookmarksItemSort() {
-    const sort = this.plugin.settings.bookmarksItemSort || "name-asc";
+  getFocusItemSort() {
+    const sort = this.plugin.settings.focusItemSort || "name-asc";
     const legacySortMap = { custom: "name-asc", name: "name-asc", modified: "modified-desc", created: "created-desc" };
     const normalized = legacySortMap[sort] || sort;
     return ["name-asc", "name-desc", "modified-desc", "modified-asc", "created-desc", "created-asc"].includes(normalized) ? normalized : "name-asc";
   }
 
-  getBookmarksSortOptions() {
+  getFocusSortOptions() {
     return [
       ["name-asc", "Name, A to Z", "a-arrow-down"],
       ["name-desc", "Name, Z to A", "a-arrow-up"],
@@ -2621,19 +2621,19 @@ class LighthouseView extends ItemView {
     ];
   }
 
-  addBookmarksSortItems(menu) {
-    const current = this.getBookmarksItemSort();
-    for (const [value, label, icon] of this.getBookmarksSortOptions()) {
+  addFocusSortItems(menu) {
+    const current = this.getFocusItemSort();
+    for (const [value, label, icon] of this.getFocusSortOptions()) {
       menu.addItem(item => item
         .setTitle(`${current === value ? "✓ " : ""}${label}`)
         .setIcon(icon)
-        .onClick(() => this.plugin.setBookmarksItemSort(value)));
+        .onClick(() => this.plugin.setFocusItemSort(value)));
     }
   }
 
-  showBookmarksItemSortMenu(evt) {
+  showFocusItemSortMenu(evt) {
     const menu = new Menu();
-    this.addBookmarksSortItems(menu);
+    this.addFocusSortItems(menu);
     this.showMenu(menu, evt);
   }
 
@@ -2810,7 +2810,7 @@ class LighthouseView extends ItemView {
     const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "file-text");
     titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
-    if (this.plugin.settings.showBookmarksLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-focus-source-label", text: file.parent.path });
+    if (this.plugin.settings.showFocusLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-focus-source-label", text: file.parent.path });
     row.onclick = () => this.plugin.openFile(file);
     this.attachContextMenu(row, (evt) => this.showFileMenu(evt, file));
   }
@@ -2946,7 +2946,7 @@ class LighthouseView extends ItemView {
         const typeRank = rank(a) - rank(b);
         if (typeRank) return typeRank;
       }
-      return this.compareHomeAbstractFiles(a.af, b.af, this.getBookmarksItemSort());
+      return this.compareHomeAbstractFiles(a.af, b.af, this.getFocusItemSort());
     });
   }
 
@@ -2960,7 +2960,7 @@ class LighthouseView extends ItemView {
     titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
     const label = item.sourceLabel || (file.parent && file.parent.name) || "";
     if (label) row.createDiv({ cls: "lighthouse-focus-source-label", text: label });
-    else if (this.plugin.settings.showBookmarksLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: file.parent.path });
+    else if (this.plugin.settings.showFocusLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: file.parent.path });
     row.onclick = () => this.plugin.openFile(file);
     this.attachContextMenu(row, (evt) => this.showFileMenu(evt, file));
   }
@@ -2995,7 +2995,7 @@ class LighthouseView extends ItemView {
   }
 
   sortBookmarkChildren(items) {
-    const sort = this.getBookmarksItemSort();
+    const sort = this.getFocusItemSort();
     return this.filterRedundantBookmarkItems(items).sort((a, b) => this.compareBookmarkItems(a, b, sort));
   }
 
@@ -3072,7 +3072,7 @@ class LighthouseView extends ItemView {
   }
 
   sortFilesForHome(files) {
-    const sort = this.getBookmarksItemSort();
+    const sort = this.getFocusItemSort();
     return [...files].sort((a, b) => this.compareHomeAbstractFiles(a, b, sort));
   }
 
@@ -3107,7 +3107,7 @@ class LighthouseView extends ItemView {
     }
     titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
     const loc = file.parent ? file.parent.path : "/";
-    if (this.plugin.settings.showBookmarksLocation !== false && loc && loc !== "/") row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: loc });
+    if (this.plugin.settings.showFocusLocation !== false && loc && loc !== "/") row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: loc });
     row.onclick = () => this.plugin.openFile(file);
     this.attachContextMenu(row, (evt) => this.showRecentItemMenu(evt, file));
   }
@@ -3125,7 +3125,7 @@ class LighthouseView extends ItemView {
       setIcon(fileIcon, "file-text");
       titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
       const loc = file.parent ? file.parent.path : "/";
-      if (this.plugin.settings.showBookmarksLocation !== false && loc && loc !== "/") row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: loc });
+      if (this.plugin.settings.showFocusLocation !== false && loc && loc !== "/") row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: loc });
       row.onclick = () => this.activateOpenFile(file);
       this.attachContextMenu(row, (evt) => this.showFileMenu(evt, file));
     }
@@ -3183,7 +3183,7 @@ class LighthouseView extends ItemView {
           row.createSpan({ cls: "lighthouse-watch-dot lighthouse-watch-dot-empty", attr: { "aria-label": "Watched folder is empty" } });
         }
       }
-      if (this.plugin.settings.showBookmarksInfo !== false && (count > 0 || this.plugin.settings.showZeroWatchCounts !== false)) row.createSpan({ cls: "lighthouse-watch-count", text: `(${count})` });
+      if (this.plugin.settings.showFocusInfo !== false && (count > 0 || this.plugin.settings.showZeroWatchCounts !== false)) row.createSpan({ cls: "lighthouse-watch-count", text: `(${count})` });
       row.onclick = () => {
         this.mode = "files";
         expandAncestors(this.expanded, folder.path);
@@ -3293,7 +3293,7 @@ class LighthouseView extends ItemView {
   }
 
   compareBookmarkFileSystemItems(a, b) {
-    const sort = this.getBookmarksItemSort();
+    const sort = this.getFocusItemSort();
     const aName = a instanceof TFile ? a.basename : a.name;
     const bName = b instanceof TFile ? b.basename : b.name;
     const aCreated = a instanceof TFile ? (a.stat && a.stat.ctime) || 0 : this.getTreeItemMtime(a);
@@ -3324,7 +3324,7 @@ class LighthouseView extends ItemView {
     const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "file-text");
     titleRow.createDiv({ cls: "lighthouse-note-title", text: af.basename });
-    if (this.plugin.settings.showBookmarksLocation !== false && af.parent && af.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: af.parent.path });
+    if (this.plugin.settings.showFocusLocation !== false && af.parent && af.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: af.parent.path });
     row.onclick = () => this.plugin.openFile(af);
     this.attachContextMenu(row, (evt) => this.showFileMenu(evt, af));
   }
@@ -3380,7 +3380,7 @@ class LighthouseView extends ItemView {
       setIcon(caret, collapsed ? "chevron-right" : "chevron-down");
 
       const label = row.createSpan({ cls: "lighthouse-tree-name", text: title });
-      if (this.plugin.settings.showBookmarksInfo !== false) row.createSpan({ cls: "lighthouse-folder-count lighthouse-bookmark-group-count", text: `(${countBookmarkLeafItems(children)})` });
+      if (this.plugin.settings.showFocusInfo !== false) row.createSpan({ cls: "lighthouse-folder-count lighthouse-bookmark-group-count", text: `(${countBookmarkLeafItems(children)})` });
 
       row.onclick = async (evt) => {
         evt.preventDefault();
@@ -4714,7 +4714,7 @@ class FocusUnsavedChangesModal extends Modal {
   }
 }
 
-class HomeCustomizeModal extends Modal {
+class FocusCustomizeModal extends Modal {
   constructor(app, plugin) {
     super(app);
     this.plugin = plugin;
@@ -4752,9 +4752,9 @@ class HomeCustomizeModal extends Modal {
         .addOption("modified-asc", "Modified, oldest first")
         .addOption("created-desc", "Created, newest first")
         .addOption("created-asc", "Created, oldest first")
-        .setValue(this.plugin.settings.bookmarksItemSort || "name-asc")
+        .setValue(this.plugin.settings.focusItemSort || "name-asc")
         .onChange(async (value) => {
-          await this.plugin.setBookmarksItemSort(value);
+          await this.plugin.setFocusItemSort(value);
         }));
 
     contentEl.createEl("h3", { text: "Display" });
@@ -4762,9 +4762,9 @@ class HomeCustomizeModal extends Modal {
       .setName("Show note and folder locations")
       .setDesc("Default: off. Shows the smaller path line under Focus notes and folders.")
       .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.showBookmarksLocation !== false)
+        .setValue(this.plugin.settings.showFocusLocation !== false)
         .onChange(async (value) => {
-          this.plugin.settings.showBookmarksLocation = value;
+          this.plugin.settings.showFocusLocation = value;
           await this.plugin.saveSettings();
         }));
 
@@ -4772,9 +4772,9 @@ class HomeCustomizeModal extends Modal {
       .setName("Show counts and extra info")
       .setDesc("Shows counts and secondary info in Focus sections.")
       .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.showBookmarksInfo !== false)
+        .setValue(this.plugin.settings.showFocusInfo !== false)
         .onChange(async (value) => {
-          this.plugin.settings.showBookmarksInfo = value;
+          this.plugin.settings.showFocusInfo = value;
           await this.plugin.saveSettings();
         }));
 
@@ -4945,19 +4945,19 @@ class LighthouseSettingTab extends PluginSettingTab {
         await this.plugin.saveSettings();
       }));
 
-    containerEl.createEl("h3", { text: "Bookmarks" });
+    containerEl.createEl("h3", { text: "Focus view" });
 
     new Setting(containerEl)
-      .setName("Bookmarks font size")
-      .setDesc("Default: 13 px. Applies only to the Bookmarks/Home view.")
-      .addSlider(s => s.setLimits(11, 24, 1).setValue(this.plugin.settings.bookmarksFontSize || Math.max(11, this.plugin.settings.lighthouseFontSize - 1)).setDynamicTooltip().onChange(async v => {
-        this.plugin.settings.bookmarksFontSize = v;
+      .setName("Focus view font size")
+      .setDesc("Default: 13 px. Applies only to the Focus view.")
+      .addSlider(s => s.setLimits(11, 24, 1).setValue(this.plugin.settings.focusFontSize || Math.max(11, this.plugin.settings.lighthouseFontSize - 1)).setDynamicTooltip().onChange(async v => {
+        this.plugin.settings.focusFontSize = v;
         await this.plugin.saveSettings();
       }));
 
     new Setting(containerEl)
-      .setName("Bookmarks item sort")
-      .setDesc("Applies to notes and folders inside Bookmarks sections. Section order stays draggable.")
+      .setName("Focus item sort")
+      .setDesc("Applies to notes and folders inside Focus sections. Section order stays draggable.")
       .addDropdown(dropdown => dropdown
         .addOption("name-asc", "Name, A to Z")
         .addOption("name-desc", "Name, Z to A")
@@ -4965,24 +4965,24 @@ class LighthouseSettingTab extends PluginSettingTab {
         .addOption("modified-asc", "Modified, oldest first")
         .addOption("created-desc", "Created, newest first")
         .addOption("created-asc", "Created, oldest first")
-        .setValue(this.plugin.settings.bookmarksItemSort || "name-asc")
+        .setValue(this.plugin.settings.focusItemSort || "name-asc")
         .onChange(async value => {
-          await this.plugin.setBookmarksItemSort(value);
+          await this.plugin.setFocusItemSort(value);
         }));
 
     new Setting(containerEl)
       .setName("Show note and folder locations")
-      .setDesc("Default: off. Shows the smaller path line under Bookmarks/Home notes and folders when on.")
-      .addToggle(t => t.setValue(this.plugin.settings.showBookmarksLocation !== false).onChange(async v => {
-        this.plugin.settings.showBookmarksLocation = v;
+      .setDesc("Default: off. Shows the smaller path line under Focus notes and folders when on.")
+      .addToggle(t => t.setValue(this.plugin.settings.showFocusLocation !== false).onChange(async v => {
+        this.plugin.settings.showFocusLocation = v;
         await this.plugin.saveSettings();
       }));
 
     new Setting(containerEl)
       .setName("Show counts and extra info")
-      .setDesc("Default: on. Controls counts and secondary info in Bookmarks/Home sections.")
-      .addToggle(t => t.setValue(this.plugin.settings.showBookmarksInfo !== false).onChange(async v => {
-        this.plugin.settings.showBookmarksInfo = v;
+      .setDesc("Default: on. Controls counts and secondary info in Focus sections.")
+      .addToggle(t => t.setValue(this.plugin.settings.showFocusInfo !== false).onChange(async v => {
+        this.plugin.settings.showFocusInfo = v;
         await this.plugin.saveSettings();
       }));
 
