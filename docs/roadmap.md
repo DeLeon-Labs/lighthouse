@@ -81,7 +81,7 @@ Scope:
 - add Core Modules and Companion Plugins settings areas;
 - add a placeholder integration registry;
 - document public Lighthouse API boundaries;
-- add migration and developer notes.
+- add developer notes.
 
 Implementation order:
 

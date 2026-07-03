@@ -542,7 +542,6 @@ Scope:
 - add placeholder integration registry;
 - document public Lighthouse API for companion plugins;
 - document boundaries between Lighthouse, core modules, and companion plugins;
-- add migration notes for existing settings;
 - add developer notes for future modules.
 
 ## Issue review

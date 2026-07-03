@@ -200,7 +200,6 @@ Before release, confirm:
 - companion plugins remain optional and independently usable;
 - disabled modules avoid registering commands, views, listeners, or expensive
   startup work;
-- migration notes exist for current settings;
 - developer notes explain how to add future modules; and
 - the first implementation target is low-risk and optional, not a disruptive
   rewrite of stable Focus behavior.
