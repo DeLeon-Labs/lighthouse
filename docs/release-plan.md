@@ -139,6 +139,8 @@ repository with architecture clear enough for implementation branches to follow.
 
 Before release, confirm:
 
+- Focus-view internal naming is cleaned up so `bookmark` terminology only refers
+  to literal Obsidian bookmarks and bookmark groups;
 - issue #16 is complete;
 - the canonical architecture document defines Lighthouse as the context engine
   for Obsidian;

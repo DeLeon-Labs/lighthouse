@@ -40,6 +40,7 @@ architecture before major implementation.
 
 Scope:
 
+- complete Focus-view internal naming cleanup before expanding the model;
 - complete issue #16;
 - define the Focus model;
 - define the Lighthouse item model;
@@ -50,6 +51,10 @@ Scope:
 - update architecture documentation.
 
 No major implementation work belongs in this milestone.
+
+Preparatory cleanup is allowed when it reduces ambiguity for the model work. In
+particular, Focus-view internals should use Focus naming, while `bookmark` and
+`bookmark group` names should be reserved for literal Obsidian Bookmarks data.
 
 ## Parallel architecture track — Lighthouse Modular Architecture
 

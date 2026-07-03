@@ -60,7 +60,7 @@ plugin:
 - Files;
 - pinned notes;
 - watch folders;
-- Bookmarks / Home;
+- Focus view;
 - context switching;
 - Focus-aware filtering.
 
@@ -199,7 +199,7 @@ Suggested module IDs:
 - `files`;
 - `pins`;
 - `watch-folders`;
-- `bookmarks-home`;
+- `focus-view`;
 - `graph-focus`;
 - `sidecar-notes`.
 
@@ -317,7 +317,7 @@ Recommended sidebar sections:
 - Files;
 - Pins;
 - Watch Folders;
-- Bookmarks / Home;
+- Focus View;
 - Core Modules;
 - Companion Plugins;
 - Integrations;
@@ -399,7 +399,7 @@ src/
     watch-folders/
       index.ts
       settings.ts
-    bookmarks-home/
+    focus-view/
       index.ts
       settings.ts
     graph-focus/
@@ -550,6 +550,10 @@ Scope:
 Current issue recommendations:
 
 - #16 belongs in `v0.26.0-alpha` and is the architecture anchor.
+- Focus-view internal naming cleanup belongs in `v0.26.0-alpha` before #16
+  implementation, so Focus concepts do not continue to inherit historical
+  Bookmarks/Home identifiers. Bookmark terminology should remain for literal
+  Obsidian bookmarks and bookmark groups.
 - #9 should be reframed under `v0.27.0-alpha` as Focus creation and empty-state
   friction.
 - #2 should stay in `v0.27.0-alpha` as Focus surfacing/layout behavior, not as a
