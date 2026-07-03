@@ -57,6 +57,7 @@ whole directory.
 - source maps, debug bundles, logs, temporary files, and caches;
 - `.env` files, local configuration, credentials, and machine-specific paths;
 - any `data.json`, regardless of directory depth;
+- `build-info.json` development diagnostics metadata;
 - ZIP files or directories that contain more than the approved runtime assets.
 
 GitHub may provide automatic source-code archives for a tag. Those archives are
