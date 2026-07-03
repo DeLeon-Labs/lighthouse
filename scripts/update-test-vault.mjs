@@ -2,12 +2,13 @@ import { copyFile, mkdir, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 
 const releaseDirectory = path.resolve('dist');
-const defaultTargetDirectory =
-  '/Users/jon/Library/Mobile Documents/iCloud~md~obsidian/Documents/TestVault/.obsidian/plugins/lighthouse';
-const targetDirectory =
-  process.env.LIGHTHOUSE_TEST_PLUGIN_DIR || defaultTargetDirectory;
+const targetDirectory = process.env.LIGHTHOUSE_TEST_PLUGIN_DIR;
 const releaseFiles = ['main.js', 'manifest.json', 'styles.css'];
 const optionalDevelopmentFiles = ['build-info.json'];
+
+if (!targetDirectory) {
+  throw new Error('LIGHTHOUSE_TEST_PLUGIN_DIR must be set to an absolute plugin install path.');
+}
 
 if (!path.isAbsolute(targetDirectory)) {
   throw new Error('LIGHTHOUSE_TEST_PLUGIN_DIR must be an absolute path.');

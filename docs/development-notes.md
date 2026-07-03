@@ -66,13 +66,18 @@ Available commands:
 - `pnpm run clean` — remove the repository-local generated `dist/` directory;
 - `pnpm run typecheck` — run TypeScript validation;
 - `pnpm run build` — create and verify production release output;
+- `pnpm run build:dev` — create a non-release development build with generated
+  diagnostics metadata;
 - `pnpm run verify:release` — verify an existing `dist/` allowlist;
 - `pnpm run dev` — watch `src/main.ts` and emit an inline-source-map development
   build;
-- `pnpm run test:update` — copy an already-built three-file package to the
+- `pnpm run test:update` — copy an already-built package to an explicitly
   configured test-vault plugin folder;
-- `pnpm run test:deploy` — build, verify, and then update the configured test
-  vault in one deliberate command.
+- `pnpm run test:deploy:dev` — build a development package and update the
+  configured test vault;
+- `pnpm run test:deploy:prod` — build a production package and update the
+  configured test vault;
+- `pnpm run test:deploy` — alias for `pnpm run test:deploy:dev`.
 
 The current `@ts-nocheck` directive means `pnpm run typecheck` validates the
 project wiring but not the body of the transitional entry file. Removing that
@@ -80,19 +85,29 @@ directive safely is planned migration work.
 
 ## Safe test-vault update workflow
 
-Use a dedicated test vault or a vault with a current backup. Build first:
+Use a dedicated test vault or a vault with a current backup. Production builds
+exclude development diagnostics and must contain exactly the three installable
+files:
 
 ```sh
 pnpm run build
 ```
 
-The updater defaults to the confirmed iCloud test-vault plugin path:
+Development builds include generated diagnostics metadata in `build-info.json`.
+That file makes the Settings Developer section visible for local testing and is
+not a release asset:
 
-```text
-/Users/jon/Library/Mobile Documents/iCloud~md~obsidian/Documents/TestVault/.obsidian/plugins/lighthouse
+```sh
+pnpm run build:dev
 ```
 
-After building, copy the three release files with:
+Set the target plugin install path explicitly:
+
+```sh
+export LIGHTHOUSE_TEST_PLUGIN_DIR="/absolute/path/to/YourVault/.obsidian/plugins/lighthouse"
+```
+
+After building, copy the current `dist/` output with:
 
 ```sh
 pnpm run test:update
@@ -101,23 +116,18 @@ pnpm run test:update
 Or build and update the test vault in one step:
 
 ```sh
-pnpm run test:deploy
-```
-
-If the vault moves, override the default for one command:
-
-```sh
-LIGHTHOUSE_TEST_PLUGIN_DIR="/absolute/path/to/AnotherTestVault/.obsidian/plugins/lighthouse" pnpm run test:update
+pnpm run test:deploy:dev
+pnpm run test:deploy:prod
 ```
 
 The updater:
 
-- uses the confirmed absolute `TestVault` path unless an explicit environment
-  override is supplied;
-- verifies `dist/` contains exactly `main.js`, `manifest.json`, and `styles.css`;
+- requires `LIGHTHOUSE_TEST_PLUGIN_DIR` to be an absolute plugin install path;
+- verifies `dist/` contains the expected plugin runtime files;
+- allows `build-info.json` only for development builds;
 - creates the missing `.obsidian/plugins/lighthouse` path when run;
-- copies only those three files;
-- does not delete or replace the plugin folder;
+- copies only approved generated files;
+- removes stale development diagnostics when copying a production build;
 - does not read, write, copy, or remove `data.json`; and
 - leaves all vault-specific plugin state untouched.
 
