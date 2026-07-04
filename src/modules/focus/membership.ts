@@ -1,9 +1,14 @@
 import {
   isFocusSectionId,
 } from "./model";
+import {
+  createVaultFocusItemReferencesFromPaths,
+} from "./items";
 import type {
   FocusDefinition,
+  FocusItemReference,
   FocusSectionId,
+  FocusSectionItemReferences,
   FocusSettingsState,
 } from "./types";
 
@@ -34,6 +39,21 @@ export function getFocusMembershipPaths(focus: FocusDefinition | null | undefine
   return paths;
 }
 
+export function getFocusMembershipItemReferences(focus: FocusDefinition | null | undefined): FocusItemReference[] {
+  return createVaultFocusItemReferencesFromPaths(getFocusMembershipPaths(focus));
+}
+
+export function getFocusSectionItemReferences(focus: FocusDefinition | null | undefined): FocusSectionItemReferences {
+  return {
+    sources: createVaultFocusItemReferencesFromPaths([
+      ...(focus?.items || []),
+      ...(focus?.sourceItems || []),
+    ]),
+    work: createVaultFocusItemReferencesFromPaths(focus?.workItems || []),
+    unfiled: createVaultFocusItemReferencesFromPaths(focus?.unfiledItems || []),
+  };
+}
+
 export function getFocusSettingsMembershipPaths(
   settings: FocusSettingsState,
   focus: FocusDefinition | null | undefined,
@@ -46,6 +66,35 @@ export function getFocusSettingsMembershipPaths(
   for (const path of getFocusMembershipPaths(focus)) paths.add(path);
 
   return paths;
+}
+
+export function getFocusSettingsMembershipItemReferences(
+  settings: FocusSettingsState,
+  focus: FocusDefinition | null | undefined,
+): FocusItemReference[] {
+  return createVaultFocusItemReferencesFromPaths(getFocusSettingsMembershipPaths(settings, focus));
+}
+
+export function getFocusSettingsSectionItemReferences(
+  settings: FocusSettingsState,
+  focus: FocusDefinition | null | undefined,
+): FocusSectionItemReferences {
+  return {
+    sources: createVaultFocusItemReferencesFromPaths([
+      ...(settings.focusGlobalItems || []),
+      ...(settings.focusGlobalSourceItems || []),
+      ...(focus?.items || []),
+      ...(focus?.sourceItems || []),
+    ]),
+    work: createVaultFocusItemReferencesFromPaths([
+      ...(settings.focusGlobalWorkItems || []),
+      ...(focus?.workItems || []),
+    ]),
+    unfiled: createVaultFocusItemReferencesFromPaths([
+      ...(settings.focusGlobalUnfiledItems || []),
+      ...(focus?.unfiledItems || []),
+    ]),
+  };
 }
 
 export function isPathInFocusMembership(path: string | null | undefined, focusPaths: Set<string>): boolean {

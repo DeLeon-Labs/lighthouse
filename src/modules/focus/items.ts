@@ -33,6 +33,21 @@ export function createVaultFocusItemReference(input: VaultFocusItemInput): Focus
   };
 }
 
+export function createVaultFocusItemReferencesFromPaths(paths: Iterable<string>): FocusItemReference[] {
+  const items: FocusItemReference[] = [];
+  const seen = new Set<string>();
+
+  for (const rawPath of paths) {
+    const path = normalizeFocusItemPath(rawPath);
+    if (!path || seen.has(path)) continue;
+
+    seen.add(path);
+    items.push(createVaultFocusItemReference({ path }));
+  }
+
+  return items;
+}
+
 export function isVaultFocusItemReference(
   item: FocusItemReference | null | undefined,
 ): item is FocusItemReference & { providerId: "vault"; path: string } {
