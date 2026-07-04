@@ -20,8 +20,13 @@ const {
 
 const {
   focusModule,
+  getFocusSettingsMembershipPaths,
+  isItemInFocusSectionValue,
+  isItemInFocusValue,
+  isPathInFocusMembership,
   normalizeFocusDefinitions,
   normalizeFocusSectionLabels,
+  setFocusSectionMembershipValue,
   uniqueStringList
 } = require("./modules/focus");
 const { LighthouseModuleRegistry } = require("./modules/registry");
@@ -509,23 +514,7 @@ module.exports = class LighthousePlugin extends Plugin {
 
   getFocusItemPaths(focus = this.getActiveFocus()) {
     this.normalizeFocusSettings();
-    const paths = new Set(Array.isArray(this.settings.focusGlobalItems) ? this.settings.focusGlobalItems : []);
-    for (const path of this.settings.focusGlobalSourceItems || []) if (path) paths.add(path);
-    for (const path of this.settings.focusGlobalWorkItems || []) if (path) paths.add(path);
-    for (const path of this.settings.focusGlobalUnfiledItems || []) if (path) paths.add(path);
-    if (focus && Array.isArray(focus.items)) {
-      for (const path of focus.items) if (path) paths.add(path);
-    }
-    if (focus && Array.isArray(focus.sourceItems)) {
-      for (const path of focus.sourceItems) if (path) paths.add(path);
-    }
-    if (focus && Array.isArray(focus.workItems)) {
-      for (const path of focus.workItems) if (path) paths.add(path);
-    }
-    if (focus && Array.isArray(focus.unfiledItems)) {
-      for (const path of focus.unfiledItems) if (path) paths.add(path);
-    }
-    return paths;
+    return getFocusSettingsMembershipPaths(this.settings, focus);
   }
 
   getBookmarkPathsForFocus(focus = this.getActiveFocus()) {
@@ -554,12 +543,7 @@ module.exports = class LighthousePlugin extends Plugin {
 
   isPathInFocus(path, focus = this.getActiveFocus()) {
     if (!focus || !path) return true;
-    const paths = this.getFocusScopePaths(focus);
-    for (const focusPath of paths) {
-      if (!focusPath) continue;
-      if (path === focusPath || path.startsWith(focusPath + "/")) return true;
-    }
-    return false;
+    return isPathInFocusMembership(path, this.getFocusScopePaths(focus));
   }
 
   async setFocusItemMembership(path, focusId, enabled) {
@@ -568,42 +552,7 @@ module.exports = class LighthousePlugin extends Plugin {
 
   async setFocusSectionMembership(path, focusId, sectionId, enabled) {
     this.normalizeFocusSettings();
-    if (!path || !["sources", "work", "unfiled"].includes(sectionId)) return false;
-    if (focusId === "all" || focusId === "global") {
-      const keyMap = { sources: "focusGlobalSourceItems", work: "focusGlobalWorkItems", unfiled: "focusGlobalUnfiledItems" };
-      const key = keyMap[sectionId];
-      const sets = {
-        focusGlobalSourceItems: new Set(this.settings.focusGlobalSourceItems || []),
-        focusGlobalWorkItems: new Set(this.settings.focusGlobalWorkItems || []),
-        focusGlobalUnfiledItems: new Set(this.settings.focusGlobalUnfiledItems || [])
-      };
-      if (enabled) {
-        for (const set of Object.values(sets)) set.delete(path);
-        sets[key].add(path);
-      } else sets[key].delete(path);
-      this.settings.focusGlobalSourceItems = Array.from(sets.focusGlobalSourceItems);
-      this.settings.focusGlobalWorkItems = Array.from(sets.focusGlobalWorkItems);
-      this.settings.focusGlobalUnfiledItems = Array.from(sets.focusGlobalUnfiledItems);
-      this.settings.focusGlobalItems = [...this.settings.focusGlobalSourceItems];
-    } else {
-      const focus = this.settings.focuses.find(item => item.id === focusId);
-      if (!focus) return false;
-      const keyMap = { sources: "sourceItems", work: "workItems", unfiled: "unfiledItems" };
-      const key = keyMap[sectionId];
-      const sets = {
-        sourceItems: new Set(focus.sourceItems || []),
-        workItems: new Set(focus.workItems || []),
-        unfiledItems: new Set(focus.unfiledItems || [])
-      };
-      if (enabled) {
-        for (const set of Object.values(sets)) set.delete(path);
-        sets[key].add(path);
-      } else sets[key].delete(path);
-      focus.sourceItems = Array.from(sets.sourceItems);
-      focus.workItems = Array.from(sets.workItems);
-      focus.unfiledItems = Array.from(sets.unfiledItems);
-      focus.items = [...focus.sourceItems];
-    }
+    if (!setFocusSectionMembershipValue(this.settings, path, focusId, sectionId, enabled)) return false;
     await this.saveSettings();
     this.refreshViews();
     return true;
@@ -611,14 +560,7 @@ module.exports = class LighthousePlugin extends Plugin {
 
   isItemInFocusSection(path, focusId, sectionId) {
     this.normalizeFocusSettings();
-    if (!path || !["sources", "work", "unfiled"].includes(sectionId)) return false;
-    if (focusId === "all" || focusId === "global") {
-      const keyMap = { sources: "focusGlobalSourceItems", work: "focusGlobalWorkItems", unfiled: "focusGlobalUnfiledItems" };
-      return (this.settings[keyMap[sectionId]] || []).includes(path);
-    }
-    const focus = this.settings.focuses.find(item => item.id === focusId);
-    const keyMap = { sources: "sourceItems", work: "workItems", unfiled: "unfiledItems" };
-    return !!(focus && (focus[keyMap[sectionId]] || []).includes(path));
+    return isItemInFocusSectionValue(this.settings, path, focusId, sectionId);
   }
 
   async removeFocusItemMembership(path, focusId) {
@@ -627,12 +569,7 @@ module.exports = class LighthousePlugin extends Plugin {
 
   isItemInFocus(path, focusId) {
     this.normalizeFocusSettings();
-    if (!path) return false;
-    if (focusId === "all" || focusId === "global") {
-      return (this.settings.focusGlobalSourceItems || []).includes(path) || (this.settings.focusGlobalWorkItems || []).includes(path) || (this.settings.focusGlobalUnfiledItems || []).includes(path);
-    }
-    const focus = this.settings.focuses.find(item => item.id === focusId);
-    return !!(focus && ((focus.sourceItems || []).includes(path) || (focus.workItems || []).includes(path) || (focus.unfiledItems || []).includes(path)));
+    return isItemInFocusValue(this.settings, path, focusId);
   }
 
   getFocusHomeSections() {

@@ -47,3 +47,11 @@ export interface FocusDefinition {
 export interface NormalizeFocusOptions {
   createId?: () => string;
 }
+
+export interface FocusSettingsState {
+  focuses: FocusDefinition[];
+  focusGlobalItems?: string[];
+  focusGlobalSourceItems?: string[];
+  focusGlobalWorkItems?: string[];
+  focusGlobalUnfiledItems?: string[];
+}

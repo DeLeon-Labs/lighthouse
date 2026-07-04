@@ -97,18 +97,6 @@ export function normalizeFocusDefinitions(
   return result;
 }
 
-export function getFocusMembershipPaths(focus: FocusDefinition | null | undefined): Set<string> {
-  const paths = new Set<string>();
-  if (!focus) return paths;
-
-  for (const path of focus.items) paths.add(path);
-  for (const path of focus.sourceItems) paths.add(path);
-  for (const path of focus.workItems) paths.add(path);
-  for (const path of focus.unfiledItems) paths.add(path);
-
-  return paths;
-}
-
 function normalizeId(value: unknown, createId?: () => string): string {
   const text = value ? String(value) : "";
   if (text) return text;

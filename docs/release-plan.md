@@ -6,7 +6,7 @@ Lighthouse now has a local TypeScript/esbuild scaffold that generates and
 validates release files in `dist/`. It does not yet have automated GitHub release
 publishing or a fully typed implementation. The `0.23.0-alpha` working copy
 remains preserved as the known-working installable snapshot, while the active
-alpha build is `0.25.0-alpha`.
+alpha build is `0.26.0-alpha`.
 
 Its installable files are:
 
