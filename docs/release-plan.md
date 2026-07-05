@@ -6,7 +6,7 @@ Lighthouse now has a local TypeScript/esbuild scaffold that generates and
 validates release files in `dist/`. It does not yet have automated GitHub release
 publishing or a fully typed implementation. The `0.23.0-alpha` working copy
 remains preserved as the known-working installable snapshot, while the active
-alpha build is `0.26.1-alpha`.
+alpha build is `0.26.2-alpha`.
 
 Its installable files are:
 
@@ -161,7 +161,7 @@ to create, populate, understand, and use.
 Before release, confirm:
 
 - empty Focus friction is removed or deliberately redesigned;
-- single-panel and structured-panel layouts operate over the same Focus data;
+- single and split layouts operate over the same Focus data;
 - section assignment does not change underlying membership;
 - drag-and-drop assignment behavior is tested;
 - active-Focus inheritance is implemented according to the model;

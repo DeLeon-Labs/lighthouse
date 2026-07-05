@@ -243,20 +243,20 @@ belongs to the Focus.
 
 The same Focus data should support multiple views.
 
-Initial view modes:
+Initial display modes:
 
-- Single-panel Focus: one flattened list of relevant context.
-- Structured Focus: grouped sections such as Sources, Work, and Unfiled.
+- Single Focus: one flattened list of relevant context.
+- Split Focus: grouped sections such as Sources, Work, and Unfiled.
 
 Flattening must not erase section assignment. A user should be able to switch
-between a single-panel view and a structured-panel view without losing the
-underlying Focus organization.
+between a single display and a split display without losing the underlying Focus
+organization.
 
 Files, Recents, and Focus remain distinct surfaces:
 
 - Files shows vault hierarchy and native file relationships.
 - Recents shows recent activity and can be filtered by active Focus.
-- Focus shows saved context and can choose a flat or structured layout.
+- Focus shows saved context and can choose a single or split layout.
 
 ## Persistence model
 
@@ -294,10 +294,15 @@ Initial rule:
 - A new vault note created through Lighthouse while a named Focus is active
   should inherit that Focus.
 
-Possible inheritance options:
+Initial inheritance assignment:
+
+- new vault notes created while a named Focus is active should inherit into Work
+  by default. In single display mode, the item still appears in the flattened
+  list because the display is a view over the same underlying membership.
+
+Possible later inheritance options:
 
 - inherit into the Focus without a section assignment;
-- inherit into Work by default;
 - inherit based on creation command or target folder;
 - opt out per Focus.
 
@@ -505,7 +510,7 @@ Scope:
 
 - redesign Focus creation flow;
 - eliminate empty Focus friction;
-- implement single-panel and structured-panel layouts;
+- implement single and split layouts;
 - drag and drop section assignment;
 - automatic Focus inheritance;
 - simplify Focus settings.

@@ -105,7 +105,7 @@ Scope:
 
 - redesign Focus creation flow;
 - eliminate empty Focus friction;
-- implement single-panel and structured-panel layouts;
+- implement single and split layouts;
 - drag and drop section assignment;
 - automatic Focus inheritance;
 - simplify Focus settings.

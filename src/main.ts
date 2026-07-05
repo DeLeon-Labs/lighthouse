@@ -473,7 +473,7 @@ module.exports = class LighthousePlugin extends Plugin {
         sources: rawLabels.sources && String(rawLabels.sources).trim() ? String(rawLabels.sources).trim() : "Sources",
         work: rawLabels.work && String(rawLabels.work).trim() ? String(rawLabels.work).trim() : "Work"
       },
-      displayMode: "drill"
+      displayMode: "split"
     };
     const index = this.settings.focuses.findIndex(item => item.id === normalized.id);
     if (index >= 0) this.settings.focuses[index] = normalized;
@@ -4324,7 +4324,7 @@ class FocusEditModal extends Modal {
       workItems: cloneList(focus.workItems),
       unfiledItems: cloneList(focus.unfiledItems),
       sectionLabels: focus.sectionLabels && typeof focus.sectionLabels === "object" ? { ...focus.sectionLabels } : { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "drill"
+      displayMode: "split"
     } : {
       id: null,
       name: "",
@@ -4338,7 +4338,7 @@ class FocusEditModal extends Modal {
       workItems: [],
       unfiledItems: [],
       sectionLabels: { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "drill"
+      displayMode: "split"
     };
     this.originalSnapshot = this.getSnapshot();
     this.saveButton = null;
@@ -4361,7 +4361,7 @@ class FocusEditModal extends Modal {
       workItems: Array.isArray(focus.workItems) ? [...focus.workItems] : [],
       unfiledItems: Array.isArray(focus.unfiledItems) ? [...focus.unfiledItems] : [],
       sectionLabels: focus.sectionLabels && typeof focus.sectionLabels === "object" ? { ...focus.sectionLabels } : { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "drill"
+      displayMode: "split"
     });
   }
 

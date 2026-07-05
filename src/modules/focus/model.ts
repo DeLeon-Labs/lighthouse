@@ -2,6 +2,7 @@ import {
   FOCUS_SECTION_IDS,
   FOCUS_VIEW_SECTION_IDS,
   type FocusDefinition,
+  type FocusDisplayMode,
   type FocusSectionId,
   type FocusSectionLabels,
   type FocusViewSectionId,
@@ -21,6 +22,10 @@ export function isFocusSectionId(value: unknown): value is FocusSectionId {
 
 export function isFocusViewSectionId(value: unknown): value is FocusViewSectionId {
   return typeof value === "string" && (FOCUS_VIEW_SECTION_IDS as readonly string[]).includes(value);
+}
+
+export function normalizeFocusDisplayMode(value: unknown): FocusDisplayMode {
+  return value === "single" ? "single" : "split";
 }
 
 export function uniqueStringList(value: unknown): string[] {
@@ -75,7 +80,7 @@ export function normalizeFocusDefinition(
     workItems,
     unfiledItems,
     sectionLabels: normalizeFocusSectionLabels(raw.sectionLabels),
-    displayMode: "drill",
+    displayMode: normalizeFocusDisplayMode(raw.displayMode),
   };
 }
 
