@@ -5,6 +5,7 @@ export const FOCUS_MODULE_ID = "focus";
 export * from "./model";
 export * from "./membership";
 export * from "./items";
+export * from "./context";
 export * from "./types";
 
 export const focusModule: LighthouseModule = {

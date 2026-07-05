@@ -20,10 +20,12 @@ const {
 
 const {
   focusModule,
+  getActiveFocusDefinition,
   getFocusSettingsMembershipPaths,
   isItemInFocusSectionValue,
   isItemInFocusValue,
   isPathInFocusMembership,
+  normalizeActiveFocusId,
   normalizeFocusDefinitions,
   normalizeFocusSectionLabels,
   setFocusSectionMembershipValue,
@@ -388,8 +390,7 @@ module.exports = class LighthousePlugin extends Plugin {
     this.settings.focuses = normalizeFocusDefinitions(this.settings.focuses, {
       createId: () => `focus-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
     });
-    const ids = new Set(this.settings.focuses.map(f => f.id));
-    if (!this.settings.activeFocusId || (this.settings.activeFocusId !== "all" && !ids.has(this.settings.activeFocusId))) this.settings.activeFocusId = "all";
+    this.settings.activeFocusId = normalizeActiveFocusId(this.settings.activeFocusId, this.settings.focuses);
     this.settings.focusGlobalItems = uniqueStringList(this.settings.focusGlobalItems);
     this.settings.focusGlobalSourceItems = uniqueStringList(this.settings.focusGlobalSourceItems);
     this.settings.focusGlobalWorkItems = uniqueStringList(this.settings.focusGlobalWorkItems);
@@ -410,8 +411,7 @@ module.exports = class LighthousePlugin extends Plugin {
 
   getActiveFocus() {
     this.normalizeFocusSettings();
-    if (this.settings.activeFocusId === "all") return null;
-    return this.settings.focuses.find(focus => focus.id === this.settings.activeFocusId) || null;
+    return getActiveFocusDefinition(this.settings);
   }
 
   getActiveFocusName() {
