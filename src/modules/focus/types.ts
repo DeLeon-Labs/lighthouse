@@ -80,6 +80,7 @@ export interface NormalizeFocusOptions {
 
 export interface FocusSettingsState {
   focuses: FocusDefinition[];
+  activeFocusId?: unknown;
   focusGlobalItems?: string[];
   focusGlobalSourceItems?: string[];
   focusGlobalWorkItems?: string[];
@@ -87,3 +88,9 @@ export interface FocusSettingsState {
 }
 
 export type FocusSectionItemReferences = Record<FocusSectionId, FocusItemReference[]>;
+
+export interface ActiveFocusContext {
+  id: string;
+  focus: FocusDefinition | null;
+  shouldInheritNewItems: boolean;
+}
