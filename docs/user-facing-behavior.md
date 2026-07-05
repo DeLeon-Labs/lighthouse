@@ -1,6 +1,6 @@
 # Lighthouse User-Facing Behavior
 
-This document describes the current `0.26.2-alpha` working build. It is not a
+This document describes the current `0.26.3-alpha` working build. It is not a
 promise that planned behavior is already implemented.
 
 ## Main view
@@ -47,6 +47,8 @@ Current behavior:
 
 - creates, edits, switches, and deletes named Focus definitions;
 - organizes selected paths into Sources, Work, and Unfiled sections;
+- adds new Markdown notes created through Lighthouse to the active named Focus
+  under Work;
 - supports items that apply globally and items belonging to a named Focus;
 - can add the current file or selected files/folders to Focus;
 - surfaces configured combinations of bookmark groups, pinned notes, open tabs,
