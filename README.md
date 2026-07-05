@@ -38,7 +38,7 @@ and known boundaries.
 
 ## Development status
 
-**Status: alpha.** The current working build is `0.26.0-alpha`.
+**Status: alpha.** The current working build is `0.26.1-alpha`.
 
 This repository now has a TypeScript build scaffold. The initial `src/main.ts` is
 a behavior-preserving mechanical copy of the current JavaScript runtime with type

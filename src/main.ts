@@ -28,6 +28,7 @@ const {
   normalizeActiveFocusId,
   normalizeFocusDefinitions,
   normalizeFocusSectionLabels,
+  rewriteFocusSettingsPaths,
   setFocusSectionMembershipValue,
   uniqueStringList
 } = require("./modules/focus");
@@ -1051,6 +1052,13 @@ module.exports = class LighthousePlugin extends Plugin {
       if (!(file instanceof TFolder)) await this.normalizeWatchedFolders({ save: false });
 
       changed = true;
+    }
+
+    if (oldPath) {
+      const rewrittenFocus = rewriteFocusSettingsPaths(this.settings, oldPath, file.path, {
+        includeChildren: file instanceof TFolder
+      });
+      if (rewrittenFocus.changed) changed = true;
     }
 
     if (changed) await this.saveSettings();

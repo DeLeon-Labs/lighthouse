@@ -6,6 +6,7 @@ export * from "./model";
 export * from "./membership";
 export * from "./items";
 export * from "./context";
+export * from "./lifecycle";
 export * from "./types";
 
 export const focusModule: LighthouseModule = {
