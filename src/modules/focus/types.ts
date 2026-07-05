@@ -85,3 +85,5 @@ export interface FocusSettingsState {
   focusGlobalWorkItems?: string[];
   focusGlobalUnfiledItems?: string[];
 }
+
+export type FocusSectionItemReferences = Record<FocusSectionId, FocusItemReference[]>;
