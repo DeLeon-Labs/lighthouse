@@ -1,6 +1,6 @@
 # Lighthouse User-Facing Behavior
 
-This document describes the current `0.26.1-alpha` working build. It is not a
+This document describes the current `0.26.2-alpha` working build. It is not a
 promise that planned behavior is already implemented.
 
 ## Main view

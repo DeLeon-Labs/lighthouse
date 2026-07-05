@@ -39,7 +39,9 @@ export const FOCUS_VIEW_SECTION_IDS = ["bookmark-groups", "pinned-notes", "open-
 export type FocusViewSectionId = (typeof FOCUS_VIEW_SECTION_IDS)[number];
 
 export type FocusFilesMode = "all" | "filtered";
-export type FocusDisplayMode = "drill";
+export const FOCUS_DISPLAY_MODES = ["single", "split"] as const;
+export type FocusDisplayMode = (typeof FOCUS_DISPLAY_MODES)[number];
+export type LegacyFocusDisplayMode = FocusDisplayMode | "drill";
 
 export type FocusSectionLabels = Record<FocusSectionId, string>;
 
@@ -55,6 +57,7 @@ export interface LegacyFocusDefinition {
   visibleWatchFolders?: unknown;
   visibleFolders?: unknown;
   filesMode?: unknown;
+  displayMode?: unknown;
   sectionLabels?: unknown;
 }
 
@@ -93,4 +96,11 @@ export interface ActiveFocusContext {
   id: string;
   focus: FocusDefinition | null;
   shouldInheritNewItems: boolean;
+}
+
+export interface FocusInheritanceContext {
+  focus: FocusDefinition | null;
+  displayMode: FocusDisplayMode;
+  shouldInherit: boolean;
+  sectionId: FocusSectionId | null;
 }
