@@ -21,6 +21,7 @@ const {
 const {
   focusModule,
   getActiveFocusDefinition,
+  getFocusInheritanceContext,
   getFocusSettingsMembershipPaths,
   isItemInFocusSectionValue,
   isItemInFocusValue,
@@ -1130,6 +1131,7 @@ module.exports = class LighthousePlugin extends Plugin {
     }
 
     const file = await this.app.vault.create(path, "");
+    await this.inheritCreatedNoteIntoActiveFocus(file);
     await this.openFile(file);
     return file;
   }
@@ -1138,12 +1140,15 @@ module.exports = class LighthousePlugin extends Plugin {
   async openQuickCapture() {
     const path = normalizePath(this.settings.quickCaptureFile || "Fragments.md");
     let file = this.app.vault.getAbstractFileByPath(path);
+    let created = false;
     if (!file) {
       const folder = path.split("/").slice(0, -1).join("/");
       if (folder) await ensureFolder(this.app, folder);
       file = await this.app.vault.create(path, "");
+      created = true;
     }
 
+    if (created) await this.inheritCreatedNoteIntoActiveFocus(file);
     await this.openFile(file);
 
     if (this.settings.openQuickCaptureAtBottom) {
@@ -1200,10 +1205,24 @@ module.exports = class LighthousePlugin extends Plugin {
     if (folder) await ensureFolder(this.app, folder);
 
     let file = this.app.vault.getAbstractFileByPath(path);
-    if (!file) file = await this.app.vault.create(path, "");
+    let created = false;
+    if (!file) {
+      file = await this.app.vault.create(path, "");
+      created = true;
+    }
 
+    if (created) await this.inheritCreatedNoteIntoActiveFocus(file);
     await this.openFile(file, false);
     return file;
+  }
+
+  async inheritCreatedNoteIntoActiveFocus(file) {
+    if (!(file instanceof TFile) || file.extension !== "md") return false;
+
+    const context = getFocusInheritanceContext(this.getActiveFocus());
+    if (!context.shouldInherit || !context.focus || !context.sectionId) return false;
+
+    return await this.setFocusSectionMembership(file.path, context.focus.id, context.sectionId, true);
   }
 
 
