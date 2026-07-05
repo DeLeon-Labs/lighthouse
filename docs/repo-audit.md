@@ -2,7 +2,7 @@
 
 - Audit date: 2026-06-22
 - Repository: `DeLeon-Labs/lighthouse`
-- Active alpha build: `0.26.0-alpha`
+- Active alpha build: `0.26.1-alpha`
 - Preserved behavior snapshot: `0.23.0-alpha`
 - Scope: repository organization only; no behavior, plugin ID, or product-name
   changes are included
