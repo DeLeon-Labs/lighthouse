@@ -474,7 +474,7 @@ module.exports = class LighthousePlugin extends Plugin {
         sources: rawLabels.sources && String(rawLabels.sources).trim() ? String(rawLabels.sources).trim() : "Sources",
         work: rawLabels.work && String(rawLabels.work).trim() ? String(rawLabels.work).trim() : "Work"
       },
-      displayMode: "split"
+      displayMode: focus.displayMode === "single" ? "single" : "split"
     };
     const index = this.settings.focuses.findIndex(item => item.id === normalized.id);
     if (index >= 0) this.settings.focuses[index] = normalized;
@@ -2485,7 +2485,7 @@ class LighthouseView extends ItemView {
     this.renderFocusSwitcher(list);
     const activeFocus = this.plugin.getActiveFocus();
     if (activeFocus) {
-      this.renderFocusDrillView(list, activeFocus);
+      this.renderFocusView(list, activeFocus);
       return;
     }
     const layout = this.plugin.getHomeLayout();
@@ -2631,7 +2631,48 @@ class LighthouseView extends ItemView {
   }
 
   renderFocusFlatBookmarks(parent, focus) {
+    this.renderFocusView(parent, focus);
+  }
+
+  renderFocusView(parent, focus) {
+    if (focus && focus.displayMode === "single") {
+      this.renderFocusSingleView(parent, focus);
+      return;
+    }
     this.renderFocusDrillView(parent, focus);
+  }
+
+  renderFocusSingleView(parent, focus) {
+    const wrap = parent.createDiv({ cls: "lighthouse-focus-drill lighthouse-focus-single" });
+    const section = wrap.createDiv({ cls: "lighthouse-focus-pane lighthouse-focus-pane-single" });
+    const header = section.createDiv({ cls: "lighthouse-focus-pane-header" });
+    const left = header.createDiv({ cls: "lighthouse-focus-pane-heading" });
+    const iconEl = left.createSpan({ cls: "lighthouse-focus-pane-icon" });
+    setIcon(iconEl, "list-filter");
+    left.createSpan({ cls: "lighthouse-focus-pane-title", text: "Focus" });
+
+    const addButton = header.createEl("button", {
+      cls: "lighthouse-focus-pane-add",
+      attr: { "aria-label": "Add work" }
+    });
+    setIcon(addButton, "plus");
+    addButton.onclick = (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      this.openFocusAddItemsModal(focus, "work");
+    };
+
+    const content = section.createDiv({ cls: "lighthouse-focus-pane-content" });
+    const items = this.sortFocusFlatItems(this.getFocusSingleItems(focus), "flattened");
+    if (!items.length) {
+      this.renderFocusSectionEmpty(content, focus, "work", "Focus");
+      return;
+    }
+
+    for (const item of items) {
+      if (item.af instanceof TFolder) this.renderFocusFlatFolder(content, item.af, item);
+      else if (item.af instanceof TFile) this.renderFocusFlatFile(content, item.af, item);
+    }
   }
 
   renderFocusDrillView(parent, focus) {
@@ -2657,6 +2698,25 @@ class LighthouseView extends ItemView {
       for (const path of focus.unfiledItems || []) if (path) paths.add(path);
     }
     return Array.from(paths);
+  }
+
+  getFocusSingleItems(focus) {
+    const byPath = new Map();
+    const addSection = (sectionId, label) => {
+      for (const path of this.getFocusSectionSourcePaths(focus, sectionId)) {
+        if (!path || byPath.has(path)) continue;
+        const af = this.app.vault.getAbstractFileByPath(path);
+        if (!(af instanceof TFile) && !(af instanceof TFolder)) continue;
+        if (shouldHidePath(this.plugin, af.path)) continue;
+        byPath.set(path, { af, path, sectionId, sourceLabel: label });
+      }
+    };
+
+    addSection("sources", this.plugin.getFocusSectionLabel(focus, "sources"));
+    addSection("work", this.plugin.getFocusSectionLabel(focus, "work"));
+    addSection("unfiled", this.plugin.getFocusSectionLabel(focus, "unfiled"));
+
+    return Array.from(byPath.values());
   }
 
 
@@ -4391,7 +4451,7 @@ class FocusEditModal extends Modal {
       workItems: cloneList(focus.workItems),
       unfiledItems: cloneList(focus.unfiledItems),
       sectionLabels: focus.sectionLabels && typeof focus.sectionLabels === "object" ? { ...focus.sectionLabels } : { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "split"
+      displayMode: focus.displayMode === "single" ? "single" : "split"
     } : {
       id: null,
       name: "",
@@ -4428,7 +4488,7 @@ class FocusEditModal extends Modal {
       workItems: Array.isArray(focus.workItems) ? [...focus.workItems] : [],
       unfiledItems: Array.isArray(focus.unfiledItems) ? [...focus.unfiledItems] : [],
       sectionLabels: focus.sectionLabels && typeof focus.sectionLabels === "object" ? { ...focus.sectionLabels } : { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "split"
+      displayMode: focus.displayMode === "single" ? "single" : "split"
     });
   }
 
@@ -4507,6 +4567,18 @@ class FocusEditModal extends Modal {
 
     contentEl.createEl("h3", { text: "Focus sections" });
     contentEl.createDiv({ cls: "lighthouse-modal-description", text: "Right-click section headers in Focus to rename them. Unfiled only appears when it contains items." });
+
+    new Setting(contentEl)
+      .setName("Display mode")
+      .setDesc("Single shows one flattened Focus pane. Split keeps Sources, Work, and Unfiled as separate panes.")
+      .addDropdown(dropdown => dropdown
+        .addOption("single", "Single")
+        .addOption("split", "Split")
+        .setValue(this.focus.displayMode === "single" ? "single" : "split")
+        .onChange(value => {
+          this.focus.displayMode = value === "single" ? "single" : "split";
+          this.markChanged();
+        }));
 
     const sourceItems = Array.isArray(this.focus.sourceItems) ? this.focus.sourceItems : (Array.isArray(this.focus.items) ? this.focus.items : []);
     const workItems = Array.isArray(this.focus.workItems) ? this.focus.workItems : [];
