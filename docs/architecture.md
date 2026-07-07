@@ -1,8 +1,8 @@
 # Lighthouse Architecture
 
-This document is the canonical design reference for the next Lighthouse
-implementation phase. It expands issue #16 into an architecture direction before
-code changes begin.
+This document is the canonical design reference for the Lighthouse Focus Context
+Model and the implementation phases that follow it. Issue #16 established the
+model boundary for the `v0.26.x-alpha` milestone.
 
 ## Core philosophy
 
@@ -495,11 +495,11 @@ Lighthouse can grow without becoming fragile.
 
 ## Milestone map
 
-### `v0.26.0-alpha` — Focus Context Model
+### `v0.26.x-alpha` — Focus Context Model
 
-Define the model before major implementation.
+Status: complete. The model was defined before broader Focus Experience work.
 
-Scope:
+Completed scope:
 
 - complete issue #16;
 - define the Focus model;
@@ -561,11 +561,11 @@ Scope:
 
 Current issue recommendations:
 
-- #16 belongs in `v0.26.0-alpha` and is the architecture anchor.
-- Focus-view internal naming cleanup belongs in `v0.26.0-alpha` before #16
-  implementation, so Focus concepts do not continue to inherit historical
-  Bookmarks/Home identifiers. Bookmark terminology should remain for literal
-  Obsidian bookmarks and bookmark groups.
+- #16 can close after the Focus Context Model closeout branch merges.
+- Focus-view internal naming cleanup was completed before #16 closeout, so Focus
+  concepts do not continue to inherit historical Bookmarks/Home identifiers.
+  Bookmark terminology should remain for literal Obsidian bookmarks and bookmark
+  groups.
 - #9 should be reframed under `v0.27.0-alpha` as Focus creation and empty-state
   friction.
 - #2 should stay in `v0.27.0-alpha` as Focus surfacing/layout behavior, not as a

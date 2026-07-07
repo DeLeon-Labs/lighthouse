@@ -31,14 +31,14 @@ Status: **completed for `v0.25.0-alpha`**
 - Do not add data migration, compatibility aliases, migration notices, workspace
   restoration, or hotkey preservation in this alpha-only rename.
 
-## Current — Focus Context Model
+## Completed — Focus Context Model
 
-Status: **planned for `v0.26.0-alpha`**
+Status: **completed for `v0.26.x-alpha`**
 
-Lighthouse is the context engine for Obsidian. The next milestone defines that
-architecture before major implementation.
+Lighthouse is the context engine for Obsidian. This milestone defined the model
+boundary before larger Focus Experience work.
 
-Scope:
+Completed scope:
 
 - complete Focus-view internal naming cleanup before expanding the model;
 - complete issue #16;
@@ -50,11 +50,11 @@ Scope:
 - define persistence expectations;
 - update architecture documentation.
 
-No major implementation work belongs in this milestone.
+The closeout record is in
+[Focus Context Model closeout](focus-context-model-closeout.md).
 
-Preparatory cleanup is allowed when it reduces ambiguity for the model work. In
-particular, Focus-view internals should use Focus naming, while `bookmark` and
-`bookmark group` names should be reserved for literal Obsidian Bookmarks data.
+The model foundation is complete; remaining UX implementation belongs to
+`v0.27.0-alpha`.
 
 ## Parallel architecture track — Lighthouse Modular Architecture
 
@@ -95,7 +95,7 @@ Implementation order:
 Graph Focus and Sidecar Notes are better first module-registry candidates than
 the existing stable Focus core.
 
-## Next — Focus Experience
+## Current — Focus Experience
 
 Status: **planned for `v0.27.0-alpha`**
 

@@ -187,9 +187,10 @@ Core rules:
 - Lighthouse begins vault-native.
 - External systems belong in future provider plugins.
 
-Do not implement the Focus architecture inside documentation/planning branches.
-Implementation branches should reference issue #16 and the architecture document
-before changing runtime behavior.
+The Focus Context Model foundation from issue #16 is complete. New implementation
+branches should reference the architecture document and the
+[Focus Context Model closeout](focus-context-model-closeout.md), then stay within
+the current milestone scope.
 
 ## Modular architecture constraints
 

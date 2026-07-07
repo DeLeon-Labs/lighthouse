@@ -38,7 +38,7 @@ and known boundaries.
 
 ## Development status
 
-**Status: alpha.** The current working build is `0.26.4-alpha`.
+**Status: alpha.** The current working build is `0.26.5-alpha`.
 
 This repository now has a TypeScript build scaffold. The initial `src/main.ts` is
 a behavior-preserving mechanical copy of the current JavaScript runtime with type
@@ -84,14 +84,14 @@ folder before validating the renamed build.
 
 ## Planned next
 
-The next repository work is planned, not complete:
+The Focus Context Model foundation is complete. The next product milestone is
+Focus Experience:
 
-1. record a repeatable desktop and mobile behavior baseline;
-2. replace the transitional `@ts-nocheck` source with explicit settings and
-   runtime types without changing behavior;
-3. verify the generated build against the preserved JavaScript snapshot;
-4. extract modules and styles in small, separately tested changes;
-5. add automated checks around the existing reproducible packaging guard.
+1. reduce empty Focus friction;
+2. make Focus creation and population easier;
+3. implement clear single/split layout controls;
+4. improve drag-and-drop section assignment;
+5. simplify Focus settings.
 
 Product fixes and enhancements should remain separate from the mechanical
 migration so regressions are easier to identify.
@@ -100,6 +100,7 @@ migration so regressions are easier to identify.
 
 - [Vision](docs/vision.md)
 - [Architecture](docs/architecture.md)
+- [Focus Context Model closeout](docs/focus-context-model-closeout.md)
 - [Current user-facing behavior](docs/user-facing-behavior.md)
 - [Roadmap](docs/roadmap.md)
 - [Release plan](docs/release-plan.md)
