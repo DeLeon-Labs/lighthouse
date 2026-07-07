@@ -1870,13 +1870,6 @@ body.is-mobile .lighthouse-home-section-content .lighthouse-bookmark-group .ligh
   font-weight: 500;
 }
 
-.lighthouse-focus-drill-item .lighthouse-folder-count {
-  margin-left: auto;
-  color: var(--text-faint);
-  font-size: 0.82em;
-  font-weight: 400;
-}
-
 body.is-mobile .lighthouse-focus-pane {
   max-height: 38vh;
 }

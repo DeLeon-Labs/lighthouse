@@ -2831,8 +2831,7 @@ class LighthouseView extends ItemView {
     const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "folder");
     titleRow.createDiv({ cls: "lighthouse-note-title", text: folder.name });
-    const count = Array.isArray(folder.children) ? folder.children.filter(child => !shouldHidePath(this.plugin, child.path)).length : 0;
-    titleRow.createSpan({ cls: "lighthouse-folder-count", text: `(${count})` });
+    this.renderWatchFolderStatus(titleRow, folder);
     row.onclick = (evt) => {
       evt.preventDefault();
       this.focusDrillPaths[sectionId] = folder.path;
@@ -3012,6 +3011,7 @@ class LighthouseView extends ItemView {
     setIcon(itemIcon, "folder");
     const name = titleRow.createDiv({ cls: "lighthouse-note-title lighthouse-bookmark-folder-link", text: folder.name });
     name.setAttr("title", "Reveal in Files");
+    this.renderWatchFolderStatus(titleRow, folder);
     const label = item.sourceLabel || "Source folder";
     if (label) row.createDiv({ cls: "lighthouse-focus-source-label", text: label });
     row.onclick = () => this.revealFolderInFiles(folder, true);
