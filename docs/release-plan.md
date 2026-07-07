@@ -6,7 +6,7 @@ Lighthouse now has a local TypeScript/esbuild scaffold that generates and
 validates release files in `dist/`. It does not yet have automated GitHub release
 publishing or a fully typed implementation. The `0.23.0-alpha` working copy
 remains preserved as the known-working installable snapshot, while the active
-alpha build is `0.26.4-alpha`.
+alpha build is `0.26.5-alpha`.
 
 Its installable files are:
 
@@ -132,12 +132,13 @@ This is not a compatibility migration. It does not preserve old plugin folders,
 workspace leaves, hotkeys, or saved settings from `simple-drafts-navigator` test
 installs.
 
-## Planned `0.26.0-alpha` gate
+## Completed `0.26.x-alpha` gate
 
-`v0.26.0-alpha` is the Focus Context Model milestone. It should leave the
-repository with architecture clear enough for implementation branches to follow.
+`v0.26.x-alpha` is the Focus Context Model milestone. It leaves the repository
+with architecture clear enough for Focus Experience implementation branches to
+follow.
 
-Before release, confirm:
+Completed:
 
 - Focus-view internal naming is cleaned up so `bookmark` terminology only refers
   to literal Obsidian bookmarks and bookmark groups;
@@ -152,6 +153,8 @@ Before release, confirm:
 - Lighthouse remains vault-native;
 - external systems are deferred to future provider plugins; and
 - no major implementation work is mixed into the model milestone.
+
+See [Focus Context Model closeout](focus-context-model-closeout.md).
 
 ## Planned `0.27.0-alpha` gate
 
