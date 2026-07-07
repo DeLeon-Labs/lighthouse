@@ -45,6 +45,44 @@ export type LegacyFocusDisplayMode = FocusDisplayMode | "drill";
 
 export type FocusSectionLabels = Record<FocusSectionId, string>;
 
+export const FOCUS_RULE_TYPES = ["path-prefix"] as const;
+export type FocusRuleType = (typeof FOCUS_RULE_TYPES)[number] | (string & {});
+
+export interface FocusManualItem {
+  item: FocusItemReference;
+  sectionId: FocusSectionId;
+}
+
+export interface FocusFilterRule {
+  id: string;
+  type: FocusRuleType;
+  providerId: FocusProviderId;
+  enabled: boolean;
+  sectionId?: FocusSectionId;
+  path?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface FocusExclusion {
+  item: FocusItemReference;
+  reason?: string;
+}
+
+export interface FocusSectionAssignment {
+  itemId: string;
+  sectionId: FocusSectionId;
+}
+
+export interface FocusContextDefinition {
+  id: string;
+  name: string;
+  displayMode: FocusDisplayMode;
+  manualItems: FocusManualItem[];
+  rules: FocusFilterRule[];
+  exclusions: FocusExclusion[];
+  sectionAssignments: FocusSectionAssignment[];
+}
+
 export interface LegacyFocusDefinition {
   id?: unknown;
   name?: unknown;

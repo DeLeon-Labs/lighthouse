@@ -221,19 +221,27 @@ Recommended Focus definition shape:
 
 - `id`
 - `name`
-- `description`
 - `manualItems`
 - `rules`
 - `exclusions`
 - `sectionAssignments`
-- `layout`
+- `displayMode`
 - `inheritance`
 - `createdAt`
 - `updatedAt`
 
-Manual items are explicit user choices. Rules include folders, filters, or other
-criteria that include matching items. Exclusions remove items from the Focus even
-when another rule would include them.
+Manual items are explicit user choices. In the current vault-native
+implementation, they adapt from the existing `sourceItems`, `workItems`, and
+`unfiledItems` arrays.
+
+Rules include folders, filters, or other criteria that include matching items.
+The first reserved rule shape is `path-prefix`, which represents a vault folder
+or path scope. Defining this shape does not require rule execution to be wired
+immediately.
+
+Exclusions remove items from the Focus even when another rule would include
+them. Exclusion storage is part of the model boundary but should not be used to
+silently delete existing Focus membership.
 
 Section assignments are presentation metadata. An item can be assigned to
 Sources, Work, Unfiled, or later custom sections without changing whether it
