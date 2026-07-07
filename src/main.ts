@@ -2686,6 +2686,16 @@ class LighthouseView extends ItemView {
     left.createSpan({ cls: "lighthouse-focus-pane-title", text: label });
     left.title = "Right-click to rename";
     this.attachContextMenu(left, (evt) => this.showFocusSectionMenu(evt, focus, sectionId, label));
+    const addButton = header.createEl("button", {
+      cls: "lighthouse-focus-pane-add",
+      attr: { "aria-label": `Add ${label}` }
+    });
+    setIcon(addButton, "plus");
+    addButton.onclick = (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      this.openFocusAddItemsModal(focus, sectionId);
+    };
     this.attachFocusSectionDrop(section, focus, sectionId);
     const drillPath = this.focusDrillPaths && this.focusDrillPaths[sectionId];
     if (drillPath) {
@@ -2707,13 +2717,51 @@ class LighthouseView extends ItemView {
     const content = section.createDiv({ cls: "lighthouse-focus-pane-content" });
     const items = this.sortFocusFlatItems(this.getFocusDrillItems(focus, sectionId), "sources");
     if (!items.length) {
-      content.createDiv({ cls: "lighthouse-home-empty", text: "Empty" });
+      this.renderFocusSectionEmpty(content, focus, sectionId, label);
       return;
     }
     for (const item of items) {
       if (item.af instanceof TFolder) this.renderFocusDrillFolder(content, item.af, sectionId);
       else if (item.af instanceof TFile) this.renderFocusDrillFile(content, item.af, sectionId);
     }
+  }
+
+  renderFocusSectionEmpty(parent, focus, sectionId, label) {
+    const empty = parent.createDiv({ cls: "lighthouse-home-empty lighthouse-focus-empty-state" });
+    empty.createDiv({ cls: "lighthouse-focus-empty-title", text: `${label} is empty` });
+    empty.createDiv({
+      cls: "lighthouse-focus-empty-description",
+      text: sectionId === "sources"
+        ? "Add notes or folders that define the context for this Focus."
+        : "Add notes or folders you are actively working on."
+    });
+
+    const actions = empty.createDiv({ cls: "lighthouse-focus-empty-actions" });
+    const add = actions.createEl("button", {
+      cls: "mod-cta",
+      text: sectionId === "sources" ? "Add sources" : "Add work"
+    });
+    add.onclick = (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      this.openFocusAddItemsModal(focus, sectionId);
+    };
+
+    const activeFile = this.app.workspace.getActiveFile();
+    if (activeFile instanceof TFile && activeFile.extension === "md") {
+      const addCurrent = actions.createEl("button", { text: "Add current note" });
+      addCurrent.onclick = async (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        await this.plugin.setFocusSectionMembership(activeFile.path, focus.id, sectionId, true);
+        new Notice(`Added ${activeFile.basename} to ${label}`);
+        this.render();
+      };
+    }
+  }
+
+  openFocusAddItemsModal(focus, sectionId) {
+    new FocusAddItemsModal(this.app, this.plugin, focus, sectionId, () => this.render()).open();
   }
 
   renderFocusDrillFolder(parent, folder, sectionId) {
@@ -4791,6 +4839,179 @@ class TextInputModal extends Modal {
 
   onClose() {
     if (!this.submitted) this.onSubmit(null);
+    this.contentEl.empty();
+  }
+}
+
+
+class FocusAddItemsModal extends Modal {
+  constructor(app, plugin, focus, sectionId, onDone) {
+    super(app);
+    this.plugin = plugin;
+    this.focus = focus;
+    this.sectionId = sectionId;
+    this.onDone = onDone;
+    this.selected = new Set();
+    this.query = "";
+  }
+
+  onOpen() {
+    this.render();
+  }
+
+  render() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.addClass("lighthouse-focus-edit-modal");
+    contentEl.addClass("lighthouse-focus-add-items-modal");
+
+    const sectionLabel = this.plugin.getFocusSectionLabel(this.focus, this.sectionId);
+    contentEl.createEl("h2", { text: `Add ${sectionLabel}` });
+    contentEl.createDiv({
+      cls: "lighthouse-modal-description",
+      text: "Select notes or folders to add to this Focus. Folders include their visible contents in Focus."
+    });
+
+    const topActions = contentEl.createDiv({ cls: "lighthouse-focus-add-top-actions" });
+    const dismissKeyboard = topActions.createEl("button", { text: "Done typing" });
+    dismissKeyboard.onclick = (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      const active = document.activeElement;
+      if (active && typeof active.blur === "function") active.blur();
+    };
+
+    const search = contentEl.createEl("input", {
+      type: "search",
+      cls: "lighthouse-focus-add-search",
+      value: this.query,
+      attr: { placeholder: "Search notes and folders" }
+    });
+
+    const list = contentEl.createDiv({ cls: "lighthouse-focus-add-list" });
+    this.renderItems(list);
+
+    const buttons = contentEl.createDiv({ cls: "lighthouse-modal-buttons lighthouse-modal-sticky-footer" });
+    const cancel = buttons.createEl("button", { text: "Cancel" });
+    const add = buttons.createEl("button", {
+      cls: "mod-cta",
+      text: this.selected.size ? `Add ${this.selected.size}` : "Add"
+    });
+    add.disabled = !this.selected.size;
+
+    search.addEventListener("input", () => {
+      this.query = search.value || "";
+      this.render();
+      const nextSearch = this.contentEl.querySelector(".lighthouse-focus-add-search");
+      if (nextSearch) {
+        nextSearch.focus();
+        nextSearch.setSelectionRange(nextSearch.value.length, nextSearch.value.length);
+      }
+    });
+    search.addEventListener("keydown", (evt) => {
+      if (evt.key === "Escape") this.close();
+    });
+
+    cancel.onclick = () => this.close();
+    add.onclick = async () => {
+      await this.addSelected();
+      this.close();
+    };
+
+    search.focus();
+  }
+
+  renderItems(parent) {
+    const items = this.getItems();
+    if (!items.length) {
+      parent.createDiv({ cls: "lighthouse-home-empty", text: "No matching notes or folders" });
+      return;
+    }
+
+    for (const item of items) {
+      const row = parent.createEl("label", { cls: "lighthouse-focus-add-row" });
+      const checkbox = row.createEl("input", { type: "checkbox" });
+      checkbox.checked = this.selected.has(item.path);
+      checkbox.onchange = () => {
+        if (checkbox.checked) this.selected.add(item.path);
+        else this.selected.delete(item.path);
+        this.render();
+      };
+
+      const icon = row.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
+      setIcon(icon, item.type === "folder" ? "folder" : "file-text");
+      const text = row.createSpan({ cls: "lighthouse-focus-add-text" });
+      text.createSpan({ cls: "lighthouse-focus-add-name", text: item.name });
+      if (item.location) text.createSpan({ cls: "lighthouse-focus-add-location", text: item.location });
+    }
+  }
+
+  getItems() {
+    const query = (this.query || "").trim().toLowerCase();
+    const existing = new Set(this.getExistingSectionPaths());
+    const folders = getAllFolderPaths(this.app.vault.getRoot())
+      .filter(path => path && !shouldHidePath(this.plugin, path))
+      .map(path => {
+        const folder = this.app.vault.getAbstractFileByPath(path);
+        return {
+          type: "folder",
+          path,
+          name: folder && folder.name ? folder.name : path.split("/").pop(),
+          location: path
+        };
+      });
+    const files = this.app.vault.getMarkdownFiles()
+      .filter(file => !shouldHidePath(this.plugin, file.path))
+      .map(file => ({
+        type: "file",
+        path: file.path,
+        name: file.basename,
+        location: file.parent && file.parent.path ? file.parent.path : "/"
+      }));
+
+    return [...folders, ...files]
+      .filter(item => !existing.has(item.path))
+      .filter(item => {
+        if (!query) return true;
+        return `${item.name} ${item.path}`.toLowerCase().includes(query);
+      })
+      .sort((a, b) => {
+        if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
+        return a.path.localeCompare(b.path);
+      })
+      .slice(0, 200);
+  }
+
+  getExistingSectionPaths() {
+    if (this.sectionId === "sources") return [
+      ...(this.plugin.settings.focusGlobalItems || []),
+      ...(this.plugin.settings.focusGlobalSourceItems || []),
+      ...(this.focus.sourceItems || [])
+    ];
+    if (this.sectionId === "work") return [
+      ...(this.plugin.settings.focusGlobalWorkItems || []),
+      ...(this.focus.workItems || [])
+    ];
+    return [
+      ...(this.plugin.settings.focusGlobalUnfiledItems || []),
+      ...(this.focus.unfiledItems || [])
+    ];
+  }
+
+  async addSelected() {
+    let count = 0;
+    for (const path of this.selected) {
+      const added = await this.plugin.setFocusSectionMembership(path, this.focus.id, this.sectionId, true);
+      if (added) count++;
+    }
+
+    if (count) {
+      new Notice(`Added ${count} item${count === 1 ? "" : "s"} to ${this.focus.name}`);
+      if (this.onDone) this.onDone();
+    }
+  }
+
+  onClose() {
     this.contentEl.empty();
   }
 }
