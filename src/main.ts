@@ -104,6 +104,7 @@ const DEFAULT_SETTINGS = {
   replaceCurrentNote: true,
   showScrollButtons: true,
   scrollButtonSize: 34,
+  actionButtonPlacement: "top",
   ignoredPaths: "00.daily_note_template\nTemplates\nAttachments\n.obsidian\n.trash",
   modules: DEFAULT_MODULE_SETTINGS,
   integrations: DEFAULT_INTEGRATION_SETTINGS
@@ -314,6 +315,11 @@ module.exports = class LighthousePlugin extends Plugin {
     if (!Number.isFinite(Number(this.settings.recentFontSize))) this.settings.recentFontSize = fallback;
     if (!Number.isFinite(Number(this.settings.fileTreeFontSize))) this.settings.fileTreeFontSize = Math.max(12, fallback - 1);
     if (!Number.isFinite(Number(this.settings.focusFontSize))) this.settings.focusFontSize = Math.max(12, fallback - 1);
+  }
+
+  getActionButtonPlacement() {
+    const value = this.settings.actionButtonPlacement || this.settings.globalActionButtonPlacement || "top";
+    return value === "bottom" || value === "split" ? value : "top";
   }
 
 
@@ -1271,14 +1277,20 @@ class LighthouseView extends ItemView {
     const root = this.containerEl.children[1];
     root.empty();
     root.addClass("lighthouse-root");
+    const actionPlacement = this.plugin.getActionButtonPlacement();
+    root.toggleClass("lighthouse-actions-top", actionPlacement === "top");
+    root.toggleClass("lighthouse-actions-bottom", actionPlacement === "bottom");
+    root.toggleClass("lighthouse-actions-split", actionPlacement === "split");
     root.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.lighthouseFontSize}px`);
 
     const header = root.createDiv({ cls: "lighthouse-header" });
 
-    const navActions = header.createDiv({ cls: "lighthouse-nav-actions" });
+    const actionToolbar = header.createDiv({ cls: "lighthouse-action-toolbar" });
+
+    const navActions = actionToolbar.createDiv({ cls: "lighthouse-nav-actions" });
     this.renderHeaderNavActions(navActions);
 
-    const actions = header.createDiv({ cls: "lighthouse-actions" });
+    const actions = actionToolbar.createDiv({ cls: "lighthouse-actions" });
     const daily = actions.createEl("button", { cls: "lighthouse-icon-button", attr: { "aria-label": "Daily note" } });
     setIcon(daily, "calendar-days");
     daily.onclick = async (evt) => {
@@ -1722,6 +1734,8 @@ class LighthouseView extends ItemView {
       i.setTitle("Date display").setIcon("calendar-days");
       this.addSubmenuItems(i, evt, submenu => this.showRecentDateMenu(submenu), () => this.showRecentSortMenu(evt));
     });
+    menu.addSeparator();
+    this.addActionButtonPlacementMenuItem(menu, evt);
     this.showMenu(menu, evt);
   }
 
@@ -1735,6 +1749,8 @@ class LighthouseView extends ItemView {
       i.setTitle("Folder behavior").setIcon("folder-tree");
       this.addSubmenuItems(i, evt, submenu => this.addFileTreeFolderBehaviorItems(submenu), () => this.showFileTreeSortMenu(evt));
     });
+    menu.addSeparator();
+    this.addActionButtonPlacementMenuItem(menu, evt);
     menu.addSeparator();
     menu.addItem(i => i
       .setTitle("Customize Files view")
@@ -1758,6 +1774,8 @@ class LighthouseView extends ItemView {
       this.addSubmenuItems(i, evt, submenu => this.addFocusSortItems(submenu), () => this.showFocusItemSortMenu(evt));
     });
     menu.addSeparator();
+    this.addActionButtonPlacementMenuItem(menu, evt);
+    menu.addSeparator();
     menu.addItem(i => i
       .setTitle("Customize view")
       .setIcon("sliders-horizontal")
@@ -1767,6 +1785,38 @@ class LighthouseView extends ItemView {
       .setIcon("folder-plus")
       .onClick(() => this.createBookmarkGroupFromHeader()));
     this.showMenu(menu, evt);
+  }
+
+  addActionButtonPlacementMenuItem(menu, evt) {
+    menu.addItem(i => {
+      i.setTitle("Action buttons").setIcon("panel-bottom");
+      this.addSubmenuItems(i, evt, submenu => this.addActionButtonPlacementItems(submenu), () => this.showActionButtonPlacementMenu(evt));
+    });
+  }
+
+  showActionButtonPlacementMenu(evt) {
+    const menu = new Menu();
+    this.addActionButtonPlacementItems(menu);
+    this.showMenu(menu, evt);
+  }
+
+  addActionButtonPlacementItems(menu) {
+    const current = this.plugin.getActionButtonPlacement();
+    const options = [
+      ["top", "Top", "panel-top"],
+      ["bottom", "Bottom", "panel-bottom"],
+      ["split", "Split", "panel-left"]
+    ];
+    for (const [value, label, icon] of options) {
+      menu.addItem(item => item
+        .setTitle(`${current === value ? "✓ " : ""}${label}`)
+        .setIcon(icon)
+        .onClick(async () => {
+          this.plugin.settings.actionButtonPlacement = value;
+          await this.plugin.saveSettings();
+          this.plugin.refreshViews();
+        }));
+    }
   }
 
   async revealCurrentFile(options = {}) {
@@ -5293,6 +5343,20 @@ class LighthouseSettingTab extends PluginSettingTab {
       }));
 
     containerEl.createEl("h3", { text: "General" });
+
+    new Setting(containerEl)
+      .setName("Action button placement")
+      .setDesc("Experimental. Controls contextual view actions and global Lighthouse actions together.")
+      .addDropdown(dropdown => dropdown
+        .addOption("top", "Top")
+        .addOption("bottom", "Bottom")
+        .addOption("split", "Split")
+        .setValue(this.plugin.getActionButtonPlacement())
+        .onChange(async value => {
+          this.plugin.settings.actionButtonPlacement = value === "bottom" || value === "split" ? value : "top";
+          await this.plugin.saveSettings();
+          this.plugin.refreshViews();
+        }));
 
     new Setting(containerEl)
       .setName("Show scroll buttons")
