@@ -2664,10 +2664,10 @@ class LighthouseView extends ItemView {
       label: "Focus",
       icon: "list-filter",
       addLabel: "Add notes or folders",
+      hiddenLabel: true,
+      addText: "Add",
       onAdd: (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        this.openFocusAddItemsModal(focus, "work");
+        this.showFocusSingleAddMenu(evt, focus);
       }
     });
 
@@ -2714,7 +2714,7 @@ class LighthouseView extends ItemView {
 
   renderFocusPaneHeader(section, options) {
     const header = section.createDiv({ cls: "lighthouse-focus-pane-header" });
-    const heading = header.createDiv({ cls: "lighthouse-focus-pane-heading" });
+    const heading = header.createDiv({ cls: `lighthouse-focus-pane-heading ${options.hiddenLabel ? "is-hidden-label" : ""}` });
     if (options.icon) {
       const iconEl = heading.createSpan({ cls: "lighthouse-focus-pane-icon" });
       setIcon(iconEl, options.icon);
@@ -2724,13 +2724,30 @@ class LighthouseView extends ItemView {
     if (options.onHeadingContextMenu) this.attachContextMenu(heading, options.onHeadingContextMenu);
 
     const actions = header.createDiv({ cls: "lighthouse-focus-pane-actions" });
-    const addButton = actions.createEl("button", {
-      cls: "lighthouse-focus-pane-add",
-      attr: { "aria-label": options.addLabel }
-    });
-    setIcon(addButton, "plus");
-    addButton.onclick = options.onAdd;
+    let addButton = null;
+    if (!options.hideActions) {
+      addButton = actions.createEl("button", {
+        cls: "lighthouse-focus-pane-add",
+        attr: { "aria-label": options.addLabel }
+      });
+      setIcon(addButton, "plus");
+      if (options.addText) addButton.createSpan({ text: options.addText });
+      addButton.onclick = options.onAdd;
+    }
     return { header, heading, actions, addButton };
+  }
+
+  showFocusSingleAddMenu(evt, focus) {
+    const menu = new Menu();
+    menu.addItem(item => item
+      .setTitle("Add source")
+      .setIcon("book-open")
+      .onClick(() => this.openFocusAddItemsModal(focus, "sources")));
+    menu.addItem(item => item
+      .setTitle("Add work item")
+      .setIcon("hammer")
+      .onClick(() => this.openFocusAddItemsModal(focus, "work")));
+    this.showMenu(menu, evt);
   }
 
   renderFocusDrillNav(section, label, onBack) {
@@ -2808,17 +2825,18 @@ class LighthouseView extends ItemView {
 
   renderFocusDrillSection(parent, focus, sectionId, label, icon) {
     const section = parent.createDiv({ cls: `lighthouse-focus-pane lighthouse-focus-pane-${sectionId}` });
+    const addSectionItem = (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      this.openFocusAddItemsModal(focus, sectionId);
+    };
     this.renderFocusPaneHeader(section, {
       label,
       icon,
       addLabel: `Add ${label}`,
       headingTitle: "Right-click to rename",
       onHeadingContextMenu: (evt) => this.showFocusSectionMenu(evt, focus, sectionId, label),
-      onAdd: (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        this.openFocusAddItemsModal(focus, sectionId);
-      }
+      onAdd: addSectionItem
     });
     this.attachFocusSectionDrop(section, focus, sectionId);
     const drillPath = this.focusDrillPaths && this.focusDrillPaths[sectionId];
@@ -2835,7 +2853,7 @@ class LighthouseView extends ItemView {
         this.render();
       });
     }
-    const content = section.createDiv({ cls: "lighthouse-focus-pane-content" });
+    const content = section.createDiv({ cls: `lighthouse-focus-pane-content ${drillPath ? "is-drilling" : ""}` });
     const items = this.sortFocusFlatItems(this.getFocusDrillItems(focus, sectionId), "sources");
     if (!items.length) {
       this.renderFocusSectionEmpty(content, focus, sectionId, label);
