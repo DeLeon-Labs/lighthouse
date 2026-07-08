@@ -104,6 +104,7 @@ const DEFAULT_SETTINGS = {
   replaceCurrentNote: true,
   showScrollButtons: true,
   scrollButtonSize: 34,
+  actionButtonPlacement: "top",
   ignoredPaths: "00.daily_note_template\nTemplates\nAttachments\n.obsidian\n.trash",
   modules: DEFAULT_MODULE_SETTINGS,
   integrations: DEFAULT_INTEGRATION_SETTINGS
@@ -316,6 +317,11 @@ module.exports = class LighthousePlugin extends Plugin {
     if (!Number.isFinite(Number(this.settings.focusFontSize))) this.settings.focusFontSize = Math.max(12, fallback - 1);
   }
 
+  getActionButtonPlacement() {
+    const value = this.settings.actionButtonPlacement || this.settings.globalActionButtonPlacement || "top";
+    return value === "bottom" || value === "split" ? value : "top";
+  }
+
 
   normalizeFolderCountMode() {
     const allowedModes = new Set(["off", "watched", "all"]);
@@ -474,7 +480,7 @@ module.exports = class LighthousePlugin extends Plugin {
         sources: rawLabels.sources && String(rawLabels.sources).trim() ? String(rawLabels.sources).trim() : "Sources",
         work: rawLabels.work && String(rawLabels.work).trim() ? String(rawLabels.work).trim() : "Work"
       },
-      displayMode: "split"
+      displayMode: focus.displayMode === "single" ? "single" : "split"
     };
     const index = this.settings.focuses.findIndex(item => item.id === normalized.id);
     if (index >= 0) this.settings.focuses[index] = normalized;
@@ -1271,14 +1277,20 @@ class LighthouseView extends ItemView {
     const root = this.containerEl.children[1];
     root.empty();
     root.addClass("lighthouse-root");
+    const actionPlacement = this.plugin.getActionButtonPlacement();
+    root.toggleClass("lighthouse-actions-top", actionPlacement === "top");
+    root.toggleClass("lighthouse-actions-bottom", actionPlacement === "bottom");
+    root.toggleClass("lighthouse-actions-split", actionPlacement === "split");
     root.style.setProperty("--lighthouse-font-size", `${this.plugin.settings.lighthouseFontSize}px`);
 
     const header = root.createDiv({ cls: "lighthouse-header" });
 
-    const navActions = header.createDiv({ cls: "lighthouse-nav-actions" });
+    const actionToolbar = header.createDiv({ cls: "lighthouse-action-toolbar" });
+
+    const navActions = actionToolbar.createDiv({ cls: "lighthouse-nav-actions" });
     this.renderHeaderNavActions(navActions);
 
-    const actions = header.createDiv({ cls: "lighthouse-actions" });
+    const actions = actionToolbar.createDiv({ cls: "lighthouse-actions" });
     const daily = actions.createEl("button", { cls: "lighthouse-icon-button", attr: { "aria-label": "Daily note" } });
     setIcon(daily, "calendar-days");
     daily.onclick = async (evt) => {
@@ -1658,11 +1670,7 @@ class LighthouseView extends ItemView {
     if (mode === "focus") {
       tab.setAttr("aria-label", "Focus. Right-click for view options.");
       tab.setAttr("title", "Right-click for Focus options");
-      tab.oncontextmenu = (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        this.showFocusTabMenu(evt);
-      };
+      this.attachContextMenu(tab, (evt) => this.showFocusTabMenu(evt));
     }
     tab.onclick = () => {
       this.mode = mode;
@@ -1726,6 +1734,8 @@ class LighthouseView extends ItemView {
       i.setTitle("Date display").setIcon("calendar-days");
       this.addSubmenuItems(i, evt, submenu => this.showRecentDateMenu(submenu), () => this.showRecentSortMenu(evt));
     });
+    menu.addSeparator();
+    this.addActionButtonPlacementMenuItem(menu, evt);
     this.showMenu(menu, evt);
   }
 
@@ -1740,6 +1750,8 @@ class LighthouseView extends ItemView {
       this.addSubmenuItems(i, evt, submenu => this.addFileTreeFolderBehaviorItems(submenu), () => this.showFileTreeSortMenu(evt));
     });
     menu.addSeparator();
+    this.addActionButtonPlacementMenuItem(menu, evt);
+    menu.addSeparator();
     menu.addItem(i => i
       .setTitle("Customize Files view")
       .setIcon("sliders-horizontal")
@@ -1749,10 +1761,20 @@ class LighthouseView extends ItemView {
 
   showFocusTabMenu(evt) {
     const menu = new Menu();
+    const active = this.plugin.getActiveFocus();
+    if (active) {
+      menu.addItem(i => i
+        .setTitle(active.displayMode === "single" ? "Switch to Split view" : "Switch to Single view")
+        .setIcon(active.displayMode === "single" ? "columns-2" : "panel-top")
+        .onClick(() => this.toggleActiveFocusDisplayMode()));
+      menu.addSeparator();
+    }
     menu.addItem(i => {
       i.setTitle("Sort items").setIcon("arrow-up-down");
       this.addSubmenuItems(i, evt, submenu => this.addFocusSortItems(submenu), () => this.showFocusItemSortMenu(evt));
     });
+    menu.addSeparator();
+    this.addActionButtonPlacementMenuItem(menu, evt);
     menu.addSeparator();
     menu.addItem(i => i
       .setTitle("Customize view")
@@ -1763,6 +1785,38 @@ class LighthouseView extends ItemView {
       .setIcon("folder-plus")
       .onClick(() => this.createBookmarkGroupFromHeader()));
     this.showMenu(menu, evt);
+  }
+
+  addActionButtonPlacementMenuItem(menu, evt) {
+    menu.addItem(i => {
+      i.setTitle("Action buttons").setIcon("panel-bottom");
+      this.addSubmenuItems(i, evt, submenu => this.addActionButtonPlacementItems(submenu), () => this.showActionButtonPlacementMenu(evt));
+    });
+  }
+
+  showActionButtonPlacementMenu(evt) {
+    const menu = new Menu();
+    this.addActionButtonPlacementItems(menu);
+    this.showMenu(menu, evt);
+  }
+
+  addActionButtonPlacementItems(menu) {
+    const current = this.plugin.getActionButtonPlacement();
+    const options = [
+      ["top", "Top", "panel-top"],
+      ["bottom", "Bottom", "panel-bottom"],
+      ["split", "Split", "panel-left"]
+    ];
+    for (const [value, label, icon] of options) {
+      menu.addItem(item => item
+        .setTitle(`${current === value ? "✓ " : ""}${label}`)
+        .setIcon(icon)
+        .onClick(async () => {
+          this.plugin.settings.actionButtonPlacement = value;
+          await this.plugin.saveSettings();
+          this.plugin.refreshViews();
+        }));
+    }
   }
 
   async revealCurrentFile(options = {}) {
@@ -2428,9 +2482,8 @@ class LighthouseView extends ItemView {
     const icon = button.createSpan({ cls: "lighthouse-focus-icon", attr: { "aria-hidden": "true" } });
     setIcon(icon, active ? "list-filter" : "list-filter");
     button.createSpan({ cls: "lighthouse-focus-name", text: this.plugin.getActiveFocusName() });
-    const caret = button.createSpan({ cls: "lighthouse-focus-caret", attr: { "aria-hidden": "true" } });
-    setIcon(caret, "chevron-down");
     button.onclick = (evt) => this.showFocusMenu(evt);
+    this.attachContextMenu(button, (evt) => this.showFocusMenu(evt));
   }
 
   showFocusMenu(evt) {
@@ -2456,6 +2509,10 @@ class LighthouseView extends ItemView {
     const active = this.plugin.getActiveFocus();
     if (active) {
       menu.addItem(item => item
+        .setTitle(active.displayMode === "single" ? "Switch to Split view" : "Switch to Single view")
+        .setIcon(active.displayMode === "single" ? "columns-2" : "panel-top")
+        .onClick(() => this.toggleActiveFocusDisplayMode()));
+      menu.addItem(item => item
         .setTitle("Edit Current Focus…")
         .setIcon("sliders-horizontal")
         .onClick(() => new FocusEditModal(this.app, this.plugin, active).open()));
@@ -2465,6 +2522,14 @@ class LighthouseView extends ItemView {
         .onClick(() => this.confirmDeleteFocus(active)));
     }
     this.showMenu(menu, evt);
+  }
+
+  async toggleActiveFocusDisplayMode() {
+    const active = this.plugin.getActiveFocus();
+    if (!active) return;
+    active.displayMode = active.displayMode === "single" ? "split" : "single";
+    await this.plugin.upsertFocus(active);
+    this.render();
   }
 
   confirmDeleteFocus(focus) {
@@ -2485,7 +2550,7 @@ class LighthouseView extends ItemView {
     this.renderFocusSwitcher(list);
     const activeFocus = this.plugin.getActiveFocus();
     if (activeFocus) {
-      this.renderFocusDrillView(list, activeFocus);
+      this.renderFocusView(list, activeFocus);
       return;
     }
     const layout = this.plugin.getHomeLayout();
@@ -2631,7 +2696,61 @@ class LighthouseView extends ItemView {
   }
 
   renderFocusFlatBookmarks(parent, focus) {
+    this.renderFocusView(parent, focus);
+  }
+
+  renderFocusView(parent, focus) {
+    if (focus && focus.displayMode === "single") {
+      this.renderFocusSingleView(parent, focus);
+      return;
+    }
     this.renderFocusDrillView(parent, focus);
+  }
+
+  renderFocusSingleView(parent, focus) {
+    const wrap = parent.createDiv({ cls: "lighthouse-focus-drill lighthouse-focus-single" });
+    const section = wrap.createDiv({ cls: "lighthouse-focus-pane lighthouse-focus-pane-single" });
+    this.renderFocusPaneHeader(section, {
+      label: "Focus",
+      icon: "list-filter",
+      addLabel: "Add notes or folders",
+      hiddenLabel: true,
+      addText: "Add",
+      onAdd: (evt) => {
+        this.showFocusSingleAddMenu(evt, focus);
+      }
+    });
+
+    const drillPath = this.focusDrillPaths && this.focusDrillPaths.single;
+    if (drillPath) {
+      const folder = this.app.vault.getAbstractFileByPath(drillPath);
+      this.renderFocusDrillNav(section, folder ? folder.name : "Back", (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        const current = this.app.vault.getAbstractFileByPath(drillPath);
+        const sourcePaths = new Set([
+          ...this.getFocusSectionSourcePaths(focus, "sources"),
+          ...this.getFocusSectionSourcePaths(focus, "work"),
+          ...this.getFocusSectionSourcePaths(focus, "unfiled")
+        ]);
+        const parentPath = current && current.parent && current.parent.path;
+        if (parentPath && !sourcePaths.has(drillPath) && this.app.vault.getAbstractFileByPath(parentPath) instanceof TFolder) this.focusDrillPaths.single = parentPath;
+        else this.focusDrillPaths.single = null;
+        this.render();
+      });
+    }
+
+    const content = section.createDiv({ cls: `lighthouse-focus-pane-content lighthouse-focus-single-content ${drillPath ? "is-drilling" : ""}` });
+    const items = this.sortFocusFlatItems(this.getFocusSingleItems(focus), "flattened");
+    if (!items.length) {
+      this.renderFocusSectionEmpty(content, focus, "work", "Focus");
+      return;
+    }
+
+    for (const item of items) {
+      if (item.af instanceof TFolder) this.renderFocusFlatFolder(content, item.af, item);
+      else if (item.af instanceof TFile) this.renderFocusFlatFile(content, item.af, item);
+    }
   }
 
   renderFocusDrillView(parent, focus) {
@@ -2641,6 +2760,53 @@ class LighthouseView extends ItemView {
     if (this.getFocusSectionSourcePaths(focus, "unfiled").length) {
       this.renderFocusDrillSection(wrap, focus, "unfiled", this.plugin.getFocusSectionLabel(focus, "unfiled"), "inbox");
     }
+  }
+
+  renderFocusPaneHeader(section, options) {
+    const header = section.createDiv({ cls: "lighthouse-focus-pane-header" });
+    const heading = header.createDiv({ cls: `lighthouse-focus-pane-heading ${options.hiddenLabel ? "is-hidden-label" : ""}` });
+    if (options.icon) {
+      const iconEl = heading.createSpan({ cls: "lighthouse-focus-pane-icon" });
+      setIcon(iconEl, options.icon);
+    }
+    heading.createSpan({ cls: "lighthouse-focus-pane-title", text: options.label });
+    if (options.headingTitle) heading.title = options.headingTitle;
+    if (options.onHeadingContextMenu) this.attachContextMenu(heading, options.onHeadingContextMenu);
+
+    const actions = header.createDiv({ cls: "lighthouse-focus-pane-actions" });
+    let addButton = null;
+    if (!options.hideActions) {
+      addButton = actions.createEl("button", {
+        cls: "lighthouse-focus-pane-add",
+        attr: { "aria-label": options.addLabel }
+      });
+      setIcon(addButton, "plus");
+      if (options.addText) addButton.createSpan({ text: options.addText });
+      addButton.onclick = options.onAdd;
+    }
+    return { header, heading, actions, addButton };
+  }
+
+  showFocusSingleAddMenu(evt, focus) {
+    const menu = new Menu();
+    menu.addItem(item => item
+      .setTitle("Add source")
+      .setIcon("book-open")
+      .onClick(() => this.openFocusAddItemsModal(focus, "sources")));
+    menu.addItem(item => item
+      .setTitle("Add work item")
+      .setIcon("hammer")
+      .onClick(() => this.openFocusAddItemsModal(focus, "work")));
+    this.showMenu(menu, evt);
+  }
+
+  renderFocusDrillNav(section, label, onBack) {
+    const drillNav = section.createDiv({ cls: "lighthouse-focus-drill-nav" });
+    const back = drillNav.createEl("button", { cls: "lighthouse-focus-back", attr: { "aria-label": `Back from ${label || "folder"}` } });
+    setIcon(back, "chevron-left");
+    back.createSpan({ text: label || "Back" });
+    back.onclick = onBack;
+    return { drillNav, back };
   }
 
   getFocusSectionSourcePaths(focus, sectionId) {
@@ -2657,6 +2823,36 @@ class LighthouseView extends ItemView {
       for (const path of focus.unfiledItems || []) if (path) paths.add(path);
     }
     return Array.from(paths);
+  }
+
+  getFocusSingleItems(focus) {
+    const drillPath = this.focusDrillPaths && this.focusDrillPaths.single;
+    if (drillPath) {
+      const folder = this.app.vault.getAbstractFileByPath(drillPath);
+      if (folder instanceof TFolder) {
+        return (folder.children || [])
+          .filter(item => (item instanceof TFile || item instanceof TFolder) && !shouldHidePath(this.plugin, item.path))
+          .map(af => ({ af, path: af.path, sectionId: "work", isDrillChild: true }));
+      }
+      this.focusDrillPaths.single = null;
+    }
+
+    const byPath = new Map();
+    const addSection = (sectionId, label) => {
+      for (const path of this.getFocusSectionSourcePaths(focus, sectionId)) {
+        if (!path || byPath.has(path)) continue;
+        const af = this.app.vault.getAbstractFileByPath(path);
+        if (!(af instanceof TFile) && !(af instanceof TFolder)) continue;
+        if (shouldHidePath(this.plugin, af.path)) continue;
+        byPath.set(path, { af, path, sectionId, sourceLabel: label });
+      }
+    };
+
+    addSection("sources", this.plugin.getFocusSectionLabel(focus, "sources"));
+    addSection("work", this.plugin.getFocusSectionLabel(focus, "work"));
+    addSection("unfiled", this.plugin.getFocusSectionLabel(focus, "unfiled"));
+
+    return Array.from(byPath.values());
   }
 
 
@@ -2679,31 +2875,24 @@ class LighthouseView extends ItemView {
 
   renderFocusDrillSection(parent, focus, sectionId, label, icon) {
     const section = parent.createDiv({ cls: `lighthouse-focus-pane lighthouse-focus-pane-${sectionId}` });
-    const header = section.createDiv({ cls: "lighthouse-focus-pane-header" });
-    const left = header.createDiv({ cls: "lighthouse-focus-pane-heading" });
-    const iconEl = left.createSpan({ cls: "lighthouse-focus-pane-icon" });
-    setIcon(iconEl, icon);
-    left.createSpan({ cls: "lighthouse-focus-pane-title", text: label });
-    left.title = "Right-click to rename";
-    this.attachContextMenu(left, (evt) => this.showFocusSectionMenu(evt, focus, sectionId, label));
-    const addButton = header.createEl("button", {
-      cls: "lighthouse-focus-pane-add",
-      attr: { "aria-label": `Add ${label}` }
-    });
-    setIcon(addButton, "plus");
-    addButton.onclick = (evt) => {
+    const addSectionItem = (evt) => {
       evt.preventDefault();
       evt.stopPropagation();
       this.openFocusAddItemsModal(focus, sectionId);
     };
+    this.renderFocusPaneHeader(section, {
+      label,
+      icon,
+      addLabel: `Add ${label}`,
+      headingTitle: "Right-click to rename",
+      onHeadingContextMenu: (evt) => this.showFocusSectionMenu(evt, focus, sectionId, label),
+      onAdd: addSectionItem
+    });
     this.attachFocusSectionDrop(section, focus, sectionId);
     const drillPath = this.focusDrillPaths && this.focusDrillPaths[sectionId];
     if (drillPath) {
       const folder = this.app.vault.getAbstractFileByPath(drillPath);
-      const back = header.createEl("button", { cls: "lighthouse-focus-back", attr: { "aria-label": `Back from ${folder ? folder.name : label}` } });
-      setIcon(back, "chevron-left");
-      back.createSpan({ text: folder ? folder.name : "Back" });
-      back.onclick = (evt) => {
+      this.renderFocusDrillNav(section, folder ? folder.name : label, (evt) => {
         evt.preventDefault();
         evt.stopPropagation();
         const current = this.app.vault.getAbstractFileByPath(drillPath);
@@ -2712,9 +2901,9 @@ class LighthouseView extends ItemView {
         if (parentPath && !sourcePaths.has(drillPath) && this.app.vault.getAbstractFileByPath(parentPath) instanceof TFolder) this.focusDrillPaths[sectionId] = parentPath;
         else this.focusDrillPaths[sectionId] = null;
         this.render();
-      };
+      });
     }
-    const content = section.createDiv({ cls: "lighthouse-focus-pane-content" });
+    const content = section.createDiv({ cls: `lighthouse-focus-pane-content ${drillPath ? "is-drilling" : ""}` });
     const items = this.sortFocusFlatItems(this.getFocusDrillItems(focus, sectionId), "sources");
     if (!items.length) {
       this.renderFocusSectionEmpty(content, focus, sectionId, label);
@@ -2771,8 +2960,7 @@ class LighthouseView extends ItemView {
     const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "folder");
     titleRow.createDiv({ cls: "lighthouse-note-title", text: folder.name });
-    const count = Array.isArray(folder.children) ? folder.children.filter(child => !shouldHidePath(this.plugin, child.path)).length : 0;
-    titleRow.createSpan({ cls: "lighthouse-folder-count", text: `(${count})` });
+    this.renderWatchFolderStatus(titleRow, folder);
     row.onclick = (evt) => {
       evt.preventDefault();
       this.focusDrillPaths[sectionId] = folder.path;
@@ -2936,9 +3124,9 @@ class LighthouseView extends ItemView {
     const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "file-text");
     titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
-    const label = item.sourceLabel || (file.parent && file.parent.name) || "";
+    const label = item.isDrillChild ? "" : (item.sourceLabel || (file.parent && file.parent.name) || "");
     if (label) row.createDiv({ cls: "lighthouse-focus-source-label", text: label });
-    else if (this.plugin.settings.showFocusLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: file.parent.path });
+    else if (!item.isDrillChild && this.plugin.settings.showFocusLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: file.parent.path });
     row.onclick = () => this.plugin.openFile(file);
     this.attachContextMenu(row, (evt) => this.showFileMenu(evt, file));
   }
@@ -2952,9 +3140,14 @@ class LighthouseView extends ItemView {
     setIcon(itemIcon, "folder");
     const name = titleRow.createDiv({ cls: "lighthouse-note-title lighthouse-bookmark-folder-link", text: folder.name });
     name.setAttr("title", "Reveal in Files");
-    const label = item.sourceLabel || "Source folder";
+    this.renderWatchFolderStatus(titleRow, folder);
+    const label = item.isDrillChild ? "" : (item.sourceLabel || "Source folder");
     if (label) row.createDiv({ cls: "lighthouse-focus-source-label", text: label });
-    row.onclick = () => this.revealFolderInFiles(folder, true);
+    row.onclick = (evt) => {
+      evt.preventDefault();
+      this.focusDrillPaths.single = folder.path;
+      this.render();
+    };
     this.attachContextMenu(row, (evt) => this.showFolderMenu(evt, folder));
   }
 
@@ -4391,7 +4584,7 @@ class FocusEditModal extends Modal {
       workItems: cloneList(focus.workItems),
       unfiledItems: cloneList(focus.unfiledItems),
       sectionLabels: focus.sectionLabels && typeof focus.sectionLabels === "object" ? { ...focus.sectionLabels } : { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "split"
+      displayMode: focus.displayMode === "single" ? "single" : "split"
     } : {
       id: null,
       name: "",
@@ -4405,7 +4598,7 @@ class FocusEditModal extends Modal {
       workItems: [],
       unfiledItems: [],
       sectionLabels: { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "split"
+      displayMode: "single"
     };
     this.originalSnapshot = this.getSnapshot();
     this.saveButton = null;
@@ -4428,7 +4621,7 @@ class FocusEditModal extends Modal {
       workItems: Array.isArray(focus.workItems) ? [...focus.workItems] : [],
       unfiledItems: Array.isArray(focus.unfiledItems) ? [...focus.unfiledItems] : [],
       sectionLabels: focus.sectionLabels && typeof focus.sectionLabels === "object" ? { ...focus.sectionLabels } : { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "split"
+      displayMode: focus.displayMode === "single" ? "single" : "split"
     });
   }
 
@@ -4507,6 +4700,18 @@ class FocusEditModal extends Modal {
 
     contentEl.createEl("h3", { text: "Focus sections" });
     contentEl.createDiv({ cls: "lighthouse-modal-description", text: "Right-click section headers in Focus to rename them. Unfiled only appears when it contains items." });
+
+    new Setting(contentEl)
+      .setName("Display mode")
+      .setDesc("Single shows one flattened Focus pane. Split keeps Sources, Work, and Unfiled as separate panes.")
+      .addDropdown(dropdown => dropdown
+        .addOption("single", "Single")
+        .addOption("split", "Split")
+        .setValue(this.focus.displayMode === "single" ? "single" : "split")
+        .onChange(value => {
+          this.focus.displayMode = value === "single" ? "single" : "split";
+          this.markChanged();
+        }));
 
     const sourceItems = Array.isArray(this.focus.sourceItems) ? this.focus.sourceItems : (Array.isArray(this.focus.items) ? this.focus.items : []);
     const workItems = Array.isArray(this.focus.workItems) ? this.focus.workItems : [];
@@ -5138,6 +5343,20 @@ class LighthouseSettingTab extends PluginSettingTab {
       }));
 
     containerEl.createEl("h3", { text: "General" });
+
+    new Setting(containerEl)
+      .setName("Action button placement")
+      .setDesc("Experimental. Top keeps both groups above tabs. Bottom moves both groups below. Split keeps contextual actions above tabs and global actions below.")
+      .addDropdown(dropdown => dropdown
+        .addOption("top", "Top")
+        .addOption("bottom", "Bottom")
+        .addOption("split", "Split")
+        .setValue(this.plugin.getActionButtonPlacement())
+        .onChange(async value => {
+          this.plugin.settings.actionButtonPlacement = value === "bottom" || value === "split" ? value : "top";
+          await this.plugin.saveSettings();
+          this.plugin.refreshViews();
+        }));
 
     new Setting(containerEl)
       .setName("Show scroll buttons")
