@@ -1658,11 +1658,7 @@ class LighthouseView extends ItemView {
     if (mode === "focus") {
       tab.setAttr("aria-label", "Focus. Right-click for view options.");
       tab.setAttr("title", "Right-click for Focus options");
-      tab.oncontextmenu = (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        this.showFocusTabMenu(evt);
-      };
+      this.attachContextMenu(tab, (evt) => this.showFocusTabMenu(evt));
     }
     tab.onclick = () => {
       this.mode = mode;
@@ -1749,6 +1745,14 @@ class LighthouseView extends ItemView {
 
   showFocusTabMenu(evt) {
     const menu = new Menu();
+    const active = this.plugin.getActiveFocus();
+    if (active) {
+      menu.addItem(i => i
+        .setTitle(active.displayMode === "single" ? "Switch to Split view" : "Switch to Single view")
+        .setIcon(active.displayMode === "single" ? "columns-2" : "panel-top")
+        .onClick(() => this.toggleActiveFocusDisplayMode()));
+      menu.addSeparator();
+    }
     menu.addItem(i => {
       i.setTitle("Sort items").setIcon("arrow-up-down");
       this.addSubmenuItems(i, evt, submenu => this.addFocusSortItems(submenu), () => this.showFocusItemSortMenu(evt));
@@ -2428,9 +2432,8 @@ class LighthouseView extends ItemView {
     const icon = button.createSpan({ cls: "lighthouse-focus-icon", attr: { "aria-hidden": "true" } });
     setIcon(icon, active ? "list-filter" : "list-filter");
     button.createSpan({ cls: "lighthouse-focus-name", text: this.plugin.getActiveFocusName() });
-    const caret = button.createSpan({ cls: "lighthouse-focus-caret", attr: { "aria-hidden": "true" } });
-    setIcon(caret, "chevron-down");
     button.onclick = (evt) => this.showFocusMenu(evt);
+    this.attachContextMenu(button, (evt) => this.showFocusMenu(evt));
   }
 
   showFocusMenu(evt) {
@@ -2456,6 +2459,10 @@ class LighthouseView extends ItemView {
     const active = this.plugin.getActiveFocus();
     if (active) {
       menu.addItem(item => item
+        .setTitle(active.displayMode === "single" ? "Switch to Split view" : "Switch to Single view")
+        .setIcon(active.displayMode === "single" ? "columns-2" : "panel-top")
+        .onClick(() => this.toggleActiveFocusDisplayMode()));
+      menu.addItem(item => item
         .setTitle("Edit Current Focus…")
         .setIcon("sliders-horizontal")
         .onClick(() => new FocusEditModal(this.app, this.plugin, active).open()));
@@ -2465,6 +2472,14 @@ class LighthouseView extends ItemView {
         .onClick(() => this.confirmDeleteFocus(active)));
     }
     this.showMenu(menu, evt);
+  }
+
+  async toggleActiveFocusDisplayMode() {
+    const active = this.plugin.getActiveFocus();
+    if (!active) return;
+    active.displayMode = active.displayMode === "single" ? "split" : "single";
+    await this.plugin.upsertFocus(active);
+    this.render();
   }
 
   confirmDeleteFocus(focus) {
@@ -2645,24 +2660,37 @@ class LighthouseView extends ItemView {
   renderFocusSingleView(parent, focus) {
     const wrap = parent.createDiv({ cls: "lighthouse-focus-drill lighthouse-focus-single" });
     const section = wrap.createDiv({ cls: "lighthouse-focus-pane lighthouse-focus-pane-single" });
-    const header = section.createDiv({ cls: "lighthouse-focus-pane-header" });
-    const left = header.createDiv({ cls: "lighthouse-focus-pane-heading" });
-    const iconEl = left.createSpan({ cls: "lighthouse-focus-pane-icon" });
-    setIcon(iconEl, "list-filter");
-    left.createSpan({ cls: "lighthouse-focus-pane-title", text: "Focus" });
-
-    const addButton = header.createEl("button", {
-      cls: "lighthouse-focus-pane-add",
-      attr: { "aria-label": "Add work" }
+    this.renderFocusPaneHeader(section, {
+      label: "Focus",
+      icon: "list-filter",
+      addLabel: "Add notes or folders",
+      onAdd: (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        this.openFocusAddItemsModal(focus, "work");
+      }
     });
-    setIcon(addButton, "plus");
-    addButton.onclick = (evt) => {
-      evt.preventDefault();
-      evt.stopPropagation();
-      this.openFocusAddItemsModal(focus, "work");
-    };
 
-    const content = section.createDiv({ cls: "lighthouse-focus-pane-content" });
+    const drillPath = this.focusDrillPaths && this.focusDrillPaths.single;
+    if (drillPath) {
+      const folder = this.app.vault.getAbstractFileByPath(drillPath);
+      this.renderFocusDrillNav(section, folder ? folder.name : "Back", (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        const current = this.app.vault.getAbstractFileByPath(drillPath);
+        const sourcePaths = new Set([
+          ...this.getFocusSectionSourcePaths(focus, "sources"),
+          ...this.getFocusSectionSourcePaths(focus, "work"),
+          ...this.getFocusSectionSourcePaths(focus, "unfiled")
+        ]);
+        const parentPath = current && current.parent && current.parent.path;
+        if (parentPath && !sourcePaths.has(drillPath) && this.app.vault.getAbstractFileByPath(parentPath) instanceof TFolder) this.focusDrillPaths.single = parentPath;
+        else this.focusDrillPaths.single = null;
+        this.render();
+      });
+    }
+
+    const content = section.createDiv({ cls: `lighthouse-focus-pane-content lighthouse-focus-single-content ${drillPath ? "is-drilling" : ""}` });
     const items = this.sortFocusFlatItems(this.getFocusSingleItems(focus), "flattened");
     if (!items.length) {
       this.renderFocusSectionEmpty(content, focus, "work", "Focus");
@@ -2684,6 +2712,36 @@ class LighthouseView extends ItemView {
     }
   }
 
+  renderFocusPaneHeader(section, options) {
+    const header = section.createDiv({ cls: "lighthouse-focus-pane-header" });
+    const heading = header.createDiv({ cls: "lighthouse-focus-pane-heading" });
+    if (options.icon) {
+      const iconEl = heading.createSpan({ cls: "lighthouse-focus-pane-icon" });
+      setIcon(iconEl, options.icon);
+    }
+    heading.createSpan({ cls: "lighthouse-focus-pane-title", text: options.label });
+    if (options.headingTitle) heading.title = options.headingTitle;
+    if (options.onHeadingContextMenu) this.attachContextMenu(heading, options.onHeadingContextMenu);
+
+    const actions = header.createDiv({ cls: "lighthouse-focus-pane-actions" });
+    const addButton = actions.createEl("button", {
+      cls: "lighthouse-focus-pane-add",
+      attr: { "aria-label": options.addLabel }
+    });
+    setIcon(addButton, "plus");
+    addButton.onclick = options.onAdd;
+    return { header, heading, actions, addButton };
+  }
+
+  renderFocusDrillNav(section, label, onBack) {
+    const drillNav = section.createDiv({ cls: "lighthouse-focus-drill-nav" });
+    const back = drillNav.createEl("button", { cls: "lighthouse-focus-back", attr: { "aria-label": `Back from ${label || "folder"}` } });
+    setIcon(back, "chevron-left");
+    back.createSpan({ text: label || "Back" });
+    back.onclick = onBack;
+    return { drillNav, back };
+  }
+
   getFocusSectionSourcePaths(focus, sectionId) {
     const paths = new Set();
     if (sectionId === "sources") {
@@ -2701,6 +2759,17 @@ class LighthouseView extends ItemView {
   }
 
   getFocusSingleItems(focus) {
+    const drillPath = this.focusDrillPaths && this.focusDrillPaths.single;
+    if (drillPath) {
+      const folder = this.app.vault.getAbstractFileByPath(drillPath);
+      if (folder instanceof TFolder) {
+        return (folder.children || [])
+          .filter(item => (item instanceof TFile || item instanceof TFolder) && !shouldHidePath(this.plugin, item.path))
+          .map(af => ({ af, path: af.path, sectionId: "work", isDrillChild: true }));
+      }
+      this.focusDrillPaths.single = null;
+    }
+
     const byPath = new Map();
     const addSection = (sectionId, label) => {
       for (const path of this.getFocusSectionSourcePaths(focus, sectionId)) {
@@ -2739,31 +2808,23 @@ class LighthouseView extends ItemView {
 
   renderFocusDrillSection(parent, focus, sectionId, label, icon) {
     const section = parent.createDiv({ cls: `lighthouse-focus-pane lighthouse-focus-pane-${sectionId}` });
-    const header = section.createDiv({ cls: "lighthouse-focus-pane-header" });
-    const left = header.createDiv({ cls: "lighthouse-focus-pane-heading" });
-    const iconEl = left.createSpan({ cls: "lighthouse-focus-pane-icon" });
-    setIcon(iconEl, icon);
-    left.createSpan({ cls: "lighthouse-focus-pane-title", text: label });
-    left.title = "Right-click to rename";
-    this.attachContextMenu(left, (evt) => this.showFocusSectionMenu(evt, focus, sectionId, label));
-    const addButton = header.createEl("button", {
-      cls: "lighthouse-focus-pane-add",
-      attr: { "aria-label": `Add ${label}` }
+    this.renderFocusPaneHeader(section, {
+      label,
+      icon,
+      addLabel: `Add ${label}`,
+      headingTitle: "Right-click to rename",
+      onHeadingContextMenu: (evt) => this.showFocusSectionMenu(evt, focus, sectionId, label),
+      onAdd: (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        this.openFocusAddItemsModal(focus, sectionId);
+      }
     });
-    setIcon(addButton, "plus");
-    addButton.onclick = (evt) => {
-      evt.preventDefault();
-      evt.stopPropagation();
-      this.openFocusAddItemsModal(focus, sectionId);
-    };
     this.attachFocusSectionDrop(section, focus, sectionId);
     const drillPath = this.focusDrillPaths && this.focusDrillPaths[sectionId];
     if (drillPath) {
       const folder = this.app.vault.getAbstractFileByPath(drillPath);
-      const back = header.createEl("button", { cls: "lighthouse-focus-back", attr: { "aria-label": `Back from ${folder ? folder.name : label}` } });
-      setIcon(back, "chevron-left");
-      back.createSpan({ text: folder ? folder.name : "Back" });
-      back.onclick = (evt) => {
+      this.renderFocusDrillNav(section, folder ? folder.name : label, (evt) => {
         evt.preventDefault();
         evt.stopPropagation();
         const current = this.app.vault.getAbstractFileByPath(drillPath);
@@ -2772,7 +2833,7 @@ class LighthouseView extends ItemView {
         if (parentPath && !sourcePaths.has(drillPath) && this.app.vault.getAbstractFileByPath(parentPath) instanceof TFolder) this.focusDrillPaths[sectionId] = parentPath;
         else this.focusDrillPaths[sectionId] = null;
         this.render();
-      };
+      });
     }
     const content = section.createDiv({ cls: "lighthouse-focus-pane-content" });
     const items = this.sortFocusFlatItems(this.getFocusDrillItems(focus, sectionId), "sources");
@@ -2995,9 +3056,9 @@ class LighthouseView extends ItemView {
     const itemIcon = titleRow.createSpan({ cls: "lighthouse-bookmark-item-icon", attr: { "aria-hidden": "true" } });
     setIcon(itemIcon, "file-text");
     titleRow.createDiv({ cls: "lighthouse-note-title", text: file.basename });
-    const label = item.sourceLabel || (file.parent && file.parent.name) || "";
+    const label = item.isDrillChild ? "" : (item.sourceLabel || (file.parent && file.parent.name) || "");
     if (label) row.createDiv({ cls: "lighthouse-focus-source-label", text: label });
-    else if (this.plugin.settings.showFocusLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: file.parent.path });
+    else if (!item.isDrillChild && this.plugin.settings.showFocusLocation !== false && file.parent && file.parent.path) row.createDiv({ cls: "lighthouse-location lighthouse-home-location", text: file.parent.path });
     row.onclick = () => this.plugin.openFile(file);
     this.attachContextMenu(row, (evt) => this.showFileMenu(evt, file));
   }
@@ -3012,9 +3073,13 @@ class LighthouseView extends ItemView {
     const name = titleRow.createDiv({ cls: "lighthouse-note-title lighthouse-bookmark-folder-link", text: folder.name });
     name.setAttr("title", "Reveal in Files");
     this.renderWatchFolderStatus(titleRow, folder);
-    const label = item.sourceLabel || "Source folder";
+    const label = item.isDrillChild ? "" : (item.sourceLabel || "Source folder");
     if (label) row.createDiv({ cls: "lighthouse-focus-source-label", text: label });
-    row.onclick = () => this.revealFolderInFiles(folder, true);
+    row.onclick = (evt) => {
+      evt.preventDefault();
+      this.focusDrillPaths.single = folder.path;
+      this.render();
+    };
     this.attachContextMenu(row, (evt) => this.showFolderMenu(evt, folder));
   }
 
@@ -4465,7 +4530,7 @@ class FocusEditModal extends Modal {
       workItems: [],
       unfiledItems: [],
       sectionLabels: { sources: "Sources", work: "Work", unfiled: "Unfiled" },
-      displayMode: "split"
+      displayMode: "single"
     };
     this.originalSnapshot = this.getSnapshot();
     this.saveButton = null;

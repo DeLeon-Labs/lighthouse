@@ -110,7 +110,7 @@
 .lighthouse-tabs {
   display: flex;
   align-items: flex-end;
-  padding: 2px 8px 0 8px;
+  padding: 4px 8px 0 8px;
   gap: 1px;
   background: var(--background-secondary) !important;
   border-bottom: 1px solid var(--background-modifier-border);
@@ -1741,14 +1741,18 @@ body.is-mobile .lighthouse-home-section-content .lighthouse-bookmark-group .ligh
 
 /* v1.9.19 Focus flattened prototype */
 .lighthouse-focus-switcher {
-  padding: 3px 8px 6px 8px;
+  padding: 5px 8px 7px 8px;
 }
 
 .lighthouse-focus-button {
-  min-height: 21px;
-  padding: 1px 4px;
-  gap: 3px;
+  width: auto;
+  min-width: 0;
+  min-height: 22px;
+  height: auto;
+  padding: 2px 10px;
+  gap: 4px;
   border-radius: 5px;
+  line-height: 1.15;
   box-shadow: none !important;
 }
 
@@ -1772,8 +1776,9 @@ body.is-mobile .lighthouse-home-section-content .lighthouse-bookmark-group .ligh
 .lighthouse-focus-drill {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   min-height: 0;
+  padding: 0 8px;
 }
 
 .lighthouse-focus-pane {
@@ -1782,7 +1787,7 @@ body.is-mobile .lighthouse-home-section-content .lighthouse-bookmark-group .ligh
   display: flex;
   flex-direction: column;
   border-top: 1px solid var(--background-modifier-border);
-  padding-top: 6px;
+  padding-top: 3px;
 }
 
 .lighthouse-focus-pane:first-child {
@@ -1795,8 +1800,8 @@ body.is-mobile .lighthouse-home-section-content .lighthouse-bookmark-group .ligh
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  min-height: 26px;
-  margin-bottom: 3px;
+  min-height: 24px;
+  margin-bottom: 0;
 }
 
 .lighthouse-focus-pane-heading {
@@ -1858,7 +1863,41 @@ body.is-mobile .lighthouse-home-section-content .lighthouse-bookmark-group .ligh
 .lighthouse-focus-pane-content {
   overflow: auto;
   min-height: 0;
-  padding-right: 2px;
+  padding-right: 0;
+  padding-left: 4px;
+  padding-top: 1px;
+}
+
+.lighthouse-focus-pane-content .lighthouse-bookmark-item {
+  padding-left: 0 !important;
+}
+
+.lighthouse-focus-pane-content .lighthouse-focus-source-label {
+  margin-left: 25px;
+}
+
+.lighthouse-focus-single .lighthouse-focus-source-label {
+  margin-left: 0;
+}
+
+.lighthouse-focus-pane-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.lighthouse-focus-drill-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 20px;
+  margin: 0;
+}
+
+.lighthouse-focus-drill-nav .lighthouse-focus-back {
+  max-width: 100%;
 }
 
 .lighthouse-focus-drill-item {
@@ -1879,6 +1918,11 @@ body.is-mobile .lighthouse-focus-back {
   padding: 4px 8px;
 }
 
+body.is-mobile .lighthouse-focus-drill-nav .lighthouse-focus-back {
+  height: 24px;
+  padding: 2px 4px;
+}
+
 
 /* v0.22.0-alpha Focus drill cleanup */
 .lighthouse-focus-button:hover,
@@ -1891,7 +1935,7 @@ body.is-mobile .lighthouse-focus-back {
 .lighthouse-focus-pane-heading {
   border-radius: 6px;
   padding: 2px 4px;
-  margin-left: -4px;
+  margin-left: 0;
 }
 
 .lighthouse-focus-pane-heading:hover {
@@ -1976,8 +2020,8 @@ body.is-mobile .lighthouse-focus-back {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
-  padding: 14px;
+  gap: 5px;
+  padding: 8px 2px;
   text-align: left;
 }
 
@@ -1995,7 +2039,7 @@ body.is-mobile .lighthouse-focus-back {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .lighthouse-focus-pane-add {
@@ -2003,8 +2047,8 @@ body.is-mobile .lighthouse-focus-back {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 0;
 }
 
