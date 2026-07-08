@@ -5346,7 +5346,7 @@ class LighthouseSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Action button placement")
-      .setDesc("Experimental. Controls contextual view actions and global Lighthouse actions together.")
+      .setDesc("Experimental. Top keeps both groups above tabs. Bottom moves both groups below. Split keeps contextual actions above tabs and global actions below.")
       .addDropdown(dropdown => dropdown
         .addOption("top", "Top")
         .addOption("bottom", "Bottom")
