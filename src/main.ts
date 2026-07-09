@@ -5226,15 +5226,217 @@ class LighthouseSettingTab extends PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
+    this.activeSettingsSection = "general";
+    this.showSettingsDetail = false;
   }
 
   display() {
-    const { containerEl } = this;
+    const rootEl = this.containerEl;
+    rootEl.empty();
+    rootEl.addClass("lighthouse-settings-root");
+    rootEl.createEl("h2", { text: "Lighthouse" });
+
+    const sections = this.getSettingsSections();
+    if (!sections.some(section => section.id === this.activeSettingsSection)) {
+      this.activeSettingsSection = sections[0]?.id || "general";
+    }
+    const activeSection = sections.find(section => section.id === this.activeSettingsSection) || sections[0];
+
+    const isMobileLayout = this.isSettingsMobileLayout();
+    const layoutMode = isMobileLayout && this.showSettingsDetail ? "is-detail" : "is-list";
+    const layoutEl = rootEl.createDiv({
+      cls: `lighthouse-settings-layout ${layoutMode}${isMobileLayout ? " is-mobile-layout" : " is-desktop-layout"}`
+    });
+    const navEl = layoutEl.createDiv({ cls: "lighthouse-settings-sidebar" });
+    const containerEl = layoutEl.createDiv({ cls: "lighthouse-settings-panel" });
+    this.settingsLayoutEl = layoutEl;
+    this.settingsSidebarEl = navEl;
+    this.settingsPanelEl = containerEl;
+
+    this.renderSettingsSidebar(navEl, sections);
+    this.renderSettingsPage(containerEl, activeSection);
+  }
+
+  getSettingsSections() {
+    const sections = [
+      { id: "general", label: "General", icon: "settings" },
+      { id: "recents", label: "Recents", icon: "clock" },
+      { id: "files", label: "Files", icon: "folder" },
+      { id: "focus", label: "Focus", icon: "list-filter" },
+      { id: "watch-folders", label: "Watch Folders", icon: "folder-search" },
+      { id: "navigation", label: "Navigation", icon: "compass" },
+      { id: "core-modules", label: "Core Modules", icon: "blocks" },
+      { id: "companions", label: "Companion Plugins", icon: "plug" }
+    ];
+
+    if (this.plugin.getBuildInfo && this.plugin.getBuildInfo()) {
+      sections.push({ id: "developer", label: "Developer", icon: "terminal" });
+    }
+
+    return sections;
+  }
+
+  renderSettingsSidebar(navEl, sections) {
+    sections.forEach(section => {
+      const button = navEl.createEl("button", {
+        cls: "lighthouse-settings-sidebar-item",
+        attr: {
+          type: "button",
+          "data-lighthouse-settings-section": section.id,
+          "aria-current": "false"
+        }
+      });
+      const iconEl = button.createSpan({ cls: "lighthouse-settings-sidebar-icon" });
+      setIcon(iconEl, section.icon);
+      button.createSpan({ cls: "lighthouse-settings-sidebar-label", text: section.label });
+      const chevronEl = button.createSpan({ cls: "lighthouse-settings-sidebar-chevron" });
+      setIcon(chevronEl, "chevron-right");
+      button.onclick = (evt) => {
+        evt.preventDefault();
+        this.activateSettingsSection(section, button);
+      };
+      this.attachSettingsPressFeedback(button);
+    });
+    this.updateSettingsSidebarState();
+  }
+
+  activateSettingsSection(section, button) {
+    const layoutEl = this.settingsLayoutEl;
+    const panelEl = this.settingsPanelEl;
+    if (!layoutEl || !panelEl) {
+      this.activeSettingsSection = section.id;
+      this.showSettingsDetail = true;
+      this.display();
+      return;
+    }
+
+    this.activeSettingsSection = section.id;
+    this.renderSettingsPage(panelEl, section);
+    this.updateSettingsSidebarState();
+
+    if (!this.isSettingsMobileLayout()) {
+      this.showSettingsDetail = false;
+      layoutEl.removeClass("is-detail");
+      layoutEl.addClass("is-list");
+      return;
+    }
+
+    this.clearSettingsButtonState(button);
+    this.setSettingsLayoutMode("detail", "forward");
+  }
+
+  updateSettingsSidebarState() {
+    if (!this.settingsSidebarEl) return;
+    this.settingsSidebarEl.querySelectorAll(".lighthouse-settings-sidebar-item").forEach(button => {
+      button.removeClass("is-active");
+      button.setAttr("aria-current", "false");
+    });
+    const activeButton = this.settingsSidebarEl.querySelector(`.lighthouse-settings-sidebar-item[data-lighthouse-settings-section="${this.activeSettingsSection}"]`);
+    if (activeButton) {
+      activeButton.addClass("is-active");
+      activeButton.setAttr("aria-current", "page");
+    }
+  }
+
+  renderSettingsPage(containerEl, section) {
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Lighthouse" });
+    const headerEl = containerEl.createDiv({ cls: "lighthouse-settings-page-header" });
+    const backButton = headerEl.createEl("button", {
+      cls: "lighthouse-settings-back-button",
+      attr: {
+        type: "button",
+        "aria-label": "Back to settings sections"
+      }
+    });
+    setIcon(backButton.createSpan({ cls: "lighthouse-settings-back-icon" }), "chevron-left");
+    backButton.createSpan({ cls: "lighthouse-settings-back-label", text: "Settings" });
+    backButton.onclick = (evt) => {
+      evt.preventDefault();
+      this.showSettingsList(backButton);
+    };
+    this.attachSettingsPressFeedback(backButton);
+    headerEl.createEl("h3", { text: section.label });
+    const bodyEl = containerEl.createDiv({ cls: "lighthouse-settings-page-body" });
 
-    containerEl.createEl("h3", { text: "Recents" });
+    switch (section.id) {
+      case "general":
+        this.renderGeneralSettings(bodyEl);
+        break;
+      case "recents":
+        this.renderRecentsSettings(bodyEl);
+        break;
+      case "files":
+        this.renderFilesSettings(bodyEl);
+        break;
+      case "focus":
+        this.renderFocusSettings(bodyEl);
+        break;
+      case "watch-folders":
+        this.renderWatchFolderSettings(bodyEl);
+        break;
+      case "navigation":
+        this.renderNavigationSettings(bodyEl);
+        break;
+      case "core-modules":
+        this.renderCoreModulesSettings(bodyEl);
+        break;
+      case "companions":
+        this.renderCompanionPluginSettings(bodyEl);
+        break;
+      case "developer":
+        this.renderDeveloperSettings(bodyEl);
+        break;
+      default:
+        this.renderGeneralSettings(bodyEl);
+    }
+  }
 
+  renderGeneralSettings(containerEl) {
+    new Setting(containerEl)
+      .setName("Action button placement")
+      .setDesc("Experimental. Top keeps both groups above tabs. Bottom moves both groups below. Split keeps contextual actions above tabs and global actions below.")
+      .addDropdown(dropdown => dropdown
+        .addOption("top", "Top")
+        .addOption("bottom", "Bottom")
+        .addOption("split", "Split")
+        .setValue(this.plugin.getActionButtonPlacement())
+        .onChange(async value => {
+          this.plugin.settings.actionButtonPlacement = value === "bottom" || value === "split" ? value : "top";
+          await this.plugin.saveSettings();
+          this.plugin.refreshViews();
+        }));
+
+    new Setting(containerEl)
+      .setName("Show scroll buttons")
+      .setDesc("Default: on. Shows note-only scroll controls for top and bottom.")
+      .addToggle(t => t.setValue(this.plugin.settings.showScrollButtons).onChange(async v => {
+        this.plugin.settings.showScrollButtons = v;
+        await this.plugin.saveSettings();
+      }));
+
+    new Setting(containerEl)
+      .setName("Scroll button size")
+      .setDesc("Default: 34 px. Only affects the floating note scroll buttons.")
+      .addSlider(s => s.setLimits(26, 56, 1).setValue(this.plugin.settings.scrollButtonSize).setDynamicTooltip().onChange(async v => {
+        this.plugin.settings.scrollButtonSize = v;
+        await this.plugin.saveSettings();
+      }));
+
+    addFolderSuggestSetting(containerEl, this.plugin, "Default new note folder", "defaultNewNoteFolder");
+    addFileSuggestSetting(containerEl, this.plugin, "Quick capture file", "quickCaptureFile");
+
+    new Setting(containerEl)
+      .setName("Open Quick Capture at bottom")
+      .setDesc("Default: on. Opens the quick capture file and scrolls to the bottom for appending.")
+      .addToggle(t => t.setValue(this.plugin.settings.openQuickCaptureAtBottom !== false).onChange(async v => {
+        this.plugin.settings.openQuickCaptureAtBottom = v;
+        await this.plugin.saveSettings();
+      }));
+
+    addFolderSuggestSetting(containerEl, this.plugin, "Daily notes folder", "dailyNotesFolder");
+  }
+
+  renderRecentsSettings(containerEl) {
     new Setting(containerEl)
       .setName("Recent font size")
       .setDesc("Default: 14 px.")
@@ -5291,8 +5493,28 @@ class LighthouseSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }));
 
-    containerEl.createEl("h3", { text: "Files" });
+    new Setting(containerEl)
+      .setName("Recent note limit")
+      .setDesc("Default: 50. Maximum number of notes shown in Recent.")
+      .addSlider(s => s.setLimits(10, 200, 10).setValue(this.plugin.settings.recentLimit).setDynamicTooltip().onChange(async v => {
+        this.plugin.settings.recentLimit = v;
+        await this.plugin.saveSettings();
+      }));
 
+    new Setting(containerEl)
+      .setName("Ignored paths or names")
+      .setDesc("One per line. Hides matching notes/folders from Recent only. Examples: Templates, Attachments, 00.daily_note_template")
+      .addTextArea(t => {
+        t.inputEl.rows = 6;
+        t.setValue(this.plugin.settings.ignoredPaths || "");
+        t.onChange(async v => {
+          this.plugin.settings.ignoredPaths = v;
+          await this.plugin.saveSettings();
+        });
+      });
+  }
+
+  renderFilesSettings(containerEl) {
     new Setting(containerEl)
       .setName("File tree font size")
       .setDesc("Default: 13 px. Keep this smaller for denser folder browsing.")
@@ -5300,9 +5522,9 @@ class LighthouseSettingTab extends PluginSettingTab {
         this.plugin.settings.fileTreeFontSize = v;
         await this.plugin.saveSettings();
       }));
+  }
 
-    containerEl.createEl("h3", { text: "Focus view" });
-
+  renderFocusSettings(containerEl) {
     new Setting(containerEl)
       .setName("Focus view font size")
       .setDesc("Default: 13 px. Applies only to the Focus view.")
@@ -5338,57 +5560,12 @@ class LighthouseSettingTab extends PluginSettingTab {
       .setName("Show counts and extra info")
       .setDesc("Default: on. Controls counts and secondary info in Focus sections.")
       .addToggle(t => t.setValue(this.plugin.settings.showFocusInfo !== false).onChange(async v => {
-        this.plugin.settings.showFocusInfo = v;
-        await this.plugin.saveSettings();
-      }));
-
-    containerEl.createEl("h3", { text: "General" });
-
-    new Setting(containerEl)
-      .setName("Action button placement")
-      .setDesc("Experimental. Top keeps both groups above tabs. Bottom moves both groups below. Split keeps contextual actions above tabs and global actions below.")
-      .addDropdown(dropdown => dropdown
-        .addOption("top", "Top")
-        .addOption("bottom", "Bottom")
-        .addOption("split", "Split")
-        .setValue(this.plugin.getActionButtonPlacement())
-        .onChange(async value => {
-          this.plugin.settings.actionButtonPlacement = value === "bottom" || value === "split" ? value : "top";
+          this.plugin.settings.showFocusInfo = v;
           await this.plugin.saveSettings();
-          this.plugin.refreshViews();
         }));
+  }
 
-    new Setting(containerEl)
-      .setName("Show scroll buttons")
-      .setDesc("Default: on. Shows note-only scroll controls for top and bottom.")
-      .addToggle(t => t.setValue(this.plugin.settings.showScrollButtons).onChange(async v => {
-        this.plugin.settings.showScrollButtons = v;
-        await this.plugin.saveSettings();
-      }));
-
-    new Setting(containerEl)
-      .setName("Scroll button size")
-      .setDesc("Default: 34 px. Only affects the floating note scroll buttons.")
-      .addSlider(s => s.setLimits(26, 56, 1).setValue(this.plugin.settings.scrollButtonSize).setDynamicTooltip().onChange(async v => {
-        this.plugin.settings.scrollButtonSize = v;
-        await this.plugin.saveSettings();
-      }));
-
-    containerEl.createEl("h3", { text: "General note locations" });
-
-    addFolderSuggestSetting(containerEl, this.plugin, "Default new note folder", "defaultNewNoteFolder");
-    addFileSuggestSetting(containerEl, this.plugin, "Quick capture file", "quickCaptureFile");
-
-    new Setting(containerEl)
-      .setName("Open Quick Capture at bottom")
-      .setDesc("Default: on. Opens the quick capture file and scrolls to the bottom for appending.")
-      .addToggle(t => t.setValue(this.plugin.settings.openQuickCaptureAtBottom !== false).onChange(async v => {
-        this.plugin.settings.openQuickCaptureAtBottom = v;
-        await this.plugin.saveSettings();
-      }));
-
-    addFolderSuggestSetting(containerEl, this.plugin, "Daily notes folder", "dailyNotesFolder");
-
+  renderNavigationSettings(containerEl) {
     new Setting(containerEl)
       .setName("Root display name")
       .setDesc("Used internally and in some labels. The visible root row is hidden in the file tree.")
@@ -5396,8 +5573,6 @@ class LighthouseSettingTab extends PluginSettingTab {
         this.plugin.settings.rootDisplayName = v || "Vault";
         await this.plugin.saveSettings();
       }));
-
-    containerEl.createEl("h3", { text: "Navigation behavior" });
 
     new Setting(containerEl)
       .setName("Auto-open Lighthouse at startup")
@@ -5427,35 +5602,13 @@ class LighthouseSettingTab extends PluginSettingTab {
       .setName("Show side ribbon icon")
       .setDesc("Default: off. Mostly useful on desktop; mobile usually does not need this.")
       .addToggle(t => t.setValue(this.plugin.settings.showRibbonIcon).onChange(async v => {
-        this.plugin.settings.showRibbonIcon = v;
-        await this.plugin.saveSettings();
-        new Notice("Restart Obsidian to fully apply ribbon icon changes.");
-      }));
-
-    containerEl.createEl("h3", { text: "Recents filtering" });
-
-    new Setting(containerEl)
-      .setName("Recent note limit")
-      .setDesc("Default: 50. Maximum number of notes shown in Recent.")
-      .addSlider(s => s.setLimits(10, 200, 10).setValue(this.plugin.settings.recentLimit).setDynamicTooltip().onChange(async v => {
-        this.plugin.settings.recentLimit = v;
-        await this.plugin.saveSettings();
-      }));
-
-    new Setting(containerEl)
-      .setName("Ignored paths or names")
-      .setDesc("One per line. Hides matching notes/folders from Recent only. Examples: Templates, Attachments, 00.daily_note_template")
-      .addTextArea(t => {
-        t.inputEl.rows = 6;
-        t.setValue(this.plugin.settings.ignoredPaths || "");
-        t.onChange(async v => {
-          this.plugin.settings.ignoredPaths = v;
+          this.plugin.settings.showRibbonIcon = v;
           await this.plugin.saveSettings();
-        });
-      });
+          new Notice("Restart Obsidian to fully apply ribbon icon changes.");
+        }));
+  }
 
-    containerEl.createEl("h3", { text: "Files watch folders" });
-
+  renderWatchFolderSettings(containerEl) {
     new Setting(containerEl)
       .setName("Show watch indicator")
       .setDesc("Default: on. Shows a small accent-colored dot beside watched folders when they contain files.")
@@ -5497,24 +5650,146 @@ class LighthouseSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
           this.plugin.refreshViews();
         }));
-
-    this.renderDeveloperSection(containerEl);
   }
 
-  renderDeveloperSection(containerEl) {
+  renderCoreModulesSettings(containerEl) {
+    this.renderSettingsInfoCard(
+      containerEl,
+      "First-party optional modules",
+      "Graph Focus, Sidecar Notes, and future first-party modules will appear here when their module registry settings are implemented."
+    );
+  }
+
+  renderCompanionPluginSettings(containerEl) {
+    this.renderSettingsInfoCard(
+      containerEl,
+      "Optional DeLeon Labs integrations",
+      "Companion plugins such as Note Actions, Source Companion, Squido, and Crate Digger should remain independent and may connect to Lighthouse later."
+    );
+  }
+
+  renderDeveloperSettings(containerEl) {
     const buildInfo = this.plugin.getBuildInfo ? this.plugin.getBuildInfo() : null;
-    if (!buildInfo) return;
+    if (!buildInfo) {
+      this.renderSettingsInfoCard(containerEl, "Developer build information", "Developer diagnostics are only available in development builds.");
+      return;
+    }
 
-    const details = containerEl.createEl("details", { cls: "lighthouse-developer-section" });
-    details.createEl("summary", { text: "Developer" });
-    const body = details.createDiv({ cls: "lighthouse-developer-build-info" });
-
+    const body = containerEl.createDiv({ cls: "lighthouse-developer-build-info" });
     this.renderBuildInfoRow(body, "Version", buildInfo.version);
     this.renderBuildInfoRow(body, "Branch", buildInfo.branch);
     this.renderBuildInfoRow(body, "Commit", formatBuildCommit(buildInfo.commit));
     this.renderBuildInfoRow(body, "Built", formatBuildTimestamp(buildInfo.buildTimestamp));
     this.renderBuildInfoRow(body, "Dirty state", buildInfo.dirty ? "Dirty" : "Clean");
     this.renderBuildInfoRow(body, "Broker URL", buildInfo.brokerUrl || "Not configured");
+  }
+
+  renderSettingsInfoCard(containerEl, title, description) {
+    const card = containerEl.createDiv({ cls: "lighthouse-settings-info-card" });
+    card.createDiv({ cls: "lighthouse-settings-info-title", text: title });
+    card.createDiv({ cls: "lighthouse-settings-info-description", text: description });
+  }
+
+  showSettingsList(button) {
+    const layoutEl = this.settingsLayoutEl;
+    if (!layoutEl) {
+      this.showSettingsDetail = false;
+      this.display();
+      return;
+    }
+
+    this.clearSettingsButtonState(button);
+
+    if (!this.isSettingsMobileLayout()) {
+      this.showSettingsDetail = false;
+      layoutEl.removeClass("is-detail");
+      layoutEl.addClass("is-list");
+      return;
+    }
+
+    this.setSettingsLayoutMode("list", "back");
+  }
+
+  setSettingsLayoutMode(mode, direction) {
+    const layoutEl = this.settingsLayoutEl;
+    if (!layoutEl) return;
+    const sidebarEl = this.settingsSidebarEl;
+    const panelEl = this.settingsPanelEl;
+    const reduceMotion = this.prefersReducedSettingsMotion();
+
+    this.showSettingsDetail = mode === "detail";
+    layoutEl.toggleClass("is-detail", mode === "detail");
+    layoutEl.toggleClass("is-list", mode === "list");
+
+    if (!this.isSettingsMobileLayout() || reduceMotion || !sidebarEl || !panelEl || typeof sidebarEl.animate !== "function") {
+      return;
+    }
+
+    const timing = {
+      duration: 460,
+      easing: "cubic-bezier(0.2, 0, 0, 1)",
+      fill: "both"
+    };
+
+    sidebarEl.getAnimations?.().forEach(animation => animation.cancel());
+    panelEl.getAnimations?.().forEach(animation => animation.cancel());
+
+    if (direction === "forward") {
+      sidebarEl.animate([
+        { opacity: 1, transform: "translateX(0)" },
+        { opacity: 0, transform: "translateX(-18px)" }
+      ], timing);
+      panelEl.animate([
+        { opacity: 0, transform: "translateX(22px)" },
+        { opacity: 1, transform: "translateX(0)" }
+      ], timing);
+      return;
+    }
+
+    sidebarEl.animate([
+      { opacity: 0, transform: "translateX(-18px)" },
+      { opacity: 1, transform: "translateX(0)" }
+    ], timing);
+    panelEl.animate([
+      { opacity: 1, transform: "translateX(0)" },
+      { opacity: 0, transform: "translateX(22px)" }
+    ], timing);
+  }
+
+  attachSettingsPressFeedback(button) {
+    if (!button) return;
+    const clear = () => button.removeClass("is-pressing");
+    button.onpointerdown = () => button.addClass("is-pressing");
+    button.onpointerup = clear;
+    button.onpointercancel = clear;
+    button.onpointerleave = clear;
+    button.onblur = clear;
+  }
+
+  clearSettingsButtonState(button) {
+    if (!button) return;
+    button.removeClass("is-pressing");
+    button.blur();
+    window.setTimeout(() => {
+      if (document.activeElement === button) document.body.focus();
+    }, 0);
+  }
+
+  prefersReducedSettingsMotion() {
+    return typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  isSettingsMobileLayout() {
+    if (typeof document !== "undefined" && document.body) {
+      if (document.body.classList.contains("is-mobile") || document.body.classList.contains("is-phone")) {
+        return true;
+      }
+    }
+    return typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(max-width: 700px)").matches;
   }
 
   renderBuildInfoRow(containerEl, label, value) {

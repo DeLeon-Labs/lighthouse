@@ -1,6 +1,6 @@
 {
   "name": "lighthouse-obsidian-plugin",
-  "version": "0.27.1-alpha",
+  "version": "0.27.2-alpha",
   "description": "Lighthouse is a focus-aware workspace for Obsidian.",
   "main": "dist/main.js",
   "type": "commonjs",

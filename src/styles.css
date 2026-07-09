@@ -2240,8 +2240,367 @@ body.is-mobile .lighthouse-focus-drill-nav .lighthouse-focus-back {
   font-size: 0.85em;
 }
 
+.lighthouse-settings-root {
+  width: 100%;
+}
+
+.lighthouse-settings-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, min(22%, 260px)) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  width: 100%;
+}
+
+.lighthouse-settings-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  overflow: auto;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.lighthouse-settings-sidebar-item {
+  width: 100%;
+  min-height: 46px;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 0;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+  text-align: left;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: none;
+  background: transparent;
+  color: var(--text-normal);
+  padding: 6px 8px;
+  font-size: 0.92em;
+  line-height: 1.25;
+}
+
+.lighthouse-settings-sidebar-item:not(:last-child) {
+  border-bottom: 0;
+}
+
+.lighthouse-settings-sidebar-item:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.lighthouse-settings-sidebar-item:focus,
+.lighthouse-settings-sidebar-item:focus-visible,
+.lighthouse-settings-back-button:focus,
+.lighthouse-settings-back-button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.lighthouse-settings-sidebar-item.is-active {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.lighthouse-settings-sidebar-icon,
+.lighthouse-settings-sidebar-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.lighthouse-settings-sidebar-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.lighthouse-settings-sidebar-chevron svg {
+  width: 16px;
+  height: 16px;
+}
+
+.lighthouse-settings-sidebar-chevron {
+  display: none;
+}
+
+.lighthouse-settings-sidebar-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lighthouse-settings-panel {
+  min-width: 0;
+  width: 100%;
+}
+
+body:not(.is-mobile):not(.is-phone) .lighthouse-settings-layout.is-desktop-layout {
+  display: grid;
+}
+
+body:not(.is-mobile):not(.is-phone) .lighthouse-settings-sidebar {
+  display: flex;
+}
+
+body:not(.is-mobile):not(.is-phone) .lighthouse-settings-panel {
+  display: block;
+}
+
+body:not(.is-mobile):not(.is-phone) .lighthouse-settings-page-body > .setting-item {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.lighthouse-settings-page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 14px 0;
+}
+
+.lighthouse-settings-page-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: 650;
+}
+
+.lighthouse-settings-back-button {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 4px 2px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--text-accent);
+  font-size: 0.95em;
+}
+
+.lighthouse-settings-back-button:hover {
+  background: transparent;
+  color: var(--text-accent-hover);
+}
+
+.lighthouse-settings-back-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lighthouse-settings-back-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.lighthouse-settings-page-body {
+  min-width: 0;
+  width: 100%;
+}
+
+.lighthouse-settings-info-card {
+  margin: 0 0 14px 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--background-secondary);
+}
+
+.lighthouse-settings-info-title {
+  color: var(--text-normal);
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+
+.lighthouse-settings-info-description {
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
 body.is-mobile .lighthouse-focus-empty-actions {
   flex-direction: column;
+}
+
+body.is-mobile .lighthouse-settings-layout,
+body.is-phone .lighthouse-settings-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  position: relative;
+}
+
+body.is-mobile .lighthouse-settings-sidebar,
+body.is-phone .lighthouse-settings-sidebar,
+body.is-mobile .lighthouse-settings-panel,
+body.is-phone .lighthouse-settings-panel {
+  grid-column: 1;
+  grid-row: 1;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+
+body.is-mobile .lighthouse-settings-sidebar,
+body.is-phone .lighthouse-settings-sidebar {
+  position: static;
+  max-height: none;
+  border-radius: 16px;
+  background: var(--background-secondary);
+}
+
+body.is-mobile .lighthouse-settings-layout.is-detail .lighthouse-settings-sidebar,
+body.is-phone .lighthouse-settings-layout.is-detail .lighthouse-settings-sidebar {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  transform: translateX(-10px);
+  width: 100%;
+}
+
+body.is-mobile .lighthouse-settings-layout.is-list .lighthouse-settings-panel,
+body.is-phone .lighthouse-settings-layout.is-list .lighthouse-settings-panel {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  transform: translateX(12px);
+  width: 100%;
+}
+
+body.is-mobile .lighthouse-settings-layout.is-detail .lighthouse-settings-panel,
+body.is-phone .lighthouse-settings-layout.is-detail .lighthouse-settings-panel {
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+  transform: translateX(0);
+  width: 100%;
+}
+
+body.is-mobile .lighthouse-settings-layout.is-list .lighthouse-settings-sidebar,
+body.is-phone .lighthouse-settings-layout.is-list .lighthouse-settings-sidebar {
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+  transform: translateX(0);
+}
+
+body.is-mobile .lighthouse-settings-sidebar-item,
+body.is-phone .lighthouse-settings-sidebar-item {
+  min-height: 48px;
+  grid-template-columns: 24px minmax(0, 1fr) 18px;
+  gap: 10px;
+  padding: 11px 14px;
+  font-size: 0.96em;
+  border-radius: 0;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  box-shadow: none;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+body.is-mobile .lighthouse-settings-sidebar-item:not(:last-child),
+body.is-phone .lighthouse-settings-sidebar-item:not(:last-child) {
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+body.is-mobile .lighthouse-settings-sidebar-item.is-active,
+body.is-phone .lighthouse-settings-sidebar-item.is-active {
+  background: transparent;
+}
+
+body.is-mobile .lighthouse-settings-sidebar-item:hover,
+body.is-phone .lighthouse-settings-sidebar-item:hover {
+  background: transparent;
+}
+
+body.is-mobile .lighthouse-settings-sidebar-item:focus,
+body.is-phone .lighthouse-settings-sidebar-item:focus,
+body.is-mobile .lighthouse-settings-sidebar-item:focus-visible,
+body.is-phone .lighthouse-settings-sidebar-item:focus-visible {
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+body.is-mobile .lighthouse-settings-sidebar-item:active,
+body.is-phone .lighthouse-settings-sidebar-item:active,
+body.is-mobile .lighthouse-settings-sidebar-item.is-pressing,
+body.is-phone .lighthouse-settings-sidebar-item.is-pressing {
+  background: var(--background-modifier-hover);
+  transition: background-color 90ms ease-out;
+}
+
+body.is-mobile .lighthouse-settings-sidebar-chevron,
+body.is-phone .lighthouse-settings-sidebar-chevron {
+  display: inline-flex;
+}
+
+body.is-mobile .lighthouse-settings-sidebar-icon svg,
+body.is-phone .lighthouse-settings-sidebar-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+body.is-mobile .lighthouse-settings-sidebar-chevron svg,
+body.is-phone .lighthouse-settings-sidebar-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+body.is-mobile .lighthouse-settings-page-header h3,
+body.is-phone .lighthouse-settings-page-header h3 {
+  font-size: 1.18em;
+}
+
+body.is-mobile .lighthouse-settings-back-button,
+body.is-phone .lighthouse-settings-back-button {
+  display: inline-flex;
+  min-height: 38px;
+  padding: 7px 15px 7px 10px;
+  border-radius: 999px;
+  background: var(--background-secondary);
+  appearance: none;
+  box-shadow: none;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.is-mobile .lighthouse-settings-back-button:active,
+body.is-phone .lighthouse-settings-back-button:active,
+body.is-mobile .lighthouse-settings-back-button.is-pressing,
+body.is-phone .lighthouse-settings-back-button.is-pressing {
+  background: var(--background-modifier-hover);
+  transition: background-color 90ms ease-out;
+}
+
+body.is-mobile .lighthouse-settings-back-button:focus,
+body.is-phone .lighthouse-settings-back-button:focus,
+body.is-mobile .lighthouse-settings-back-button:focus-visible,
+body.is-phone .lighthouse-settings-back-button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+body.is-mobile .lighthouse-settings-page-body > .setting-item,
+body.is-phone .lighthouse-settings-page-body > .setting-item {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.is-mobile .lighthouse-settings-sidebar,
+  body.is-phone .lighthouse-settings-sidebar,
+  body.is-mobile .lighthouse-settings-panel,
+  body.is-phone .lighthouse-settings-panel {
+    transition: none;
+  }
 }
 
 body.is-mobile .lighthouse-focus-add-top-actions button {
@@ -2253,22 +2612,10 @@ body.is-mobile .lighthouse-focus-add-items-modal .lighthouse-modal-buttons butto
   width: 100%;
 }
 
-.lighthouse-developer-section {
-  margin-top: 24px;
-  padding-top: 12px;
-  border-top: 1px solid var(--background-modifier-border);
-}
-
-.lighthouse-developer-section summary {
-  cursor: pointer;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
 .lighthouse-developer-build-info {
-  margin-top: 12px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 8px;
+  margin-top: 0;
+  border-radius: 16px;
+  background: var(--background-secondary);
   overflow: hidden;
 }
 
