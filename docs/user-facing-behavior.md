@@ -1,6 +1,6 @@
 # Lighthouse User-Facing Behavior
 
-This document describes the current `0.27.1-alpha` working build. It is not a
+This document describes the current `0.27.2-alpha` working build. It is not a
 promise that planned behavior is already implemented.
 
 ## Main view
@@ -101,6 +101,11 @@ Current settings cover areas including:
 - tab action buttons;
 - automatic view opening and active-file reveal;
 - scroll-control visibility and size.
+
+The settings tab uses a split-pane section list on desktop. On mobile, it uses
+a drill-down flow: the category list appears first, and selecting a category
+opens a full-width settings page for that section with a back control. It does
+not expose one long scrolling settings form.
 
 Obsidian stores these settings in the installed plugin's per-vault `data.json`.
 The repository intentionally does not contain that runtime file. It is not a
