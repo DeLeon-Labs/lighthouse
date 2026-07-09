@@ -2451,6 +2451,7 @@ body.is-phone .lighthouse-settings-sidebar {
   max-height: none;
   border-radius: 16px;
   background: var(--background-secondary);
+  overflow: hidden;
 }
 
 body.is-mobile .lighthouse-settings-layout.is-detail .lighthouse-settings-sidebar,
@@ -2495,9 +2496,12 @@ body.is-phone .lighthouse-settings-sidebar-item {
   min-height: 48px;
   grid-template-columns: 24px minmax(0, 1fr) 18px;
   gap: 10px;
-  padding: 11px 14px;
+  padding: 11px 16px 11px 14px;
   font-size: 0.96em;
   border-radius: 0;
+  border: 0;
+  background: transparent !important;
+  color: var(--text-normal);
   -webkit-tap-highlight-color: transparent;
   appearance: none;
   box-shadow: none;
@@ -2507,29 +2511,29 @@ body.is-phone .lighthouse-settings-sidebar-item {
 
 body.is-mobile .lighthouse-settings-sidebar-item:not(:last-child),
 body.is-phone .lighthouse-settings-sidebar-item:not(:last-child) {
-  border-bottom: 1px solid var(--background-modifier-border);
+  border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 58%, transparent);
 }
 
 body.is-mobile .lighthouse-settings-sidebar-item.is-active,
 body.is-mobile .lighthouse-settings-sidebar-item.is-selected,
 body.is-phone .lighthouse-settings-sidebar-item.is-active {
-  background: transparent;
+  background: transparent !important;
 }
 
 body.is-phone .lighthouse-settings-sidebar-item.is-selected {
-  background: transparent;
+  background: transparent !important;
 }
 
 body.is-mobile .lighthouse-settings-sidebar-item:hover,
 body.is-phone .lighthouse-settings-sidebar-item:hover {
-  background: transparent;
+  background: transparent !important;
 }
 
 body.is-mobile .lighthouse-settings-sidebar-item:focus,
 body.is-phone .lighthouse-settings-sidebar-item:focus,
 body.is-mobile .lighthouse-settings-sidebar-item:focus-visible,
 body.is-phone .lighthouse-settings-sidebar-item:focus-visible {
-  background: transparent;
+  background: transparent !important;
   outline: none;
   box-shadow: none;
 }
@@ -2538,13 +2542,15 @@ body.is-mobile .lighthouse-settings-sidebar-item:active,
 body.is-phone .lighthouse-settings-sidebar-item:active,
 body.is-mobile .lighthouse-settings-sidebar-item.is-pressed,
 body.is-phone .lighthouse-settings-sidebar-item.is-pressed {
-  background: var(--background-modifier-hover);
+  background: var(--background-modifier-hover) !important;
   transition: background-color 90ms ease-out;
 }
 
 body.is-mobile .lighthouse-settings-sidebar-chevron,
 body.is-phone .lighthouse-settings-sidebar-chevron {
   display: inline-flex;
+  justify-self: end;
+  color: var(--text-faint);
 }
 
 body.is-mobile .lighthouse-settings-sidebar-icon svg,
