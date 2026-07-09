@@ -5283,7 +5283,8 @@ class LighthouseSettingTab extends PluginSettingTab {
         attr: {
           type: "button",
           "data-lighthouse-settings-section": section.id,
-          "aria-current": "false"
+          "aria-current": "false",
+          "aria-selected": "false"
         }
       });
       const iconEl = button.createSpan({ cls: "lighthouse-settings-sidebar-icon" });
@@ -5327,14 +5328,20 @@ class LighthouseSettingTab extends PluginSettingTab {
 
   updateSettingsSidebarState() {
     if (!this.settingsSidebarEl) return;
+    const usePersistentSelection = !this.isSettingsMobileLayout();
     this.settingsSidebarEl.querySelectorAll(".lighthouse-settings-sidebar-item").forEach(button => {
       button.removeClass("is-active");
+      button.removeClass("is-selected");
+      button.removeClass("is-pressed");
+      button.removeClass("is-pressing");
       button.setAttr("aria-current", "false");
+      button.setAttr("aria-selected", "false");
     });
     const activeButton = this.settingsSidebarEl.querySelector(`.lighthouse-settings-sidebar-item[data-lighthouse-settings-section="${this.activeSettingsSection}"]`);
-    if (activeButton) {
-      activeButton.addClass("is-active");
+    if (activeButton && usePersistentSelection) {
+      activeButton.addClass("is-selected");
       activeButton.setAttr("aria-current", "page");
+      activeButton.setAttr("aria-selected", "true");
     }
   }
 
@@ -5767,8 +5774,11 @@ class LighthouseSettingTab extends PluginSettingTab {
 
   attachSettingsPressFeedback(button) {
     if (!button) return;
-    const clear = () => button.removeClass("is-pressing");
-    button.onpointerdown = () => button.addClass("is-pressing");
+    const clear = () => {
+      button.removeClass("is-pressed");
+      button.removeClass("is-pressing");
+    };
+    button.onpointerdown = () => button.addClass("is-pressed");
     button.onpointerup = clear;
     button.onpointercancel = clear;
     button.onpointerleave = clear;
@@ -5777,7 +5787,14 @@ class LighthouseSettingTab extends PluginSettingTab {
 
   clearSettingsButtonState(button) {
     if (!button) return;
+    button.removeClass("is-pressed");
     button.removeClass("is-pressing");
+    button.removeClass("is-active");
+    if (this.isSettingsMobileLayout()) {
+      button.removeClass("is-selected");
+      button.setAttr("aria-current", "false");
+      button.setAttr("aria-selected", "false");
+    }
     button.blur();
     window.setTimeout(() => {
       if (document.activeElement === button) document.body.focus();

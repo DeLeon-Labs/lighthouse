@@ -2299,7 +2299,7 @@ body.is-mobile .lighthouse-focus-drill-nav .lighthouse-focus-back {
   box-shadow: none;
 }
 
-.lighthouse-settings-sidebar-item.is-active {
+.lighthouse-settings-sidebar-item.is-selected {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
@@ -2511,7 +2511,12 @@ body.is-phone .lighthouse-settings-sidebar-item:not(:last-child) {
 }
 
 body.is-mobile .lighthouse-settings-sidebar-item.is-active,
+body.is-mobile .lighthouse-settings-sidebar-item.is-selected,
 body.is-phone .lighthouse-settings-sidebar-item.is-active {
+  background: transparent;
+}
+
+body.is-phone .lighthouse-settings-sidebar-item.is-selected {
   background: transparent;
 }
 
@@ -2531,8 +2536,8 @@ body.is-phone .lighthouse-settings-sidebar-item:focus-visible {
 
 body.is-mobile .lighthouse-settings-sidebar-item:active,
 body.is-phone .lighthouse-settings-sidebar-item:active,
-body.is-mobile .lighthouse-settings-sidebar-item.is-pressing,
-body.is-phone .lighthouse-settings-sidebar-item.is-pressing {
+body.is-mobile .lighthouse-settings-sidebar-item.is-pressed,
+body.is-phone .lighthouse-settings-sidebar-item.is-pressed {
   background: var(--background-modifier-hover);
   transition: background-color 90ms ease-out;
 }
@@ -2575,10 +2580,28 @@ body.is-phone .lighthouse-settings-back-button {
 
 body.is-mobile .lighthouse-settings-back-button:active,
 body.is-phone .lighthouse-settings-back-button:active,
-body.is-mobile .lighthouse-settings-back-button.is-pressing,
-body.is-phone .lighthouse-settings-back-button.is-pressing {
+body.is-mobile .lighthouse-settings-back-button.is-pressed,
+body.is-phone .lighthouse-settings-back-button.is-pressed {
   background: var(--background-modifier-hover);
   transition: background-color 90ms ease-out;
+}
+
+@media (max-width: 700px) {
+  .lighthouse-settings-sidebar-item.is-active,
+  .lighthouse-settings-sidebar-item.is-selected,
+  .lighthouse-settings-sidebar-item:hover,
+  .lighthouse-settings-sidebar-item:focus,
+  .lighthouse-settings-sidebar-item:focus-visible {
+    background: transparent;
+    outline: none;
+    box-shadow: none;
+  }
+
+  .lighthouse-settings-sidebar-item:active,
+  .lighthouse-settings-sidebar-item.is-pressed {
+    background: var(--background-modifier-hover);
+    transition: background-color 90ms ease-out;
+  }
 }
 
 body.is-mobile .lighthouse-settings-back-button:focus,
