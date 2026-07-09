@@ -2459,7 +2459,7 @@ body.is-phone .lighthouse-settings-layout.is-detail .lighthouse-settings-sidebar
   pointer-events: none;
   position: absolute;
   inset: 0;
-  transform: translateX(-10px);
+  transform: translateX(-42px);
   width: 100%;
 }
 
@@ -2469,7 +2469,7 @@ body.is-phone .lighthouse-settings-layout.is-list .lighthouse-settings-panel {
   pointer-events: none;
   position: absolute;
   inset: 0;
-  transform: translateX(12px);
+  transform: translateX(42px);
   width: 100%;
 }
 

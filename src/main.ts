@@ -5716,6 +5716,7 @@ class LighthouseSettingTab extends PluginSettingTab {
     const sidebarEl = this.settingsSidebarEl;
     const panelEl = this.settingsPanelEl;
     const reduceMotion = this.prefersReducedSettingsMotion();
+    layoutEl.setAttr("data-reduced-motion", reduceMotion ? "true" : "false");
 
     this.showSettingsDetail = mode === "detail";
     layoutEl.toggleClass("is-detail", mode === "detail");
@@ -5725,8 +5726,10 @@ class LighthouseSettingTab extends PluginSettingTab {
       return;
     }
 
+    this.logSettingsMotionCheck({ mode, direction, reduceMotion });
+
     const timing = {
-      duration: 460,
+      duration: 260,
       easing: "cubic-bezier(0.2, 0, 0, 1)",
       fill: "both"
     };
@@ -5737,23 +5740,29 @@ class LighthouseSettingTab extends PluginSettingTab {
     if (direction === "forward") {
       sidebarEl.animate([
         { opacity: 1, transform: "translateX(0)" },
-        { opacity: 0, transform: "translateX(-18px)" }
+        { opacity: 0, transform: "translateX(-42px)" }
       ], timing);
       panelEl.animate([
-        { opacity: 0, transform: "translateX(22px)" },
+        { opacity: 0, transform: "translateX(42px)" },
         { opacity: 1, transform: "translateX(0)" }
       ], timing);
       return;
     }
 
     sidebarEl.animate([
-      { opacity: 0, transform: "translateX(-18px)" },
+      { opacity: 0, transform: "translateX(-42px)" },
       { opacity: 1, transform: "translateX(0)" }
     ], timing);
     panelEl.animate([
       { opacity: 1, transform: "translateX(0)" },
-      { opacity: 0, transform: "translateX(22px)" }
+      { opacity: 0, transform: "translateX(42px)" }
     ], timing);
+  }
+
+  logSettingsMotionCheck(detail) {
+    if (this.hasLoggedSettingsMotionCheck) return;
+    this.hasLoggedSettingsMotionCheck = true;
+    console.info("[Lighthouse settings] mobile drill animation", detail);
   }
 
   attachSettingsPressFeedback(button) {
