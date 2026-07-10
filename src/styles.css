@@ -57,7 +57,7 @@
 
 .lighthouse-actions,
 .lighthouse-nav-actions {
-  gap: 8px;
+  gap: 4px;
 }
 
 .lighthouse-action-toolbar {
@@ -69,13 +69,13 @@
 .lighthouse-actions-top .lighthouse-action-toolbar {
   width: 100%;
   justify-content: space-between;
-  gap: 24px;
+  gap: 18px;
 }
 
 .lighthouse-actions-split .lighthouse-action-toolbar {
   width: 100%;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 6px;
 }
 
 .lighthouse-actions-bottom .lighthouse-action-toolbar {
@@ -85,7 +85,7 @@
   transform: translateX(-50%);
   z-index: 8;
   max-width: calc(100% - 28px);
-  gap: 18px;
+  gap: 14px;
   padding: 0;
   border: 0;
   background: transparent !important;
@@ -102,8 +102,8 @@
 .lighthouse-actions-bottom .lighthouse-nav-actions,
 .lighthouse-actions-bottom .lighthouse-actions,
 .lighthouse-actions-split .lighthouse-actions {
-  gap: 4px;
-  padding: 4px;
+  gap: 3px;
+  padding: 3px;
   border: 1px solid var(--background-modifier-border);
   border-radius: 999px;
   background: color-mix(in srgb, var(--background-secondary) 88%, var(--background-primary)) !important;
@@ -112,8 +112,8 @@
 
 .lighthouse-actions-bottom .lighthouse-icon-button,
 .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button {
-  width: 39px;
-  height: 39px;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
   color: var(--text-normal);
   opacity: 0.92;
@@ -127,19 +127,19 @@
 
 .lighthouse-actions-bottom .lighthouse-icon-button svg,
 .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
 }
 
 .lighthouse-action-toolbar .lighthouse-nav-actions,
 .lighthouse-action-toolbar .lighthouse-actions {
-  gap: 8px;
+  gap: 4px;
 }
 
 .lighthouse-actions-top .lighthouse-action-toolbar .lighthouse-nav-actions,
 .lighthouse-actions-top .lighthouse-action-toolbar .lighthouse-actions,
 .lighthouse-actions-split .lighthouse-action-toolbar .lighthouse-nav-actions {
-  gap: 4px;
+  gap: 3px;
 }
 
 .lighthouse-actions-bottom .lighthouse-action-toolbar .lighthouse-actions {
@@ -179,8 +179,8 @@
 }
 
 .lighthouse-icon-button {
-  width: 39px;
-  height: 39px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -199,9 +199,73 @@
 }
 
 .lighthouse-icon-button svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   stroke-width: 2px;
+}
+
+body.is-mobile .lighthouse-icon-button,
+body.is-phone .lighthouse-icon-button {
+  width: 37px !important;
+  height: 37px !important;
+}
+
+body.is-mobile .lighthouse-icon-button svg,
+body.is-phone .lighthouse-icon-button svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+body.is-mobile .lighthouse-action-toolbar .lighthouse-nav-actions,
+body.is-phone .lighthouse-action-toolbar .lighthouse-nav-actions,
+body.is-mobile .lighthouse-action-toolbar .lighthouse-actions,
+body.is-phone .lighthouse-action-toolbar .lighthouse-actions {
+  gap: 3px;
+}
+
+body.is-mobile .lighthouse-actions-bottom .lighthouse-icon-button,
+body.is-phone .lighthouse-actions-bottom .lighthouse-icon-button,
+body.is-mobile .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button,
+body.is-phone .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button {
+  width: 37px !important;
+  height: 37px !important;
+}
+
+body.is-mobile .lighthouse-actions-bottom .lighthouse-icon-button svg,
+body.is-phone .lighthouse-actions-bottom .lighthouse-icon-button svg,
+body.is-mobile .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button svg,
+body.is-phone .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+@media (max-width: 700px) {
+  .lighthouse-icon-button,
+  .lighthouse-actions-bottom .lighthouse-icon-button,
+  .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button {
+    width: 37px !important;
+    height: 37px !important;
+  }
+
+  .lighthouse-icon-button svg,
+  .lighthouse-actions-bottom .lighthouse-icon-button svg,
+  .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+body.is-mobile .lighthouse-header .lighthouse-tab-action-button:not(.is-active):not(.lighthouse-dragging):not(:active):hover,
+body.is-phone .lighthouse-header .lighthouse-tab-action-button:not(.is-active):not(.lighthouse-dragging):not(:active):hover,
+body.is-mobile .lighthouse-header .lighthouse-tab-action-button:not(.is-active):not(.lighthouse-dragging):focus,
+body.is-phone .lighthouse-header .lighthouse-tab-action-button:not(.is-active):not(.lighthouse-dragging):focus,
+body.is-mobile .lighthouse-header .lighthouse-tab-action-button:not(.is-active):not(.lighthouse-dragging):focus-visible,
+body.is-phone .lighthouse-header .lighthouse-tab-action-button:not(.is-active):not(.lighthouse-dragging):focus-visible,
+body.is-mobile .lighthouse-header .lighthouse-tab-action-button.is-revealed:not(.is-active):not(:active),
+body.is-phone .lighthouse-header .lighthouse-tab-action-button.is-revealed:not(.is-active):not(:active) {
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .lighthouse-tabs {

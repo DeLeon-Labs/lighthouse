@@ -1562,7 +1562,8 @@ class LighthouseView extends ItemView {
     if (mode === "files" && actionId === "reveal-current") {
       const active = this.plugin.getCurrentMarkdownFile();
       const isRevealed = !!(active && this.revealedPath === active.path);
-      button.toggleClass("is-active", !!this.plugin.settings.autoRevealCurrentFile || isRevealed);
+      button.toggleClass("is-active", !!this.plugin.settings.autoRevealCurrentFile);
+      button.toggleClass("is-revealed", !this.plugin.settings.autoRevealCurrentFile && isRevealed);
       button.setAttr("title", `${this.plugin.settings.autoRevealCurrentFile ? "Auto-reveal current file: on" : "Reveal current note"}. Drag to reorder. Right-click to change action.`);
     }
   }
@@ -1588,8 +1589,12 @@ class LighthouseView extends ItemView {
     if (mode === "files") {
       if (actionId === "reveal-current") {
         this.plugin.settings.autoRevealCurrentFile = !this.plugin.settings.autoRevealCurrentFile;
+        if (!this.plugin.settings.autoRevealCurrentFile) this.revealedPath = null;
         await this.plugin.saveSettings();
-        if (button) this.updateTabActionState(button, mode, actionId);
+        if (button) {
+          button.blur();
+          this.updateTabActionState(button, mode, actionId);
+        }
         if (this.plugin.settings.autoRevealCurrentFile) await this.revealCurrentFile({ silent: true, flash: true });
         return;
       }
