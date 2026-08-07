@@ -1,5 +1,10 @@
 .lighthouse-root {
   --lighthouse-font-size: 15px;
+  --lighthouse-action-button-size: 34px;
+  --lighthouse-action-icon-size: 18px;
+  --lighthouse-action-cluster-gap: 3px;
+  --lighthouse-action-toolbar-gap: 18px;
+  --lighthouse-bottom-action-toolbar-gap: 14px;
   position: relative;
   height: 100%;
   display: flex;
@@ -57,7 +62,7 @@
 
 .lighthouse-actions,
 .lighthouse-nav-actions {
-  gap: 4px;
+  gap: var(--lighthouse-action-cluster-gap);
 }
 
 .lighthouse-action-toolbar {
@@ -69,13 +74,13 @@
 .lighthouse-actions-top .lighthouse-action-toolbar {
   width: 100%;
   justify-content: space-between;
-  gap: 18px;
+  gap: var(--lighthouse-action-toolbar-gap);
 }
 
 .lighthouse-actions-split .lighthouse-action-toolbar {
   width: 100%;
   justify-content: flex-start;
-  gap: 6px;
+  gap: calc(var(--lighthouse-action-cluster-gap) * 2);
 }
 
 .lighthouse-actions-bottom .lighthouse-action-toolbar {
@@ -85,7 +90,7 @@
   transform: translateX(-50%);
   z-index: 8;
   max-width: calc(100% - 28px);
-  gap: 14px;
+  gap: var(--lighthouse-bottom-action-toolbar-gap);
   padding: 0;
   border: 0;
   background: transparent !important;
@@ -102,7 +107,7 @@
 .lighthouse-actions-bottom .lighthouse-nav-actions,
 .lighthouse-actions-bottom .lighthouse-actions,
 .lighthouse-actions-split .lighthouse-actions {
-  gap: 3px;
+  gap: var(--lighthouse-action-cluster-gap);
   padding: 3px;
   border: 1px solid var(--background-modifier-border);
   border-radius: 999px;
@@ -112,8 +117,6 @@
 
 .lighthouse-actions-bottom .lighthouse-icon-button,
 .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button {
-  width: 34px;
-  height: 34px;
   border-radius: 999px;
   color: var(--text-normal);
   opacity: 0.92;
@@ -125,21 +128,15 @@
   opacity: 1;
 }
 
-.lighthouse-actions-bottom .lighthouse-icon-button svg,
-.lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button svg {
-  width: 18px;
-  height: 18px;
-}
-
 .lighthouse-action-toolbar .lighthouse-nav-actions,
 .lighthouse-action-toolbar .lighthouse-actions {
-  gap: 4px;
+  gap: var(--lighthouse-action-cluster-gap);
 }
 
 .lighthouse-actions-top .lighthouse-action-toolbar .lighthouse-nav-actions,
 .lighthouse-actions-top .lighthouse-action-toolbar .lighthouse-actions,
 .lighthouse-actions-split .lighthouse-action-toolbar .lighthouse-nav-actions {
-  gap: 3px;
+  gap: var(--lighthouse-action-cluster-gap);
 }
 
 .lighthouse-actions-bottom .lighthouse-action-toolbar .lighthouse-actions {
@@ -179,8 +176,8 @@
 }
 
 .lighthouse-icon-button {
-  width: 34px;
-  height: 34px;
+  width: var(--lighthouse-action-button-size);
+  height: var(--lighthouse-action-button-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -199,59 +196,21 @@
 }
 
 .lighthouse-icon-button svg {
-  width: 18px;
-  height: 18px;
+  width: var(--lighthouse-action-icon-size);
+  height: var(--lighthouse-action-icon-size);
   stroke-width: 2px;
 }
 
-body.is-mobile .lighthouse-icon-button,
-body.is-phone .lighthouse-icon-button {
-  width: 37px !important;
-  height: 37px !important;
-}
-
-body.is-mobile .lighthouse-icon-button svg,
-body.is-phone .lighthouse-icon-button svg {
-  width: 20px !important;
-  height: 20px !important;
-}
-
-body.is-mobile .lighthouse-action-toolbar .lighthouse-nav-actions,
-body.is-phone .lighthouse-action-toolbar .lighthouse-nav-actions,
-body.is-mobile .lighthouse-action-toolbar .lighthouse-actions,
-body.is-phone .lighthouse-action-toolbar .lighthouse-actions {
-  gap: 3px;
-}
-
-body.is-mobile .lighthouse-actions-bottom .lighthouse-icon-button,
-body.is-phone .lighthouse-actions-bottom .lighthouse-icon-button,
-body.is-mobile .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button,
-body.is-phone .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button {
-  width: 37px !important;
-  height: 37px !important;
-}
-
-body.is-mobile .lighthouse-actions-bottom .lighthouse-icon-button svg,
-body.is-phone .lighthouse-actions-bottom .lighthouse-icon-button svg,
-body.is-mobile .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button svg,
-body.is-phone .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button svg {
-  width: 20px !important;
-  height: 20px !important;
+body.is-mobile .lighthouse-root,
+body.is-phone .lighthouse-root {
+  --lighthouse-action-button-size: 37px;
+  --lighthouse-action-icon-size: 20px;
 }
 
 @media (max-width: 700px) {
-  .lighthouse-icon-button,
-  .lighthouse-actions-bottom .lighthouse-icon-button,
-  .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button {
-    width: 37px !important;
-    height: 37px !important;
-  }
-
-  .lighthouse-icon-button svg,
-  .lighthouse-actions-bottom .lighthouse-icon-button svg,
-  .lighthouse-actions-split .lighthouse-actions .lighthouse-icon-button svg {
-    width: 20px !important;
-    height: 20px !important;
+  .lighthouse-root {
+    --lighthouse-action-button-size: 37px;
+    --lighthouse-action-icon-size: 20px;
   }
 }
 
