@@ -95,20 +95,31 @@ Implementation order:
 Graph Focus and Sidecar Notes are better first module-registry candidates than
 the existing stable Focus core.
 
-## Current — Focus Experience
+## Current - Focus Experience
 
-Status: **planned for `v0.27.0-alpha`**
+Status: **in progress for `v0.27.x-alpha`**
 
 Make Focus effortless and enjoyable after the model is clear.
 
-Scope:
+Implemented in the current 0.27.x work:
 
-- redesign Focus creation flow;
-- eliminate empty Focus friction;
-- implement single and split layouts;
-- drag and drop section assignment;
-- automatic Focus inheritance;
-- simplify Focus settings.
+- reduce empty Focus friction with the empty-state add flow;
+- implement single and split Focus layouts;
+- inherit newly created notes into the active Focus context;
+- add the first settings-tab restructuring and native-style settings treatment.
+
+Remaining product work:
+
+- continue simplifying Focus creation and population beyond the empty-state flow;
+- improve drag-and-drop section assignment;
+- finish simplifying Focus settings without mixing product changes into the
+  TypeScript migration;
+- address compatibility regressions introduced by Obsidian interface changes,
+  including the resizable Settings window tracked in issue #55;
+- validate mobile behavior independently from desktop layout work.
+
+Keep compatibility fixes and product improvements independently reviewable where
+practical.
 
 ## Later — Ecosystem API
 
